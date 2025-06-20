@@ -1,0 +1,146 @@
+--- warehouse ---
+Table: tpcc.public.warehouse
+ Columns:
+  w_state CHAR(2) NOT NULL
+  w_zip CHAR(9) NOT NULL
+  w_tax DECIMAL(4,4) NOT NULL
+  w_ytd DECIMAL(12,2) NOT NULL
+  w_street_1 VARCHAR(20) NOT NULL
+  w_id INT8 NOT NULL PRIMARY KEY UNIQUE
+  w_name VARCHAR(10) NOT NULL
+  w_street_2 VARCHAR(20) NOT NULL
+  w_city VARCHAR(20) NOT NULL
+ PKs: w_id
+
+--- district ---
+Table: tpcc.public.district
+ Columns:
+  d_name VARCHAR(10) NOT NULL
+  d_street_2 VARCHAR(20) NOT NULL
+  d_state CHAR(2) NOT NULL
+  d_zip CHAR(9) NOT NULL
+  d_tax DECIMAL(4,4) NOT NULL
+  d_next_o_id INT8 NOT NULL
+  d_w_id INT8 NOT NULL PRIMARY KEY
+  d_street_1 VARCHAR(20) NOT NULL
+  d_city VARCHAR(20) NOT NULL
+  d_ytd DECIMAL(12,2) NOT NULL
+  d_id INT8 NOT NULL PRIMARY KEY
+ PKs: d_w_id, d_id
+ FKs: (d_w_id)→tpcc.public.warehouse(w_id)
+
+--- customer ---
+Table: tpcc.public.customer
+ Columns:
+  c_city VARCHAR(20) NOT NULL
+  c_ytd_payment DECIMAL(12,2) NOT NULL
+  c_payment_cnt INT8 NOT NULL
+  c_id INT8 NOT NULL PRIMARY KEY
+  c_first VARCHAR(16) NOT NULL
+  c_middle CHAR(2) NOT NULL
+  c_state CHAR(2) NOT NULL
+  c_zip CHAR(9) NOT NULL
+  c_phone CHAR(16) NOT NULL
+  c_credit CHAR(2) NOT NULL
+  c_credit_lim DECIMAL(12,2) NOT NULL
+  c_w_id INT8 NOT NULL PRIMARY KEY
+  c_last VARCHAR(16) NOT NULL
+  c_street_1 VARCHAR(20) NOT NULL
+  c_street_2 VARCHAR(20) NOT NULL
+  c_since TIMESTAMP NOT NULL
+  c_discount DECIMAL(4,4) NOT NULL
+  c_balance DECIMAL(12,2) NOT NULL
+  c_data VARCHAR(500) NOT NULL
+  c_delivery_cnt INT8 NOT NULL
+  c_d_id INT8 NOT NULL PRIMARY KEY
+ PKs: c_w_id, c_d_id, c_id
+ FKs: (c_w_id,c_d_id)→tpcc.public.district(d_w_id,d_id)
+
+--- item ---
+Table: tpcc.public.item
+ Columns:
+  i_id INT8 NOT NULL PRIMARY KEY UNIQUE
+  i_im_id INT8 NULL
+  i_name VARCHAR(24) NULL
+  i_price DECIMAL(5,2) NULL
+  i_data VARCHAR(50) NULL
+ PKs: i_id
+
+--- history ---
+Table: tpcc.public.history
+ Columns:
+  h_d_id INT8 NOT NULL
+  h_c_id INT8 NOT NULL
+  h_w_id INT8 NOT NULL PRIMARY KEY
+  h_date TIMESTAMP NULL
+  h_amount DECIMAL(6,2) NULL
+  h_data VARCHAR(24) NULL
+  rowid UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()
+  h_c_d_id INT8 NOT NULL
+  h_c_w_id INT8 NOT NULL
+ PKs: h_w_id, rowid
+ FKs: (h_c_w_id,h_c_d_id,h_c_id)→tpcc.public.customer(c_w_id,c_d_id,c_id); (h_w_id,h_d_id)→tpcc.public.district(d_w_id,d_id)
+
+--- order ---
+Table: tpcc.public.order
+ Columns:
+  o_c_id INT8 NULL
+  o_entry_d TIMESTAMP NULL
+  o_carrier_id INT8 NULL
+  o_ol_cnt INT8 NULL
+  o_all_local INT8 NULL
+  o_id INT8 NOT NULL PRIMARY KEY
+  o_d_id INT8 NOT NULL PRIMARY KEY
+  o_w_id INT8 NOT NULL PRIMARY KEY
+ PKs: o_w_id, o_d_id, o_id
+ UNIQUE: (o_w_id,o_d_id,o_c_id,o_id)
+ FKs: (o_w_id,o_d_id,o_c_id)→tpcc.public.customer(c_w_id,c_d_id,c_id)
+
+--- new_order ---
+Table: tpcc.public.new_order
+ Columns:
+  no_d_id INT8 NOT NULL PRIMARY KEY
+  no_w_id INT8 NOT NULL PRIMARY KEY
+  no_o_id INT8 NOT NULL PRIMARY KEY
+ PKs: no_w_id, no_d_id, no_o_id
+ FKs: (no_w_id,no_d_id,no_o_id)→tpcc.public.order(o_w_id,o_d_id,o_id)
+
+--- stock ---
+Table: tpcc.public.stock
+ Columns:
+  s_i_id INT8 NOT NULL PRIMARY KEY
+  s_w_id INT8 NOT NULL PRIMARY KEY
+  s_quantity INT8 NULL
+  s_dist_01 CHAR(24) NULL
+  s_dist_03 CHAR(24) NULL
+  s_ytd INT8 NULL
+  s_dist_10 CHAR(24) NULL
+  s_remote_cnt INT8 NULL
+  s_dist_05 CHAR(24) NULL
+  s_dist_07 CHAR(24) NULL
+  s_dist_09 CHAR(24) NULL
+  s_order_cnt INT8 NULL
+  s_data VARCHAR(50) NULL
+  s_dist_02 CHAR(24) NULL
+  s_dist_04 CHAR(24) NULL
+  s_dist_06 CHAR(24) NULL
+  s_dist_08 CHAR(24) NULL
+ PKs: s_w_id, s_i_id
+ FKs: (s_w_id)→tpcc.public.warehouse(w_id); (s_i_id)→tpcc.public.item(i_id)
+
+--- order_line ---
+Table: tpcc.public.order_line
+ Columns:
+  ol_d_id INT8 NOT NULL PRIMARY KEY
+  ol_number INT8 NOT NULL PRIMARY KEY
+  ol_quantity INT8 NULL
+  ol_amount DECIMAL(6,2) NULL
+  ol_w_id INT8 NOT NULL PRIMARY KEY
+  ol_i_id INT8 NOT NULL
+  ol_supply_w_id INT8 NULL
+  ol_delivery_d TIMESTAMP NULL
+  ol_dist_info CHAR(24) NULL
+  ol_o_id INT8 NOT NULL PRIMARY KEY
+ PKs: ol_w_id, ol_d_id, ol_o_id, ol_number
+ FKs: (ol_w_id,ol_d_id,ol_o_id)→tpcc.public.order(o_w_id,o_d_id,o_id); (ol_supply_w_id,ol_i_id)→tpcc.public.stock(s_w_id,s_i_id)
+
