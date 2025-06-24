@@ -3,17 +3,16 @@ package dbworkloadgo
 import (
 	"bufio"
 	"encoding/csv"
-	"errors"
 	"fmt"
+	"github.com/cockroachdb/errors"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 )
 
-// Column mirrors the Python Column class
-// Only fields required for DDL parsing are included
-// (anonymization is omitted for now)
+// Column stores column level schema information based on input ddl.
 type Column struct {
 	Name         string
 	ColType      string
@@ -26,7 +25,9 @@ type Column struct {
 	InlineCheck  string
 }
 
+// TableSchema stores table level schema information based on input ddl.
 type TableSchema struct {
+	rowCount          int
 	TableName         string
 	Columns           map[string]*Column
 	PrimaryKeys       []string
@@ -44,6 +45,7 @@ func NewTableSchema(name string, original string) *TableSchema {
 	}
 }
 
+// String function converts the Column schema details into a parsable placeholder.
 func (c *Column) String() string {
 	parts := []string{c.Name, c.ColType}
 	if c.IsNullable {
@@ -69,6 +71,7 @@ func (c *Column) String() string {
 	return strings.Join(parts, " ")
 }
 
+// String function converts the TableSchema object into a readable format - mostly for symmetry and testing.
 func (ts *TableSchema) String() string {
 	out := []string{fmt.Sprintf("Table: %s", ts.TableName), " Columns:"}
 	for _, col := range ts.Columns {
@@ -100,13 +103,16 @@ func (ts *TableSchema) String() string {
 	return strings.Join(out, "\n") + "\n"
 }
 
+// AddColumn adds a Column to the TableSchema
 func (ts *TableSchema) AddColumn(c *Column) {
 	ts.Columns[c.Name] = c
 }
 
+// SetPrimaryKeys store primary key infirmation at table level
 func (ts *TableSchema) SetPrimaryKeys(pks []string) {
 	ts.PrimaryKeys = pks
 	single := len(pks) == 1
+	//Columns labeled as primary key are all labelled not nullable. Primary key columns are only labeled unique if they are not part of a composite Primary Key
 	for _, pk := range pks {
 		if col, ok := ts.Columns[pk]; ok {
 			col.IsPrimaryKey = true
@@ -118,7 +124,7 @@ func (ts *TableSchema) SetPrimaryKeys(pks []string) {
 	}
 }
 
-// ParseDDL converts a CREATE TABLE statement into a TableSchema
+// ParseDDL converts a "CREATE TABLE ..." DDL statement into a TableSchema.
 func ParseDDL(ddl string) (*TableSchema, error) {
 	ident := `(?:"[^"]+"|[A-Za-z_][\w]*)`
 	fullIdent := fmt.Sprintf(`(%s(?:\.%s){0,2})`, ident, ident)
@@ -143,7 +149,6 @@ func ParseDDL(ddl string) (*TableSchema, error) {
 	}
 	body := bodyMatch[1]
 
-	// top-level comma split
 	var partsList []string
 	buf := ""
 	depth := 0
@@ -303,7 +308,6 @@ func ParseDDL(ddl string) (*TableSchema, error) {
 			continue
 		}
 		if strings.HasPrefix(up, "INDEX") {
-			// skip
 			continue
 		}
 	}
@@ -311,18 +315,26 @@ func ParseDDL(ddl string) (*TableSchema, error) {
 	return ts, nil
 }
 
-// GenerateDDLs replicates the Python generate_ddls function (without anonymization)
-func GenerateDDLs(zipDir, dbName, outputDir, clusterURL, outputFileName string, anonymize bool) (map[string]*TableSchema, error) {
+// GenerateDDLs takes the location of the debug zip and the dbName and makes a dictionary for all tables' TableSchema.
+// The "anonymize" parameter is unused for now: on TODO list
+func GenerateDDLs(
+	zipDir, dbName, outputDir, outputFileName string, anonymize bool,
+) (allSchemas map[string]*TableSchema, retErr error) {
 	filePath := filepath.Join(zipDir, "crdb_internal.create_statements.txt")
 	if _, err := os.Stat(filePath); err != nil {
-		return nil, fmt.Errorf("could not find TSV file: %v", err)
+		return nil, errors.Wrap(err, "could not find TSV file")
 	}
 
 	f, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to open TSV file")
 	}
-	defer f.Close()
+	// Defer closes (input and output) propagate errors if no prior error occurred.
+	defer func() {
+		if cerr := f.Close(); cerr != nil && retErr == nil {
+			retErr = errors.Wrap(cerr, "failed to close input TSV file")
+		}
+	}()
 
 	reader := csv.NewReader(bufio.NewReader(f))
 	reader.Comma = '\t'
@@ -330,7 +342,7 @@ func GenerateDDLs(zipDir, dbName, outputDir, clusterURL, outputFileName string, 
 
 	header, err := reader.Read()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed reading TSV header")
 	}
 	colIndex := map[string]int{}
 	for i, col := range header {
@@ -339,6 +351,7 @@ func GenerateDDLs(zipDir, dbName, outputDir, clusterURL, outputFileName string, 
 	req := []string{"database_name", "create_statement", "schema_name", "descriptor_type", "descriptor_name"}
 	for _, c := range req {
 		if _, ok := colIndex[c]; !ok {
+			// Not wrapping an error, so fmt.Errorf is acceptable here.
 			return nil, fmt.Errorf("missing column %s", c)
 		}
 	}
@@ -357,9 +370,12 @@ func GenerateDDLs(zipDir, dbName, outputDir, clusterURL, outputFileName string, 
 			if err.Error() == "EOF" {
 				break
 			}
+			// Only break if line is empty AND error, not if just error (to protect partial final line)
 			if len(rec) == 0 {
 				break
 			}
+			// Any other error (besides EOF) is fatal for TSV import and should be reported
+			return nil, errors.Wrap(err, "failed while reading TSV rows")
 		}
 		if len(rec) == 0 {
 			break
@@ -386,7 +402,7 @@ func GenerateDDLs(zipDir, dbName, outputDir, clusterURL, outputFileName string, 
 		}
 	}
 
-	statements := []string{}
+	statements := make([]string, 0, len(order))
 	for _, t := range order {
 		statements = append(statements, tableStatements[t])
 	}
@@ -397,26 +413,37 @@ func GenerateDDLs(zipDir, dbName, outputDir, clusterURL, outputFileName string, 
 	outputPath := filepath.Join(outputDir, outputFileName)
 	out, err := os.Create(outputPath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed to create output file at %s", outputPath)
 	}
-	defer out.Close()
+	defer func() {
+		if cerr := out.Close(); cerr != nil && retErr == nil {
+			retErr = errors.Wrap(cerr, "failed to close output file")
+		}
+	}()
 
-	fmt.Fprintf(out, "create database if not exists %s;\n\n", dbName)
-	allSchemas := map[string]*TableSchema{}
+	_, err = fmt.Fprintf(out, "create database if not exists %s;\n\n", dbName)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to write database create statement")
+	}
+	allSchemas = map[string]*TableSchema{}
 
 	for _, stmt := range statements {
-		fmt.Fprintln(out, stmt+";")
-		fmt.Fprintln(out)
-		schema, err := ParseDDL(stmt)
-		if err == nil {
-			tableName := schema.TableName[strings.LastIndex(schema.TableName, ".")+1:]
-			allSchemas[tableName] = schema
+		_, err1 := fmt.Fprintln(out, stmt+";")
+		if err1 != nil {
+			return nil, errors.Wrap(err1, "failed to write table statement to output file")
 		}
-	}
-
-	if clusterURL != "" {
-		// attempt to execute via cockroach sql
-		_ = clusterURL // placeholder, execution skipped
+		_, err2 := fmt.Fprintln(out)
+		if err2 != nil {
+			return nil, errors.Wrap(err2, "failed to write newline to output file")
+		}
+		schema, err := ParseDDL(stmt)
+		if err != nil {
+			// Not fatal: log and continue (CockroachDB best practice for non-critical parse errors)
+			log.Printf("warning: failed to parse DDL (%v): %v", err, stmt)
+			continue
+		}
+		tableName := schema.TableName[strings.LastIndex(schema.TableName, ".")+1:]
+		allSchemas[tableName] = schema
 	}
 
 	return allSchemas, nil
