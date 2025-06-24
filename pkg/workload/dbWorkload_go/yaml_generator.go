@@ -17,10 +17,6 @@ func canonical(name string) string { return strings.ReplaceAll(name, ".", "__") 
 // decanonical undoes canonical() for at most two components.
 func decanonical(name string) string { return strings.Replace(name, "__", ".", 2) }
 
-// ---------------------------------------------------------------------
-// SQL‑type mapping helpers (based on utils/common._map_sql_type in Python)
-// ---------------------------------------------------------------------
-
 var (
 	decimalRe = regexp.MustCompile(`(?i)^(?:decimal|numeric)\s*(?:\(\s*(\d+)\s*,\s*(\d+)\s*\))?$`)
 	numericRe = regexp.MustCompile(`(?i)^(decimal|numeric|float|double|real)`)
@@ -30,6 +26,7 @@ var (
 	byteRe    = regexp.MustCompile(`(?i)^(bytea|blob|bytes)$`)
 )
 
+// mapSqlType converts teh data types mentioned in the DDL into data types understood by the generators, along with setting proper arguments.
 func mapSQLType(sql string, col *Column, rng *rand.Rand) (string, map[string]any) {
 	sql = strings.ToLower(sql)
 	args := map[string]any{"seed": rng.Intn(100)}
@@ -145,10 +142,7 @@ func pow10(n int) int {
 	return v
 }
 
-// ---------------------------------------------------------------------
-// Column → YAML map
-// ---------------------------------------------------------------------
-
+// columnYAML reads the TableSchema information and returns per column dictionaries for the yaml
 func columnYAML(col *Column, rng *rand.Rand, defaultProb float64) map[string]any {
 	d := map[string]any{}
 	typ, args := mapSQLType(col.ColType, col, rng)
@@ -187,16 +181,13 @@ func columnYAML(col *Column, rng *rand.Rand, defaultProb float64) map[string]any
 	return d
 }
 
-// ---------------------------------------------------------------------
-// Default literal detection  (mirrors _is_literal_default)
-// ---------------------------------------------------------------------
-
 var (
 	simpleNum = regexp.MustCompile(`^[+-]?\d+(?:\.\d+)?$`)
 	quotedStr = regexp.MustCompile(`^'.*'$`)
 	boolLit   = regexp.MustCompile(`^(?i:true|false)$`)
 )
 
+// isLiteralDefault helps find defaults from the schema information which are feasible for use by the generators. Remaining defaults are ignored for now.
 func isLiteralDefault(expr string) bool {
 	txt := strings.TrimSpace(strings.TrimRight(strings.TrimLeft(expr, "("), ")"))
 	return simpleNum.MatchString(txt) ||
@@ -204,10 +195,7 @@ func isLiteralDefault(expr string) bool {
 		boolLit.MatchString(txt)
 }
 
-// ---------------------------------------------------------------------
-// ddlToYamlCA – main converter
-// ---------------------------------------------------------------------
-
+// ddlToYamlCa converts table_name: TableSchema map into a yaml for the database
 func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, error) {
 	fanout := 10
 	yamlDoc := map[string][]map[string]any{}

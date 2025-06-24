@@ -6,7 +6,7 @@ import (
 )
 
 func TestDdlToYamlGeneration(t *testing.T) {
-	// ---- INPUT CONFIG ----
+	//tweak as needed
 	zipDir := "/Users/pradyumagarwal/workloads/git-dbworkload/dbworkload_intProj/debug-zips/debug_2" // make sure this path exists
 	dbName := "tpcc"                                                                                 // use your actual test DB name
 	outputFile := "test_output.yaml"                                                                 // generated YAML file
@@ -15,8 +15,7 @@ func TestDdlToYamlGeneration(t *testing.T) {
 	schemas, err := GenerateDDLs(
 		zipDir,
 		dbName,
-		"",               // no DDL output directory
-		"",               // no cluster URL
+		"",               // no DDL output directory 		// no cluster URL
 		"ddl_output.sql", // will still dump DDLs here
 		false,
 	)
