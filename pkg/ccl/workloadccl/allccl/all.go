@@ -12,8 +12,10 @@ import (
 	// workloads
 	_ "github.com/cockroachdb/cockroach/pkg/ccl/workloadccl/roachmartccl"
 	_ "github.com/cockroachdb/cockroach/pkg/workload/bank"
+	_ "github.com/cockroachdb/cockroach/pkg/workload/bankPradyum"
 	_ "github.com/cockroachdb/cockroach/pkg/workload/bulkingest"
 	_ "github.com/cockroachdb/cockroach/pkg/workload/connectionlatency"
+	_ "github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go"
 	_ "github.com/cockroachdb/cockroach/pkg/workload/debug"
 	_ "github.com/cockroachdb/cockroach/pkg/workload/examples"
 	_ "github.com/cockroachdb/cockroach/pkg/workload/geospatial"

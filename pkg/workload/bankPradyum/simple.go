@@ -9,7 +9,7 @@
 // licenses/APL.txt.
 
 // Package simple implements a simple workload similar to YCSB but with no flags.
-package simple
+package bankPradyum
 
 import (
 	"context"

@@ -209,6 +209,8 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 			"pk":             schema.PrimaryKeys,
 			"columns":        map[string]map[string]any{},
 			"original_table": schema.OriginalTable,
+			"column_order":   schema.ColumnOrder,
+			"table_number":   schema.TableNumber,
 		}
 		if len(schema.UniqueConstraints) > 0 {
 			block["unique"] = schema.UniqueConstraints

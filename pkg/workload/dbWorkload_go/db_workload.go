@@ -3,6 +3,7 @@ package dbworkloadgo
 import (
 	"context"
 	gosql "database/sql"
+	"fmt"
 	"github.com/cockroachdb/cockroach/pkg/col/coldata"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/bufalloc"
@@ -10,14 +11,17 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/workload/histogram"
 	"github.com/cockroachdb/errors"
 	"github.com/spf13/pflag"
+	"gopkg.in/yaml.v2"
 	"math/rand/v2"
 	"os"
+	"strconv"
 	"strings"
 )
 
 const (
 	// Length of each field
 	fieldLength = 100
+	batchSize   = 100
 )
 
 var simpleTableTypes = []*types.T{
@@ -50,8 +54,9 @@ type dbworkload struct {
 	debugZip  string
 	dbName    string
 
-	allSchema        map[string]TableSchema
-	yamlFileLocation string
+	allSchema   map[string]*TableSchema
+	createStmts map[string]string
+	yamlFile    string
 
 	// Number of rows in the usertable
 	rowCount int
@@ -95,8 +100,11 @@ func (s *dbworkload) Hooks() workload.Hooks {
 				dbName = s.dbName
 			}
 			debug := s.debugZip
-			schemas, errDDL := GenerateDDLs(debug, dbName, "/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go", "test_schema.ddl", false)
+			schemas, createStmts, errDDL := GenerateDDLs(debug, dbName, "/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go", "test_schema.ddl", false)
+			s.allSchema = schemas
+			s.createStmts = createStmts
 			yamlOut, errYaml := ddlToYamlCA(schemas, dbName)
+			s.yamlFile = yamlOut
 			if errDDL != nil {
 				return errors.Wrap(errDDL, "failed to generate DDLs")
 			}
@@ -114,67 +122,138 @@ func (s *dbworkload) Hooks() workload.Hooks {
 	}
 }
 
+// Tables implements workload.Generator.Tables
 func (s *dbworkload) Tables() []workload.Table {
-	tables := make([]workload.Table, 0)
-	for tableNme, tableSchema := range s.allSchema {
+	// 1) Load the YAML schema once
+	var rawSchema Schema
+	if err := yaml.Unmarshal([]byte(s.yamlFile), &rawSchema); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal YAML: %v", err))
+	}
+	tableOrder := getTableOrder(rawSchema)
+
+	var tables []workload.Table
+	for _, tableName := range tableOrder {
+		blocks := rawSchema[tableName]
+		block := blocks[0]
+		total := block.Count
+		numBatches := (total + batchSize - 1) / batchSize
+
 		tables = append(tables, workload.Table{
-			Name:   tableNme,
-			Schema: generateTableSchema(tableSchema),
+			Name:   tableName,
+			Schema: generateSchema(s.createStmts[tableName]), // your short DDL string
 			InitialRows: workload.BatchedTuples{
-				NumBatches: tableSchema.rowCount,
-				FillBatch:  generateBatch(tableNme, tableSchema, s.yamlFileLocation),
+				NumBatches: numBatches,
+				FillBatch:  generateBatch(tableName, block, rawSchema),
 			},
 		})
-
 	}
 	return tables
 }
 
-func generateTableSchema(tableSchema TableSchema) string {
-	builder := strings.Builder{}
-	builder.WriteString("(\n")
-	for columnName, column := range tableSchema.Columns {
-		builder.WriteString("    ")
-		builder.WriteString(columnName)
-		builder.WriteString(" ")
-		builder.WriteString(column.ColType)
-		if column.IsPrimaryKey {
-			builder.WriteString(" PRIMARY KEY")
-		}
-		if column.IsNullable {
-			builder.WriteString(" NULL")
-		} else {
-			builder.WriteString(" NOT NULL")
-		}
-		builder.WriteString(",\n")
+func getTableOrder(rawSchema Schema) []string {
+	tableOrder := make([]string, len(rawSchema))
+	for tableName, blocks := range rawSchema {
+		block := blocks[0]
+		tableOrder[block.TableNumber] = tableName
 	}
-	builder.WriteString(")\n")
-	return builder.String()
+	return tableOrder
 }
 
+func generateSchema(createStmt string) string {
+	// find the first '('
+	start := strings.Index(createStmt, "(")
+	if start < 0 {
+		return "" // or panic/empty, as you prefer
+	}
+	// walk forward, counting nested parens until we close the top‐level one
+	depth := 0
+	var end int
+	for i := start; i < len(createStmt); i++ {
+		switch createStmt[i] {
+		case '(':
+			depth++
+		case ')':
+			depth--
+			if depth == 0 {
+				end = i
+				// once we've closed the top‐level '(', we're done
+				return createStmt[start : end+1]
+			}
+		}
+	}
+	// if we get here, the DDL was malformed (unbalanced parens)
+	return createStmt[start:]
+}
+
+// generateBatch returns the FillBatch func for one table
 func generateBatch(
-	tableName string, schema TableSchema, yamlFile string,
-) func(int, coldata.Batch, *bufalloc.ByteAllocator) {
+	tableName string,
+	block TableBlock,
+	fullSchema Schema,
+) func(batchIdx int, cb coldata.Batch, _ *bufalloc.ByteAllocator) {
+	// determine the Cockroach columnar types and a stable column order
+	colOrder := block.ColumnOrder
+	// build Cockroach types in that order:
+	cdTypes := make([]*types.T, len(colOrder))
+	for i, colName := range colOrder {
+		meta := block.Columns[colName]
+		switch meta.Type {
+		case "integer", "sequence":
+			cdTypes[i] = types.Int
+		case "float":
+			cdTypes[i] = types.Float
+		default:
+			cdTypes[i] = types.Bytes
+		}
+	}
+
 	return func(batchIdx int, cb coldata.Batch, _ *bufalloc.ByteAllocator) {
-		rng := rand.New(rand.NewPCG(0, uint64(batchIdx)))
+		total := block.Count
+		start := batchIdx * batchSize
+		end := start + batchSize
+		if end > total {
+			end = total
+		}
+		n := end - start
 
-		cb.Reset(simpleTableTypes, 1, coldata.StandardColumnFactory)
+		// reset the vector; n rows, cdTypes[i] per column
+		cb.Reset(cdTypes, n, coldata.StandardColumnFactory)
 
-		id := cb.ColVec(0).Int64()
-		field1 := cb.ColVec(1).Bytes()
-		field2 := cb.ColVec(2).Bytes()
-		field3 := cb.ColVec(3).Bytes()
+		// 2) instantiate one Generator per column, seeded by batchIdx
+		gens := make([]Generator, len(colOrder))
+		for i, colName := range colOrder {
+			meta := block.Columns[colName]
+			gens[i] = makeGenerator(meta, batchIdx, batchSize, fullSchema)
+		}
 
-		// Reset bytes columns
-		field1.Reset()
-		field2.Reset()
-		field3.Reset()
+		// 3) fill row-by-row
+		for row := 0; row < n; row++ {
+			for i, cdType := range cdTypes {
+				raw := gens[i].Next()
+				vec := cb.ColVec(i)
+				switch cdType.Family() {
+				case types.IntFamily:
+					// sequences & integers
+					iv, err := strconv.ParseInt(raw, 10, 64)
+					if err != nil {
+						panic(fmt.Sprintf("parse int: %v", err))
+					}
+					vec.Int64()[row] = iv
 
-		id[0] = int64(batchIdx)
+				case types.FloatFamily:
+					fv, err := strconv.ParseFloat(raw, 64)
+					if err != nil {
+						panic(fmt.Sprintf("parse float: %v", err))
+					}
+					vec.Float64()[row] = fv
 
-		field1.Set(0, randString(rng, fieldLength))
-		field2.Set(0, randString(rng, fieldLength))
-		field3.Set(0, randString(rng, fieldLength))
+				default:
+					// strings, json, uuid, timestamp → bytes
+					bytesVec := vec.Bytes()
+					bytesVec.Set(row, []byte(raw))
+				}
+			}
+		}
 	}
 }
 

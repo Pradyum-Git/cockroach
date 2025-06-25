@@ -12,7 +12,7 @@ func TestDdlToYamlGeneration(t *testing.T) {
 	outputFile := "test_output.yaml"                                                                 // generated YAML file
 
 	// ---- STEP 1: Generate schema from DDL ----
-	schemas, err := GenerateDDLs(
+	schemas, _, err := GenerateDDLs(
 		zipDir,
 		dbName,
 		"",               // no DDL output directory 		// no cluster URL

@@ -27,9 +27,11 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/util/log/logcrash"
 	"github.com/cockroachdb/cockroach/pkg/util/log/severity"
 	// intentionally not all the workloads in pkg/ccl/workloadccl/allccl
-	_ "github.com/cockroachdb/cockroach/pkg/workload/bank"       // registers workloads
-	_ "github.com/cockroachdb/cockroach/pkg/workload/bulkingest" // registers workloads
+	_ "github.com/cockroachdb/cockroach/pkg/workload/bank"        // registers workloads
+	_ "github.com/cockroachdb/cockroach/pkg/workload/bankPradyum" // registers workloads
+	_ "github.com/cockroachdb/cockroach/pkg/workload/bulkingest"  // registers workloads
 	workloadcli "github.com/cockroachdb/cockroach/pkg/workload/cli"
+	_ "github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go"
 	_ "github.com/cockroachdb/cockroach/pkg/workload/debug"     // registers workloads
 	_ "github.com/cockroachdb/cockroach/pkg/workload/examples"  // registers workloads
 	_ "github.com/cockroachdb/cockroach/pkg/workload/insights"  // registers workloads

@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -35,6 +36,8 @@ type TableSchema struct {
 	ForeignKeys       [][3]interface{} // (local cols []string, table string, foreign cols []string)
 	CheckConstraints  []string
 	OriginalTable     string
+	ColumnOrder       []string
+	TableNumber       int
 }
 
 func NewTableSchema(name string, original string) *TableSchema {
@@ -74,6 +77,10 @@ func (c *Column) String() string {
 // String function converts the TableSchema object into a readable format - mostly for symmetry and testing.
 func (ts *TableSchema) String() string {
 	out := []string{fmt.Sprintf("Table: %s", ts.TableName), " Columns:"}
+	if len(ts.ColumnOrder) > 0 {
+		out = append(out, "ColumnOrder: "+strings.Join(ts.ColumnOrder, ", "))
+	}
+	out = append(out, "Table Number: "+strconv.Itoa(ts.TableNumber))
 	for _, col := range ts.Columns {
 		out = append(out, "  "+col.String())
 	}
@@ -199,6 +206,7 @@ func ParseDDL(ddl string) (*TableSchema, error) {
 		fkTable := m[5]
 		fkCol := m[6]
 
+		ts.ColumnOrder = append(ts.ColumnOrder, name)
 		inlineCheck := ""
 		checkIdx := regexp.MustCompile(`(?i)\bCHECK\s*\(`).FindStringIndex(cd)
 		if checkIdx != nil {
@@ -319,15 +327,15 @@ func ParseDDL(ddl string) (*TableSchema, error) {
 // The "anonymize" parameter is unused for now: on TODO list
 func GenerateDDLs(
 	zipDir, dbName, outputDir, outputFileName string, anonymize bool,
-) (allSchemas map[string]*TableSchema, retErr error) {
+) (allSchemas map[string]*TableSchema, createStmts map[string]string, retErr error) {
 	filePath := filepath.Join(zipDir, "crdb_internal.create_statements.txt")
 	if _, err := os.Stat(filePath); err != nil {
-		return nil, errors.Wrap(err, "could not find TSV file")
+		return nil, nil, errors.Wrap(err, "could not find TSV file")
 	}
 
 	f, err := os.Open(filePath)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to open TSV file")
+		return nil, nil, errors.Wrap(err, "failed to open TSV file")
 	}
 	// Defer closes (input and output) propagate errors if no prior error occurred.
 	defer func() {
@@ -342,7 +350,7 @@ func GenerateDDLs(
 
 	header, err := reader.Read()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed reading TSV header")
+		return nil, nil, errors.Wrap(err, "failed reading TSV header")
 	}
 	colIndex := map[string]int{}
 	for i, col := range header {
@@ -352,10 +360,10 @@ func GenerateDDLs(
 	for _, c := range req {
 		if _, ok := colIndex[c]; !ok {
 			// Not wrapping an error, so fmt.Errorf is acceptable here.
-			return nil, fmt.Errorf("missing column %s", c)
+			return nil, nil, fmt.Errorf("missing column %s", c)
 		}
 	}
-
+	currTableNo := 0
 	tableStatements := make(map[string]string)
 	order := []string{}
 	seen := map[string]bool{}
@@ -375,7 +383,7 @@ func GenerateDDLs(
 				break
 			}
 			// Any other error (besides EOF) is fatal for TSV import and should be reported
-			return nil, errors.Wrap(err, "failed while reading TSV rows")
+			return nil, nil, errors.Wrap(err, "failed while reading TSV rows")
 		}
 		if len(rec) == 0 {
 			break
@@ -402,6 +410,14 @@ func GenerateDDLs(
 		}
 	}
 
+	// build the short‐name → statement map
+	createStmts = make(map[string]string, len(tableStatements))
+	for full, stmt := range tableStatements {
+		parts := strings.Split(full, ".")
+		simple := parts[len(parts)-1]
+		createStmts[simple] = stmt
+	}
+
 	statements := make([]string, 0, len(order))
 	for _, t := range order {
 		statements = append(statements, tableStatements[t])
@@ -413,7 +429,7 @@ func GenerateDDLs(
 	outputPath := filepath.Join(outputDir, outputFileName)
 	out, err := os.Create(outputPath)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create output file at %s", outputPath)
+		return nil, nil, errors.Wrapf(err, "failed to create output file at %s", outputPath)
 	}
 	defer func() {
 		if cerr := out.Close(); cerr != nil && retErr == nil {
@@ -423,20 +439,22 @@ func GenerateDDLs(
 
 	_, err = fmt.Fprintf(out, "create database if not exists %s;\n\n", dbName)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to write database create statement")
+		return nil, nil, errors.Wrap(err, "failed to write database create statement")
 	}
 	allSchemas = map[string]*TableSchema{}
 
 	for _, stmt := range statements {
 		_, err1 := fmt.Fprintln(out, stmt+";")
 		if err1 != nil {
-			return nil, errors.Wrap(err1, "failed to write table statement to output file")
+			return nil, nil, errors.Wrap(err1, "failed to write table statement to output file")
 		}
 		_, err2 := fmt.Fprintln(out)
 		if err2 != nil {
-			return nil, errors.Wrap(err2, "failed to write newline to output file")
+			return nil, nil, errors.Wrap(err2, "failed to write newline to output file")
 		}
 		schema, err := ParseDDL(stmt)
+		schema.TableNumber = currTableNo
+		currTableNo = currTableNo + 1
 		if err != nil {
 			// Not fatal: log and continue (CockroachDB best practice for non-critical parse errors)
 			log.Printf("warning: failed to parse DDL (%v): %v", err, stmt)
@@ -446,5 +464,5 @@ func GenerateDDLs(
 		allSchemas[tableName] = schema
 	}
 
-	return allSchemas, nil
+	return allSchemas, createStmts, nil
 }

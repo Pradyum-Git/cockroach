@@ -175,7 +175,7 @@ var examples = []string{
 }
 
 func TestGenerateDDLs(t *testing.T) {
-	schemas, err := GenerateDDLs(testZipDir, testDBName, testZipDir, testOutputFile, false)
+	schemas, createStmts, err := GenerateDDLs(testZipDir, testDBName, testZipDir, testOutputFile, false)
 	if err != nil {
 		t.Fatalf("GenerateDDLs failed: %v", err)
 	}
@@ -186,6 +186,10 @@ func TestGenerateDDLs(t *testing.T) {
 	defer f.Close()
 	for name, s := range schemas {
 		fmt.Fprintf(f, "--- %s ---\n%s\n", name, s.String())
+	}
+	// Dump the short-name → raw CREATE TABLE statement map
+	for tbl, stmt := range createStmts {
+		fmt.Fprintf(f, "--- %s ---\n%s\n\n", tbl, stmt)
 	}
 }
 
