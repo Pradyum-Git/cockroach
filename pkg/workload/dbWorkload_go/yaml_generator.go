@@ -19,6 +19,8 @@ func canonical(name string) string { return strings.ReplaceAll(name, ".", "__") 
 func decanonical(name string) string { return strings.Replace(name, "__", ".", 2) }
 
 var (
+	// Regular expressions used to interpret SQL column types in the
+	// DDL and map them to workload generator types.
 	decimalRe = regexp.MustCompile(`(?i)^(?:decimal|numeric)\s*(?:\(\s*(\d+)\s*,\s*(\d+)\s*\))?$`)
 	numericRe = regexp.MustCompile(`(?i)^(decimal|numeric|float|double|real)`)
 	varcharRe = regexp.MustCompile(`(?i)^(varchar|character varying)\((\d+)\)`)
@@ -27,7 +29,15 @@ var (
 	byteRe    = regexp.MustCompile(`(?i)^(bytea|blob|bytes)$`)
 )
 
-// mapSqlType converts teh data types mentioned in the DDL into data types understood by the generators, along with setting proper arguments.
+func setArgsRange(args map[string]any, min, max int) {
+	args["min"] = min
+	args["max"] = max
+}
+
+// mapSQLType maps a SQL column type to the workload generator type and
+// argument set expected by cockroach workloads. The returned map may
+// include bounds, formatting information or other hints used by the
+// data generators.
 func mapSQLType(sql string, col *Column, rng *rand.Rand) (string, map[string]any) {
 	sql = strings.ToLower(sql)
 	args := map[string]any{"seed": rng.Intn(100)}
@@ -38,8 +48,7 @@ func mapSQLType(sql string, col *Column, rng *rand.Rand) (string, map[string]any
 		if col.IsPrimaryKey || col.IsUnique {
 			return "sequence", map[string]any{"start": 1, "seed": args["seed"]}
 		}
-		args["min"] = -(1 << 31)
-		args["max"] = (1 << 31) - 1
+		setArgsRange(args, -(1 << 31), (1<<31)-1)
 		return "integer", args
 
 	case sql == "uuid":
@@ -66,18 +75,16 @@ func mapSQLType(sql string, col *Column, rng *rand.Rand) (string, map[string]any
 	case varcharRe.MatchString(sql):
 		m := varcharRe.FindStringSubmatch(sql)
 		length := atoi(m[2])
-		args["min"] = 1
-		args["max"] = length
+		setArgsRange(args, 1, length)
 		return "string", args
 
 	case charRe.MatchString(sql):
 		n := atoi(charRe.FindStringSubmatch(sql)[1])
-		args["min"], args["max"] = n, n
+		setArgsRange(args, n, n)
 		return "string", args
 
 	case sql == "text" || sql == "clob" || sql == "string":
-		args["min"] = 5
-		args["max"] = 30
+		setArgsRange(args, 5, 30)
 		return "string", args
 
 	case decimalRe.MatchString(sql):
@@ -102,8 +109,7 @@ func mapSQLType(sql string, col *Column, rng *rand.Rand) (string, map[string]any
 				minVal = -maxVal
 			}
 
-			args["min"] = minVal
-			args["max"] = maxVal
+			setArgsRange(args, minVal, maxVal)
 			args["round"] = scale
 		} else {
 			// fallback for DECIMAL without precision
@@ -152,7 +158,12 @@ func pow10(n int) int {
 	return v
 }
 
-// columnYAML reads the TableSchema information and returns per column dictionaries for the yaml
+// columnYAML converts a Column definition into the map structure used
+// when serialising workload YAML. The returned map includes the
+// generator type, arguments and various metadata flags.
+//
+// defaultProb controls the probability with which literal default
+// values are emitted in the YAML output.l
 func columnYAML(col *Column, rng *rand.Rand, defaultProb float64) map[string]any {
 	d := map[string]any{}
 	typ, args := mapSQLType(col.ColType, col, rng)
@@ -197,7 +208,9 @@ var (
 	boolLit   = regexp.MustCompile(`^(?i:true|false)$`)
 )
 
-// isLiteralDefault helps find defaults from the schema information which are feasible for use by the generators. Remaining defaults are ignored for now.
+// isLiteralDefault determines whether a column default expression is a
+// simple literal that can be reproduced by the workload generator.
+// Complex expressions are ignored.
 func isLiteralDefault(expr string) bool {
 	txt := strings.TrimSpace(strings.TrimRight(strings.TrimLeft(expr, "("), ")"))
 	return simpleNum.MatchString(txt) ||
@@ -205,7 +218,19 @@ func isLiteralDefault(expr string) bool {
 		boolLit.MatchString(txt)
 }
 
-// ddlToYamlCa converts table_name: TableSchema map into a yaml for the database
+// ddlToYamlCA converts the map of table schemas produced by ParseDDL into
+// the YAML representation understood by the workload tooling. Each table
+// is translated into a single YAML block describing columns, primary
+// keys, foreign keys and unique constraints.
+//
+// dbName is the name of the target database used when generating
+// canonical identifiers inside the YAML.
+//
+// Parameters:
+//   - allSchemas: map of table names to their TableSchema definitions.
+//   - dbName: name of the database to use for canonical identifiers in the YAML output.
+//
+// Returns the YAML string or an error if the conversion fails.
 func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, error) {
 	fanout := 10
 	yamlDoc := map[string][]map[string]any{}
@@ -213,25 +238,29 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for tblName, schema := range allSchemas {
+		//setting initial table level block structure
 		block := map[string]any{
-			"count":          10000,
-			"sort-by":        []string{},
-			"pk":             schema.PrimaryKeys,
-			"columns":        map[string]map[string]any{},
-			"original_table": schema.OriginalTable,
-			"column_order":   schema.ColumnOrder,
-			"table_number":   schema.TableNumber,
+			"count":          10000,                       // default row count. can be parameterized later
+			"sort-by":        []string{},                  // optional sort keys. isn't in use yet
+			"pk":             schema.PrimaryKeys,          // primary key columns
+			"columns":        map[string]map[string]any{}, // column metadata filled below
+			"original_table": schema.OriginalTable,        // original table name as seen in DDL
+			"column_order":   schema.ColumnOrder,          // preserve column ordering
+			"table_number":   schema.TableNumber,          // ordering used by workload tooling
 		}
 		if len(schema.UniqueConstraints) > 0 {
 			block["unique"] = schema.UniqueConstraints
 		}
 		cols := block["columns"].(map[string]map[string]any)
-
+		// populate column definitions
 		for _, c := range schema.Columns {
 			colInfo := columnYAML(c, rng, 0.2)
 			cols[c.Name] = colInfo
+			// remember the RNG seed so that dependent columns can
+			// reference it when setting parent_seed.
 			seed, _ := colInfo["args"].(map[string]any)["seed"].(int)
 			colSeedMap[[2]string{tblName, c.Name}] = seed
+			//multiple key formats because variance in DDL
 			two := "public__" + canonical(tblName)
 			three := dbName + "__" + canonical(two)
 			colSeedMap[[2]string{two, c.Name}] = seed
@@ -239,23 +268,31 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 		}
 
 		if len(schema.ForeignKeys) > 0 {
+			// fkIDs assigns a stable ID to each foreign key
+			// constraint so that composite keys can share a
+			// composite_id across columns.
 			fkIDs := map[string]int{}
 			nextID := 1
 			for _, fk := range schema.ForeignKeys {
 				local := fk[0].([]string)
 				parent := fk[1].(string)
 				foreign := fk[2].([]string)
+				// Normalise the referenced table and create an
+				// identifier used in the YAML.
 				if !strings.Contains(parent, ".") {
 					parent = "public." + parent
 				}
 				parentCanon := canonical(parent)
 				key := parentCanon + "|" + strings.Join(foreign, ",")
+				// Ensure a deterministic composite_id per FK.
+				// Have stopped using composite ids for now, still keeping for possible reuse in the future.
 				cid, ok := fkIDs[key]
 				if !ok {
 					cid = nextID
 					fkIDs[key] = cid
 					nextID++
 				}
+				// Annotate each local column with fk metadata.
 				for i, lc := range local {
 					pc := foreign[i]
 					colMeta := cols[lc]
@@ -263,6 +300,7 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 						colMeta["fk"] = fmt.Sprintf("%s.%s", parentCanon, pc)
 						colMeta["hasForeignKey"] = true
 					}
+					// composite_id groups multi-column FKs.
 					if len(local) > 1 {
 						colMeta["composite_id"] = cid
 					}
@@ -272,7 +310,8 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 		yamlDoc[canonical(tblName)] = []map[string]any{block}
 	}
 
-	// second pass: set fk_mode/fanout/parent_seed
+	// second pass: fill in fk_mode/fanout/parent_seed using the
+	// column seeds captured above.
 	for _, tbl := range yamlDoc {
 		block := tbl[0]
 		cols := block["columns"].(map[string]map[string]any)
@@ -285,6 +324,8 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 			if len(parts) != 2 {
 				continue
 			}
+			// Look up the parent's seed so child rows reference
+			// the same pseudo-random stream
 			seed, ok := colSeedMap[[2]string{parts[0], parts[1]}]
 			if ok {
 				if _, ok := meta["fk_mode"]; !ok {
@@ -300,7 +341,8 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 			cols[name] = meta
 		}
 	}
-
+	// Reduce fanout to 1 when every primary key column is also a
+	// foreign key.
 	for _, tbl := range yamlDoc {
 		block := tbl[0]
 		cols := block["columns"].(map[string]map[string]any)
