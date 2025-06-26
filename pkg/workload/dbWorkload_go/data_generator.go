@@ -437,14 +437,17 @@ func makeGenerator(
 
 	// 2e) layer on FKWrapper if this column has a foreign key
 	if col.HasForeignKey {
-		// col.FK is expected as "ParentTable.ParentCol"
+		// col.FK might be "tpcc__public__district.d_id"
 		parts := strings.SplitN(col.FK, ".", 2)
 		if len(parts) != 2 {
 			panic(fmt.Sprintf("invalid FK spec %q", col.FK))
 		}
-		parentTable, parentCol := parts[0], parts[1]
-		// look up the parent ColumnMeta in the same batchIdx, batchSize context
-		parentMeta := schema[parentTable][0].Columns[parentCol]
+		fqTable, childCol := parts[0], parts[1]          // "tpcc__public__district", "d_id"
+		pathSegments := strings.Split(fqTable, "__")     // ["tpcc","public","district"]
+		parentTable := pathSegments[len(pathSegments)-1] // "district"
+
+		// now look up in your schema map:
+		parentMeta := schema[parentTable][0].Columns[childCol]
 		parentGen := makeGenerator(parentMeta, batchIdx, batchSize, schema)
 		base = NewFkWrapper(parentGen, col.Fanout)
 	}

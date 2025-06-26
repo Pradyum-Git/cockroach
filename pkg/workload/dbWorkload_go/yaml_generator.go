@@ -2,6 +2,7 @@ package dbworkloadgo
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"regexp"
 	"strconv"
@@ -85,20 +86,29 @@ func mapSQLType(sql string, col *Column, rng *rand.Rand) (string, map[string]any
 			precision := atoi(m[1])
 			scale := atoi(m[2])
 			intDigits := precision - scale
-			var minVal, maxVal int
-			if intDigits == 0 {
-				maxVal = 1
-				minVal = -1
+
+			// smallest fractional step: 10^(–scale)
+			fracUnit := math.Pow10(-scale)
+
+			var minVal, maxVal float64
+			if intDigits > 0 {
+				// e.g. p=6,s=4 ⇒ intDigits=2 ⇒ base=99
+				base := float64(int(math.Pow10(intDigits)) - 1)
+				maxVal = base + (1.0 - fracUnit) // 99.9999
+				minVal = -maxVal
 			} else {
-				maxVal = pow10(intDigits) - 1
-				minVal = -maxVal - 1
+				// p==s ⇒ only fractional digits, e.g. 0.9999
+				maxVal = 1.0 - fracUnit
+				minVal = -maxVal
 			}
+
 			args["min"] = minVal
 			args["max"] = maxVal
 			args["round"] = scale
 		} else {
-			args["min"] = 0
-			args["max"] = 1
+			// fallback for DECIMAL without precision
+			args["min"] = 0.0
+			args["max"] = 1.0
 			args["round"] = 2
 		}
 		return "float", args
@@ -204,7 +214,7 @@ func ddlToYamlCA(allSchemas map[string]*TableSchema, dbName string) (string, err
 
 	for tblName, schema := range allSchemas {
 		block := map[string]any{
-			"count":          100,
+			"count":          10000,
 			"sort-by":        []string{},
 			"pk":             schema.PrimaryKeys,
 			"columns":        map[string]map[string]any{},

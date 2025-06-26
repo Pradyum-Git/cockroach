@@ -96,8 +96,11 @@ func (s *dbworkload) Hooks() workload.Hooks {
 			// }
 			// Now dbName would contain the value of the --db flag, or the default if not specified
 			dbName := s.Meta().Name
-			if s.dbName != "" {
-				dbName = s.dbName
+			//if s.dbName != "" {
+			//	dbName = s.dbName
+			//}
+			if s.connFlags.DBOverride != "" {
+				dbName = s.connFlags.DBOverride
 			}
 			debug := s.debugZip
 			schemas, createStmts, errDDL := GenerateDDLs(debug, dbName, "/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go", "test_schema.ddl", false)
@@ -231,6 +234,11 @@ func generateBatch(
 			for i, cdType := range cdTypes {
 				raw := gens[i].Next()
 				vec := cb.ColVec(i)
+				nulls := vec.Nulls()
+				if raw == "" {
+					nulls.SetNull(row)
+					continue
+				}
 				switch cdType.Family() {
 				case types.IntFamily:
 					// sequences & integers
