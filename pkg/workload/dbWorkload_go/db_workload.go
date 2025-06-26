@@ -1,4 +1,4 @@
-package dbworkloadgo
+package workload_generator
 
 import (
 	"context"
@@ -103,7 +103,7 @@ func (s *dbworkload) Hooks() workload.Hooks {
 				dbName = s.connFlags.DBOverride
 			}
 			debug := s.debugZip
-			schemas, createStmts, errDDL := GenerateDDLs(debug, dbName, "/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go", "test_schema.ddl", false)
+			schemas, createStmts, errDDL := GenerateDDLs(debug, dbName, false)
 			s.allSchema = schemas
 			s.createStmts = createStmts
 			yamlOut, errYaml := ddlToYamlCA(schemas, dbName)

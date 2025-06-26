@@ -1,4 +1,4 @@
-package dbworkloadgo
+package workload_generator
 
 import (
 	"encoding/hex"
