@@ -1,0 +1,36 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "dbWorkload_go",
+    srcs = [
+        "data_generator.go",
+        "db_workload.go",
+        "ddl_generator.go",
+        "schema_structs.go",
+        "yaml_generator.go",
+    ],
+    importpath = "github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/col/coldata",
+        "//pkg/sql/types",
+        "//pkg/util/bufalloc",
+        "//pkg/workload",
+        "//pkg/workload/histogram",
+        "@com_github_cockroachdb_errors//:errors",
+        "@com_github_spf13_pflag//:pflag",
+        "@in_gopkg_yaml_v2//:yaml_v2",
+        "@in_gopkg_yaml_v3//:yaml_v3",
+    ],
+)
+
+go_test(
+    name = "dbWorkload_go_test",
+    srcs = [
+        "db_workload_test.go",
+        "ddl_generator_test.go",
+        "yaml_generator_test.go",
+    ],
+    embed = [":dbWorkload_go"],
+    deps = ["@in_gopkg_yaml_v3//:yaml_v3"],
+)
