@@ -21,8 +21,6 @@ const (
 	// Define regex patterns for identifying identifiers in SQL
 	ident = `(?:"[^"]+"|[A-Za-z_][\w]*)` // Matches quoted or unquoted identifiers
 
-	// Pattern to extract the column block from a CREATE TABLE DDL, tries to extract the part after the table name
-	topLevelBlockPattern = `(?s)\((.*)\)\s*([^)]*)$`
 
 	// Pattern to extract column properties from column definitions
 	colPatternStr = `(?i)^\s*("?[^"]+"|[\w-]+)"?\s+([^\s]+)(?:\s+(NOT\s+NULL|NULL))?(?:\s+DEFAULT\s+((?:\([^\)]*\)|[^\s,]+)))?(?:\s+PRIMARY\s+KEY)?(?:\s+UNIQUE)?(?:\s+REFERENCES\s+([\w\.]+)\s*\(\s*([\w]+)\s*\))?(?:\s+CHECK\s*\(\s*(.*?)\s*\))?`
@@ -40,7 +38,6 @@ const (
 
 	databaseName    = "database_name"
 	createStatement = "create_statement"
-	constSchemaName = "schema_name"
 	descriptorType  = "descriptor_type"
 	descriptorName  = "descriptor_name"
 )
@@ -51,7 +48,6 @@ var (
 	// Regex to match CREATE TABLE statements and capture table name
 	tablePattern = regexp.MustCompile(`(?i)CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+` + fullIdent)
 	// Compiled regexes for reuse
-	bodyRe     = regexp.MustCompile(topLevelBlockPattern)
 	colPattern = regexp.MustCompile(colPatternStr)
 	//following regexes are for inline constraints
 	checkInlineRe = regexp.MustCompile(checkInlinePattern)
@@ -66,7 +62,6 @@ var (
 	req = []string{
 		databaseName,
 		createStatement,
-		constSchemaName,
 		descriptorType,
 		descriptorName,
 	}
@@ -108,33 +103,12 @@ func splitColumnDefsAndTableConstraints(body string) (colDefs, tableConstraints 
 	// Separate column definitions from table-level constraints
 	for _, p := range partsList {
 		up := strings.ToUpper(strings.TrimSpace(p))
-		if hasConstrainingPrefix(up) {
 			tableConstraints = append(tableConstraints, p)
 		} else {
 			colDefs = append(colDefs, p)
 		}
 	}
 	return colDefs, tableConstraints
-}
-
-// hasConstrainingPrefix reports whether the upper‐cased, trimmed
-// line should be treated as a table‐level constraint.
-func hasConstrainingPrefix(up string) bool {
-	// You could make this a global var if you like, to avoid reallocating the slice.
-	prefixes := []string{
-		"CONSTRAINT",
-		"PRIMARY KEY",
-		"UNIQUE",
-		"FOREIGN KEY",
-		"CHECK",
-		"INDEX",
-	}
-	for _, p := range prefixes {
-		if strings.HasPrefix(up, p) {
-			return true
-		}
-	}
-	return false
 }
 
 // processColumnDefs parses column definitions, updates the TableSchema with Columns,
@@ -368,7 +342,6 @@ func GenerateDDLs(
 	dbName string, anonymize bool,
 ) (allSchemas map[string]*TableSchema, createStmts map[string]string, retErr error) {
 
-	f, err := openCreateStatementsTSV(zipDir)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to open TSV file")
 	}
@@ -417,17 +390,7 @@ func GenerateDDLs(
 			break
 		}
 
-		processDDLRecord(
-			rec,
-			colIndex,
-			dbName,
-			schemaReCache,
-			seen,
-			&order,
-			tableStatements,
-		)
-	}
-	return buildSchemas(order, tableStatements), buildCreateStmts(tableStatements), nil
+		}
 }
 
 // buildCreateStmts returns a map of simple table name → raw CREATE TABLE statement.
@@ -461,63 +424,4 @@ func buildSchemas(
 		schemas[name] = schema
 	}
 	return schemas
-}
-
-// openCreateStatementsTSV opens the debug-zip’s create_statements.txt file,
-// verifying its existence and wrapping any errors.
-func openCreateStatementsTSV(zipDir string) (*os.File, error) {
-	path := filepath.Join(zipDir, "crdb_internal.create_statements.txt")
-	if _, err := os.Stat(path); err != nil {
-		return nil, errors.Wrap(err, "could not find TSV file")
-	}
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open TSV file")
-	}
-	return f, nil
-}
-
-// processDDLRecord inspects one TSV row and, if it represents a public table
-// in dbName, normalizes its CREATE TABLE stmt and appends it to order/statements.
-func processDDLRecord(
-	rec []string,
-	colIndex map[string]int,
-	dbName string,
-	schemaReCache map[string]*regexp.Regexp,
-	seen map[string]bool,
-	order *[]string,
-	tableStatements map[string]string,
-) {
-	// 1) Quick filter
-	if rec[colIndex[databaseName]] != dbName ||
-		rec[colIndex[descriptorType]] != "table" ||
-		rec[colIndex[constSchemaName]] != "public" {
-		return
-	}
-
-	// 2) Build identifiers
-	schemaName := rec[colIndex[constSchemaName]]
-	stmt := rec[colIndex[createStatement]]
-	tableName := rec[colIndex[descriptorName]]
-	fullTable := fmt.Sprintf("%s.%s.%s", dbName, schemaName, tableName)
-
-	// 3) Normalize schema-qualified references
-	pattern, ok := schemaReCache[schemaName]
-	if !ok {
-		pattern = regexp.MustCompile(`\b` + regexp.QuoteMeta(schemaName) + `\.`)
-		schemaReCache[schemaName] = pattern
-	}
-	stmt = pattern.ReplaceAllString(stmt, dbName+"."+schemaName+".")
-
-	// 4) Ensure IF NOT EXISTS
-	if !ifNotExistsRe.MatchString(stmt) {
-		stmt = createTableRe.ReplaceAllString(stmt, "${1}IF NOT EXISTS ")
-	}
-
-	// 5) Record ordering & statement
-	if !seen[fullTable] {
-		*order = append(*order, fullTable)
-		seen[fullTable] = true
-	}
-	tableStatements[fullTable] = stmt
 }
