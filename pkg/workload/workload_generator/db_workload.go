@@ -11,9 +11,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/workload/histogram"
 	"github.com/cockroachdb/errors"
 	"github.com/spf13/pflag"
-	"gopkg.in/yaml.v2"
 	"math/rand/v2"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -42,6 +40,8 @@ var dbworkloadMeta = workload.Meta{
 		g.flags.StringVar(&g.debugZip, "debug-zip", "",
 			"path to unzipped debug zip")
 		g.flags.StringVar(&g.dbName, "db-name", "", "database name")
+		g.flags.IntVar(&g.rowCount, "rows", 10000,
+			"base number of rows per table before FK‐depth scaling")
 		g.flags.Meta = map[string]workload.FlagMeta{}
 		g.connFlags = workload.NewConnFlags(&g.flags)
 		return g
@@ -53,13 +53,12 @@ type dbworkload struct {
 	connFlags *workload.ConnFlags
 	debugZip  string
 	dbName    string
+	rowCount  int
 
-	allSchema   map[string]*TableSchema
-	createStmts map[string]string
-	yamlFile    string
-
-	// Number of rows in the usertable
-	rowCount int
+	allSchema      map[string]*TableSchema
+	createStmts    map[string]string
+	workloadSchema Schema
+	yamlFile       string
 }
 
 // Meta implements the Generator interface.
@@ -106,20 +105,21 @@ func (s *dbworkload) Hooks() workload.Hooks {
 			schemas, createStmts, errDDL := GenerateDDLs(debug, dbName, false)
 			s.allSchema = schemas
 			s.createStmts = createStmts
-			yamlOut, errYaml := ddlToYamlCA(schemas, dbName)
-			s.yamlFile = yamlOut
+			//yamlOut, errYaml := ddlToYamlCA(schemas, dbName)
+			//s.yamlFile = yamlOut
 			if errDDL != nil {
 				return errors.Wrap(errDDL, "failed to generate DDLs")
 			}
 			// and similarly for errYaml
-			if errYaml != nil {
-				return errors.Wrap(errYaml, "failed converting DDL to YAML")
-			}
+			//if errYaml != nil {
+			//	return errors.Wrap(errYaml, "failed converting DDL to YAML")
+			//}
 			//print the yaml for now
-			err := os.WriteFile("/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/dbWorkload_go/test_output.yaml", []byte(yamlOut), 0644)
-			if err != nil {
-				return err
-			}
+			s.workloadSchema = buildWorkloadSchema(s.allSchema, dbName, s.rowCount)
+			//err := os.WriteFile("/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/workload_generator/test_output.yaml", []byte(yamlOut), 0644)
+			//if err != nil {
+			//	return err
+			//}
 			return nil
 		},
 	}
@@ -128,15 +128,12 @@ func (s *dbworkload) Hooks() workload.Hooks {
 // Tables implements workload.Generator.Tables
 func (s *dbworkload) Tables() []workload.Table {
 	// 1) Load the YAML schema once
-	var rawSchema Schema
-	if err := yaml.Unmarshal([]byte(s.yamlFile), &rawSchema); err != nil {
-		panic(fmt.Sprintf("failed to unmarshal YAML: %v", err))
-	}
-	tableOrder := getTableOrder(rawSchema)
+
+	tableOrder := getTableOrder(s.workloadSchema)
 
 	var tables []workload.Table
 	for _, tableName := range tableOrder {
-		blocks := rawSchema[tableName]
+		blocks := s.workloadSchema[tableName]
 		block := blocks[0]
 		total := block.Count
 		numBatches := (total + batchSize - 1) / batchSize
@@ -146,7 +143,7 @@ func (s *dbworkload) Tables() []workload.Table {
 			Schema: generateSchema(s.createStmts[tableName]), // your short DDL string
 			InitialRows: workload.BatchedTuples{
 				NumBatches: numBatches,
-				FillBatch:  generateBatch(tableName, block, rawSchema),
+				FillBatch:  generateBatch(tableName, block, s.workloadSchema),
 			},
 		})
 	}

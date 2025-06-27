@@ -108,8 +108,8 @@ func mapSQLType(sql string, col *Column, rng *rand.Rand) (string, map[string]any
 				maxVal = 1.0 - fracUnit
 				minVal = -maxVal
 			}
-
-			setArgsRange(args, minVal, maxVal)
+			args["min"] = minVal
+			args["max"] = maxVal
 			args["round"] = scale
 		} else {
 			// fallback for DECIMAL without precision

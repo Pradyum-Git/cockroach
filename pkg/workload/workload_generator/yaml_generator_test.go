@@ -15,8 +15,6 @@ func TestDdlToYamlGeneration(t *testing.T) {
 	schemas, _, err := GenerateDDLs(
 		zipDir,
 		dbName,
-		"",               // no DDL output directory 		// no cluster URL
-		"ddl_output.sql", // will still dump DDLs here
 		false,
 	)
 	if err != nil {

@@ -175,7 +175,7 @@ var examples = []string{
 }
 
 func TestGenerateDDLs(t *testing.T) {
-	schemas, createStmts, err := GenerateDDLs(testZipDir, testDBName, testZipDir, testOutputFile, false)
+	schemas, createStmts, err := GenerateDDLs(testZipDir, testDBName, false)
 	if err != nil {
 		t.Fatalf("GenerateDDLs failed: %v", err)
 	}
