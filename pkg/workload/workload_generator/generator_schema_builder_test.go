@@ -147,7 +147,7 @@ func TestMakeColumnMeta_DefaultAndNull(t *testing.T) {
 	rng := rand.New(rand.NewSource(99))
 	// Case 1: Default literal and nullable
 	col1 := &Column{ColType: "int", Default: "42", IsNullable: true, IsPrimaryKey: false}
-	cm1, _, _ := makeColumnMeta("tbl", "db", col1, rng)
+	cm1, _, _ := buildColumnMeta("tbl", "db", col1, rng)
 	if cm1.Default != "42" || cm1.DefaultProb != 0.2 {
 		t.Errorf("makeColumnMeta default; got (%s, %f), want (42, 0.2)", cm1.Default, cm1.DefaultProb)
 	}
@@ -157,7 +157,7 @@ func TestMakeColumnMeta_DefaultAndNull(t *testing.T) {
 
 	// Case 2: Primary key should be non-nullable
 	col2 := &Column{ColType: "int", Default: "", IsNullable: true, IsPrimaryKey: true}
-	cm2, _, _ := makeColumnMeta("tbl", "db", col2, rng)
+	cm2, _, _ := buildColumnMeta("tbl", "db", col2, rng)
 	if cm2.Default != "" || cm2.DefaultProb != 0 {
 		t.Errorf("makeColumnMeta PK default; got (%s, %f), want (empty, 0)", cm2.Default, cm2.DefaultProb)
 	}
