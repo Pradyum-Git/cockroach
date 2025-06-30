@@ -19,6 +19,7 @@ const (
 	seedKeyDelimiter = "__"
 )
 
+// Schema is the map of TableBlocks, one per table, which is used by all data generators
 type Schema map[string][]TableBlock
 
 // buildWorkloadSchema orchestrates the construction of a Schema from parsed TableSchemas.
@@ -69,6 +70,7 @@ func buildInitialBlocks(
 
 		// Populate columns and record FK seeds
 		for _, col := range schema.Columns {
+			cm, seed, seedable := buildColumnMeta(tblName, dbName, col, rng)
 			block.Columns[col.Name] = cm
 			if seedable {
 				recordFKSeed(tblName, col.Name, seed, dbName, fkSeed)
@@ -82,6 +84,7 @@ func buildInitialBlocks(
 }
 
 // makeColumnMeta maps a Column into ColumnMeta, returning any FK-seed if present.
+func buildColumnMeta(
 	tblName, dbName string,
 	col *Column,
 	rng *rand.Rand,
