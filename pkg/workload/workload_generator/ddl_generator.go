@@ -1,3 +1,8 @@
+// Copyright 2025 The Cockroach Authors.
+//
+// Use of this software is governed by the CockroachDB Software License
+// included in the /LICENSE file.
+
 package workload_generator
 
 import (
@@ -351,7 +356,6 @@ func GenerateDDLs(
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to open TSV file")
 	}
-	// Defer closes (input and output) propagate errors if no prior error occurred.
 	defer func() {
 		if cerr := f.Close(); cerr != nil && retErr == nil {
 			retErr = errors.Wrap(cerr, "failed to close input TSV file")
@@ -370,57 +374,52 @@ func GenerateDDLs(
 	for i, col := range header {
 		colIndex[col] = i
 	}
-
 	for _, c := range req {
 		if _, ok := colIndex[c]; !ok {
-			// Not wrapping an error, so fmt.Errorf is acceptable here.
 			return nil, nil, fmt.Errorf("missing column %s", c)
 		}
 	}
-	currTableNo := 0                             // Current table number for internal use
-	tableStatements := make(map[string]string)   // Maps full table names to CREATE TABLE statements
-	order := []string{}                          // Preserves the order of tables for output
-	seen := map[string]bool{}                    // Tracks which tables have been seen to avoid duplicates
-	schemaReCache := map[string]*regexp.Regexp{} // Cache for compiled regex patterns to improve performance
 
-	// Read and process each row from the TSV file
+	// collect raw statements
+	tableStatements := make(map[string]string)
+	order := []string{}
+	seen := map[string]bool{}
+	schemaReCache := map[string]*regexp.Regexp{}
+
 	for {
 		rec, err := reader.Read()
 		if err != nil {
-			if errors.Is(err, os.ErrClosed) {
+			if errors.Is(err, os.ErrClosed) || err.Error() == "EOF" {
 				break
 			}
-			if err.Error() == "EOF" {
-				break
-			}
-			// Only break if line is empty AND error, not if just error (to protect partial final line)
 			if len(rec) == 0 {
 				break
 			}
-			// Any other error (besides EOF) is fatal for TSV import and should be reported
 			return nil, nil, errors.Wrap(err, "failed while reading TSV rows")
 		}
 		if len(rec) == 0 {
 			break
 		}
-		// Filter for tables in the specified database and public schema
-		if rec[colIndex[databaseName]] == dbName && rec[colIndex[descriptorType]] == "table" && rec[colIndex[schemaName]] == "public" {
+
+		if rec[colIndex[databaseName]] == dbName &&
+			rec[colIndex[descriptorType]] == "table" &&
+			rec[colIndex[schemaName]] == "public" {
+
 			schemaName := rec[colIndex[schemaName]]
 			stmt := rec[colIndex[createStatement]]
 			tableName := rec[colIndex[descriptorName]]
 			fullTable := fmt.Sprintf("%s.%s.%s", dbName, schemaName, tableName)
-			// Get or create regex pattern for schema name replacement
+
 			pattern, ok := schemaReCache[schemaName]
 			if !ok {
 				pattern = regexp.MustCompile(`\b` + regexp.QuoteMeta(schemaName) + `\.`)
 				schemaReCache[schemaName] = pattern
 			}
 			stmt = pattern.ReplaceAllString(stmt, dbName+"."+schemaName+".")
-			// Add IF NOT EXISTS to CREATE TABLE statements if not already present
 			if !ifNotExistsRe.MatchString(stmt) {
 				stmt = createTableRe.ReplaceAllString(stmt, "${1}IF NOT EXISTS ")
 			}
-			// Track table order and store the statement
+
 			if !seen[fullTable] {
 				order = append(order, fullTable)
 				seen[fullTable] = true
@@ -429,28 +428,41 @@ func GenerateDDLs(
 		}
 	}
 
-	// build the short‐name → statement map
-	createStmts = make(map[string]string, len(tableStatements))
+	// replace the two inline loops with calls to our helpers
+	createStmts = buildCreateStmts(tableStatements)
+	allSchemas = buildSchemas(order, tableStatements)
+	return allSchemas, createStmts, nil
+}
+
+// buildCreateStmts returns a map of simple table name → raw CREATE TABLE statement.
+func buildCreateStmts(tableStatements map[string]string) map[string]string {
+	createStmts := make(map[string]string, len(tableStatements))
 	for full, stmt := range tableStatements {
 		parts := strings.Split(full, ".")
 		simple := parts[len(parts)-1]
 		createStmts[simple] = stmt
 	}
+	return createStmts
+}
 
-	// parse each DDL into a TableSchema and assign its TableNumber
-	allSchemas = make(map[string]*TableSchema, len(order))
+// buildSchemas parses each statement in order, numbers them 0…N-1, and returns
+// simple table name → *TableSchema.
+func buildSchemas(
+	order []string,
+	tableStatements map[string]string,
+) map[string]*TableSchema {
+	schemas := make(map[string]*TableSchema, len(order))
+	tableNo := 0
 	for _, fullTable := range order {
 		stmt := tableStatements[fullTable]
 		schema, err := ParseDDL(stmt)
 		if err != nil {
-			// non-fatal; skip bad DDL
 			continue
 		}
-		schema.TableNumber = currTableNo
-		currTableNo++
-		tableName := fullTable[strings.LastIndex(fullTable, ".")+1:]
-		allSchemas[tableName] = schema
+		schema.TableNumber = tableNo
+		tableNo++
+		name := fullTable[strings.LastIndex(fullTable, ".")+1:]
+		schemas[name] = schema
 	}
-
-	return allSchemas, createStmts, nil
+	return schemas
 }
