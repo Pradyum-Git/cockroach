@@ -8,8 +8,10 @@ go_library(
     deps = [
         "//pkg/ccl/workloadccl/roachmartccl",
         "//pkg/workload/bank",
+        "//pkg/workload/bankPradyum",
         "//pkg/workload/bulkingest",
         "//pkg/workload/connectionlatency",
+        "//pkg/workload/dbWorkload_go",
         "//pkg/workload/debug",
         "//pkg/workload/examples",
         "//pkg/workload/geospatial",

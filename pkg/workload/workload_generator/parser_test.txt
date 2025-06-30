@@ -1,0 +1,197 @@
+=== sqltoken tokens ===
+"\n      "       Whitespace
+"SELECT"         Word      
+" "              Whitespace
+"i_price"        Word      
+","              Punctuation
+" "              Whitespace
+"i_name"         Word      
+","              Punctuation
+" "              Whitespace
+"i_data"         Word      
+"\n      "       Whitespace
+"FROM"           Word      
+" "              Whitespace
+"item"           Word      
+"\n      "       Whitespace
+"WHERE"          Word      
+" "              Whitespace
+"i_id"           Word      
+" "              Whitespace
+"IN"             Word      
+" "              Whitespace
+"("              Punctuation
+"_"              Word      
+","              Punctuation
+" "              Whitespace
+"__more__"       Word      
+")"              Punctuation
+"\n      "       Whitespace
+"ORDER"          Word      
+" "              Whitespace
+"BY"             Word      
+" "              Whitespace
+"i_id"           Word      
+";"              Semicolon 
+"\n    "         Whitespace
+
+=== pg_query_go JSON AST (pretty) ===
+{
+  "stmts": [
+    {
+      "stmt": {
+        "SelectStmt": {
+          "fromClause": [
+            {
+              "RangeVar": {
+                "inh": true,
+                "location": 49,
+                "relname": "item",
+                "relpersistence": "p"
+              }
+            }
+          ],
+          "limitOption": "LIMIT_OPTION_DEFAULT",
+          "op": "SETOP_NONE",
+          "sortClause": [
+            {
+              "SortBy": {
+                "location": -1,
+                "node": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "i_id"
+                        }
+                      }
+                    ],
+                    "location": 103
+                  }
+                },
+                "sortby_dir": "SORTBY_DEFAULT",
+                "sortby_nulls": "SORTBY_NULLS_DEFAULT"
+              }
+            }
+          ],
+          "targetList": [
+            {
+              "ResTarget": {
+                "location": 14,
+                "val": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "i_price"
+                        }
+                      }
+                    ],
+                    "location": 14
+                  }
+                }
+              }
+            },
+            {
+              "ResTarget": {
+                "location": 23,
+                "val": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "i_name"
+                        }
+                      }
+                    ],
+                    "location": 23
+                  }
+                }
+              }
+            },
+            {
+              "ResTarget": {
+                "location": 31,
+                "val": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "i_data"
+                        }
+                      }
+                    ],
+                    "location": 31
+                  }
+                }
+              }
+            }
+          ],
+          "whereClause": {
+            "A_Expr": {
+              "kind": "AEXPR_IN",
+              "lexpr": {
+                "ColumnRef": {
+                  "fields": [
+                    {
+                      "String": {
+                        "sval": "i_id"
+                      }
+                    }
+                  ],
+                  "location": 66
+                }
+              },
+              "location": 71,
+              "name": [
+                {
+                  "String": {
+                    "sval": "="
+                  }
+                }
+              ],
+              "rexpr": {
+                "List": {
+                  "items": [
+                    {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "_"
+                            }
+                          }
+                        ],
+                        "location": 75
+                      }
+                    },
+                    {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "__more__"
+                            }
+                          }
+                        ],
+                        "location": 78
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "stmt_len": 107
+    }
+  ],
+  "version": 170004
+}
+
+=== Cockroach formatted SQL from AST ===
+SELECT i_price, i_name, i_data FROM item WHERE i_id IN (_, __more__) ORDER BY i_id
+
+=== Cockroach AST struct dump (spew) ===
+(*tree.Select)(0x14000755b30)(SELECT i_price, i_name, i_data FROM item WHERE i_id IN (_, __more__) ORDER BY i_id)

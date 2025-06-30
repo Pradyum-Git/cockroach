@@ -18,8 +18,8 @@ import (
 
 const (
 	// Length of each field
-	fieldLength = 100
-	batchSize   = 100
+	fieldLength   = 100
+	baseBatchSize = 100
 )
 
 var simpleTableTypes = []*types.T{
@@ -130,20 +130,26 @@ func (s *dbworkload) Tables() []workload.Table {
 	// 1) Load the YAML schema once
 
 	tableOrder := getTableOrder(s.workloadSchema)
-
+	maxRows := 0
+	for _, tblBlocks := range s.workloadSchema {
+		if tblBlocks[0].Count > maxRows {
+			maxRows = tblBlocks[0].Count
+		}
+	}
+	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
 	var tables []workload.Table
 	for _, tableName := range tableOrder {
 		blocks := s.workloadSchema[tableName]
 		block := blocks[0]
 		total := block.Count
-		numBatches := (total + batchSize - 1) / batchSize
+		batch_size_i := total / globalNumBatches
 
 		tables = append(tables, workload.Table{
 			Name:   tableName,
 			Schema: generateSchema(s.createStmts[tableName]), // your short DDL string
 			InitialRows: workload.BatchedTuples{
-				NumBatches: numBatches,
-				FillBatch:  generateBatch(tableName, block, s.workloadSchema),
+				NumBatches: globalNumBatches,
+				FillBatch:  generateBatch(tableName, block, s.workloadSchema, batch_size_i),
 			},
 		})
 	}
@@ -190,6 +196,7 @@ func generateBatch(
 	tableName string,
 	block TableBlock,
 	fullSchema Schema,
+	batchSize int,
 ) func(batchIdx int, cb coldata.Batch, _ *bufalloc.ByteAllocator) {
 	// determine the Cockroach columnar types and a stable column order
 	colOrder := block.ColumnOrder
@@ -223,7 +230,7 @@ func generateBatch(
 		gens := make([]Generator, len(colOrder))
 		for i, colName := range colOrder {
 			meta := block.Columns[colName]
-			gens[i] = makeGenerator(meta, batchIdx, batchSize, fullSchema)
+			gens[i] = makeGenerator(meta, batchIdx, baseBatchSize, fullSchema)
 		}
 
 		// 3) fill row-by-row
@@ -323,7 +330,7 @@ func (s *dbworkload) Ops(
 }
 
 func randString(rng *rand.Rand, length int) []byte {
-	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const letters = alphaLetters
 	result := make([]byte, length)
 	for i := range result {
 		result[i] = letters[rng.IntN(len(letters))]

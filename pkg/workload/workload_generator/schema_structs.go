@@ -23,24 +23,24 @@ type Column struct {
 func (c *Column) String() string {
 	parts := []string{c.Name, c.ColType}
 	if c.IsNullable {
-		parts = append(parts, "NULL")
+		parts = append(parts, sqlNull)
 	} else {
-		parts = append(parts, "NOT NULL")
+		parts = append(parts, sqlNotNull)
 	}
 	if c.IsPrimaryKey {
-		parts = append(parts, "PRIMARY KEY")
+		parts = append(parts, sqlPrimaryKey)
 	}
 	if c.Default != "" {
-		parts = append(parts, "DEFAULT "+c.Default)
+		parts = append(parts, fmt.Sprintf("%s %s", sqlDefault, c.Default))
 	}
 	if c.IsUnique {
-		parts = append(parts, "UNIQUE")
+		parts = append(parts, sqlUnique)
 	}
 	if c.FKTable != "" && c.FKColumn != "" {
-		parts = append(parts, fmt.Sprintf("FK→%s.%s", c.FKTable, c.FKColumn))
+		parts = append(parts, fmt.Sprintf("%s→%s.%s", sqlForeignKey, c.FKTable, c.FKColumn))
 	}
 	if c.InlineCheck != "" {
-		parts = append(parts, fmt.Sprintf("CHECK(%s)", c.InlineCheck))
+		parts = append(parts, fmt.Sprintf("%s(%s)", sqlCheck, c.InlineCheck))
 	}
 	return strings.Join(parts, " ")
 }
@@ -122,9 +122,46 @@ func (ts *TableSchema) SetPrimaryKeys(pks []string) {
 		if col, ok := ts.Columns[pk]; ok {
 			col.IsPrimaryKey = true
 			col.IsNullable = false
-			if single {
-				col.IsUnique = true
-			}
+			col.IsUnique = single
 		}
 	}
+}
+
+//above structs are particularly focused around extracting data from DDL
+//and converting it into a structured format for further use
+//importantly - they were designed for anonymization part which is still at TODO stage
+
+// following structs are used to build the schema for the data generator
+// they are used to define the schema in a way that can be serialized to YAML when needed
+// and have information necessary only for the data generator
+
+// ColumnMeta is the per-column metadata (type, args, FK info, etc.) that
+// drives our per batch generators.
+type ColumnMeta struct {
+	Type          string                 `yaml:"type"`
+	Args          map[string]interface{} `yaml:"args"`
+	IsPrimaryKey  bool                   `yaml:"isPrimaryKey"`
+	IsUnique      bool                   `yaml:"isUnique"`
+	HasForeignKey bool                   `yaml:"hasForeignKey"`
+
+	FK          string  `yaml:"fk,omitempty"`
+	FKMode      string  `yaml:"fk_mode,omitempty"`
+	ParentSeed  float64 `yaml:"parent_seed,omitempty"`
+	Fanout      int     `yaml:"fanout,omitempty"`
+	CompositeID int     `yaml:"composite_id,omitempty"`
+
+	Default     string  `yaml:"default,omitempty"`
+	DefaultProb float64 `yaml:"default_prob,omitempty"`
+}
+
+// TableBlock stores extra information at table level that is used by the per batch generator.
+type TableBlock struct {
+	Count         int                   `yaml:"count"`
+	Columns       map[string]ColumnMeta `yaml:"columns"`
+	PK            []string              `yaml:"pk"`
+	SortBy        []string              `yaml:"sort-by"`
+	Unique        [][]string            `yaml:"unique,omitempty"`
+	OriginalTable string                `yaml:"original_table"`
+	ColumnOrder   []string              `yaml:"column_order"`
+	TableNumber   int                   `yaml:"table_number"`
 }
