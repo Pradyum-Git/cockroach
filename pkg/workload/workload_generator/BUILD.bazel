@@ -1,0 +1,29 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "workload_generator",
+    srcs = [
+        "constants.go",
+        "ddl_generator.go",
+        "generator_schema_builder.go",
+        "generator_types.go",
+        "generator_utils.go",
+        "make_generator.go",
+        "schema_designs.go",
+    ],
+    importpath = "github.com/cockroachdb/cockroach/pkg/workload/workload_generator",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_cockroachdb_errors//:errors"],
+)
+
+go_test(
+    name = "workload_generator_test",
+    srcs = [
+        "ddl_generator_test.go",
+        "generator_schema_builder_test.go",
+        "generator_utils_test.go",
+        "make_generator_test.go",
+    ],
+    embed = [":workload_generator"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)
