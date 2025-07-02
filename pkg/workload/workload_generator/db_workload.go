@@ -4,9 +4,11 @@ import (
 	"context"
 	gosql "database/sql"
 	"fmt"
+	"github.com/cockroachdb/cockroach-go/v2/crdb"
 	"github.com/cockroachdb/cockroach/pkg/col/coldata"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/bufalloc"
+	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
 	"github.com/cockroachdb/cockroach/pkg/workload"
 	"github.com/cockroachdb/cockroach/pkg/workload/histogram"
 	"github.com/cockroachdb/errors"
@@ -14,12 +16,22 @@ import (
 	"math/rand/v2"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
+
+// runtimeColumn holds a generator and a cache of prior values.
+type runtimeColumn struct {
+	gen   Generator
+	mu    sync.Mutex // protects gen and cache
+	cache []string   // ring buffer of recent values
+}
 
 const (
 	// Length of each field
 	fieldLength   = 100
 	baseBatchSize = 100
+	maxCacheSize  = 100_000 // max size of the cache for each column
 )
 
 var simpleTableTypes = []*types.T{
@@ -32,7 +44,7 @@ func init() {
 
 var dbworkloadMeta = workload.Meta{
 	Name:        "workload_generator",
-	Description: "dbworklaod tries to generate workloads from debig zip",
+	Description: "dbworkload tries to generate workloads from debug zip",
 	Version:     "1.0.0",
 	New: func() workload.Generator {
 		g := &dbworkload{}
@@ -59,6 +71,8 @@ type dbworkload struct {
 	createStmts    map[string]string
 	workloadSchema Schema
 	yamlFile       string
+	columnGens     map[string]*runtimeColumn // table.col → runtimeColumn
+
 }
 
 // Meta implements the Generator interface.
@@ -126,12 +140,12 @@ func (s *dbworkload) Hooks() workload.Hooks {
 }
 
 // Tables implements workload.Generator.Tables
-func (s *dbworkload) Tables() []workload.Table {
+func (d *dbworkload) Tables() []workload.Table {
 	// 1) Load the YAML schema once
 
-	tableOrder := getTableOrder(s.workloadSchema)
+	tableOrder := getTableOrder(d.workloadSchema)
 	maxRows := 0
-	for _, tblBlocks := range s.workloadSchema {
+	for _, tblBlocks := range d.workloadSchema {
 		if tblBlocks[0].Count > maxRows {
 			maxRows = tblBlocks[0].Count
 		}
@@ -139,17 +153,17 @@ func (s *dbworkload) Tables() []workload.Table {
 	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
 	var tables []workload.Table
 	for _, tableName := range tableOrder {
-		blocks := s.workloadSchema[tableName]
+		blocks := d.workloadSchema[tableName]
 		block := blocks[0]
 		total := block.Count
 		batch_size_i := total / globalNumBatches
 
 		tables = append(tables, workload.Table{
 			Name:   tableName,
-			Schema: generateSchema(s.createStmts[tableName]), // your short DDL string
+			Schema: generateSchema(d.createStmts[tableName]), // your short DDL string
 			InitialRows: workload.BatchedTuples{
 				NumBatches: globalNumBatches,
-				FillBatch:  generateBatch(tableName, block, s.workloadSchema, batch_size_i),
+				FillBatch:  generateBatch(tableName, block, d.workloadSchema, batch_size_i, d),
 			},
 		})
 	}
@@ -197,6 +211,7 @@ func generateBatch(
 	block TableBlock,
 	fullSchema Schema,
 	batchSize int,
+	d *dbworkload,
 ) func(batchIdx int, cb coldata.Batch, _ *bufalloc.ByteAllocator) {
 	// determine the Cockroach columnar types and a stable column order
 	colOrder := block.ColumnOrder
@@ -237,6 +252,17 @@ func generateBatch(
 		for row := 0; row < n; row++ {
 			for i, cdType := range cdTypes {
 				raw := gens[i].Next()
+
+				key := fmt.Sprintf("%s", colOrder[i])
+				if rc, ok := d.columnGens[key]; ok {
+					rc.mu.Lock()
+					if len(rc.cache) < maxCacheSize {
+						rc.cache = append(rc.cache, raw)
+					} else {
+						rc.cache[rand.IntN(len(rc.cache))] = raw
+					}
+					rc.mu.Unlock()
+				}
 				vec := cb.ColVec(i)
 				nulls := vec.Nulls()
 				if raw == "" {
@@ -269,71 +295,104 @@ func generateBatch(
 	}
 }
 
-func (s *dbworkload) Ops(
-	ctx context.Context, urls []string, reg *histogram.Registry,
-) (workload.QueryLoad, error) {
-	sqlDatabase, err := gosql.Open("postgres", urls[0])
-	if err != nil {
-		return workload.QueryLoad{}, err
-	}
-
-	db := sqlDatabase
-
-	readStmt, err := db.Prepare("SELECT field1, field2, field3 FROM simple WHERE id = $1")
-	if err != nil {
-		return workload.QueryLoad{}, err
-	}
-
-	updateStmt, err := db.Prepare("UPDATE simple SET field1 = $1, field2 = $2, field3 = $3 WHERE id = $4")
-	if err != nil {
-		return workload.QueryLoad{}, err
-	}
-
-	ql := workload.QueryLoad{
-		WorkerFns: make([]func(context.Context) error, 8),
-	}
-	initialRowCount := int64(10)
-	for i := range ql.WorkerFns {
-		workerID := i
-		rng := rand.New(rand.NewPCG(uint64(workerID), 0))
-		ql.WorkerFns[i] = func(ctx context.Context) error {
-			// 50% reads, 50% updates
-			if rng.IntN(2) == 0 {
-				// Read operation
-				id := rng.Int64N(initialRowCount)
-				var field1, field2, field3 string
-				if err := readStmt.QueryRowContext(ctx, id).Scan(&field1, &field2, &field3); err != nil {
-					return err
-				}
-			} else {
-				// Update operation
-				id := rng.Int64N(initialRowCount)
-				field1 := randString(rng, fieldLength)
-				field2 := randString(rng, fieldLength)
-				field3 := randString(rng, fieldLength)
-				if _, err := updateStmt.ExecContext(ctx, field1, field2, field3, id); err != nil {
-					return err
-				}
-			}
-			return nil
+// init generators once after ReadTPCC.
+func (d *dbworkload) initGenerators() error {
+	d.columnGens = make(map[string]*runtimeColumn)
+	for _, blocks := range d.workloadSchema {
+		block := blocks[0]
+		for col, meta := range block.Columns {
+			gen := makeGenerator(meta, block.Count/baseBatchSize, baseBatchSize, d.workloadSchema)
+			d.columnGens[fmt.Sprintf("%s", col)] = &runtimeColumn{gen: gen}
+			fmt.Printf("Initialized generator for %s\n", col)
 		}
 	}
+	return nil
+}
 
-	// Close statements and database when the workload finishes
-	ql.Close = func(context.Context) error {
-		readStmt.Close()
-		updateStmt.Close()
-		return sqlDatabase.Close()
+func (d *dbworkload) Ops(
+	ctx context.Context, urls []string, reg *histogram.Registry,
+) (workload.QueryLoad, error) {
+	// Parse transactions from the tpcc file.
+	txns, err := ReadTPCC("pkg/workload/workload_generator/tpcc.sql")
+	if err != nil {
+		return workload.QueryLoad{}, err
+	}
+	if err := d.initGenerators(); err != nil {
+		return workload.QueryLoad{}, err
 	}
 
+	db, err := gosql.Open("postgres", strings.Join(urls, " "))
+	if err != nil {
+		return workload.QueryLoad{}, err
+	}
+	db.SetMaxOpenConns(d.connFlags.Concurrency + 1)
+	db.SetMaxIdleConns(d.connFlags.Concurrency + 1)
+
+	ql := workload.QueryLoad{}
+	for i := 0; i < d.connFlags.Concurrency; i++ {
+		worker := &txnWorker{
+			db:    db,
+			txns:  txns,
+			rng:   rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), uint64(i))),
+			hists: reg.GetHandle(),
+			d:     d, // reference to the dbworkload for generators
+		}
+		ql.WorkerFns = append(ql.WorkerFns, worker.run)
+	}
+	ql.Close = func(context.Context) error { return db.Close() }
 	return ql, nil
 }
 
-func randString(rng *rand.Rand, length int) []byte {
-	const letters = alphaLetters
-	result := make([]byte, length)
-	for i := range result {
-		result[i] = letters[rng.IntN(len(letters))]
+// getValueSmart picks values from the generator or cache.
+func (d *dbworkload) getValueSmart(p Placeholder) string {
+	key := fmt.Sprintf("%s", p.Name)
+	fmt.Printf("looking for key: %s\n", key)
+	rc := d.columnGens[key]
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+
+	// choose old or new depending on clause.
+	if p.Clause == "WHERE" || p.FKReference != nil {
+		if len(rc.cache) > 0 {
+			idx := rand.IntN(len(rc.cache))
+			return rc.cache[idx]
+		}
 	}
-	return result
+	v := rc.gen.Next()
+	if len(rc.cache) < maxCacheSize {
+		rc.cache = append(rc.cache, v)
+	} else {
+		rc.cache[rand.IntN(len(rc.cache))] = v
+	}
+	return v
+}
+
+type txnWorker struct {
+	db    *gosql.DB
+	txns  []Transaction
+	rng   *rand.Rand
+	hists *histogram.Histograms
+	d     *dbworkload // reference to the dbworkload for generators
+}
+
+func (w *txnWorker) run(ctx context.Context) error {
+	idx := w.rng.IntN(len(w.txns))
+	txn := w.txns[idx]
+	d := w.d // reference to the dbworkload for generators
+	start := timeutil.Now()
+	err := crdb.ExecuteTx(ctx, w.db, nil, func(tx *gosql.Tx) error {
+		for _, q := range txn.Queries {
+			args := make([]interface{}, len(q.Placeholders))
+			for i, p := range q.Placeholders {
+				args[i] = d.getValueSmart(p)
+			}
+			if _, err := tx.ExecContext(ctx, q.SQL, args...); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	elapsed := timeutil.Since(start)
+	w.hists.Get(fmt.Sprintf("txn_%d", idx)).Record(elapsed)
+	return err
 }
