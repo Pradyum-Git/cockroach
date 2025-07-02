@@ -2,6 +2,7 @@ package workload_generator
 
 import (
 	"context"
+	"database/sql"
 	gosql "database/sql"
 	"fmt"
 	"github.com/cockroachdb/cockroach-go/v2/crdb"
@@ -13,7 +14,9 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/workload/histogram"
 	"github.com/cockroachdb/errors"
 	"github.com/spf13/pflag"
+	"gopkg.in/yaml.v3"
 	"math/rand/v2"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -130,6 +133,13 @@ func (s *dbworkload) Hooks() workload.Hooks {
 			//}
 			//print the yaml for now
 			s.workloadSchema = buildWorkloadSchema(s.allSchema, dbName, s.rowCount)
+			data, err := yaml.Marshal(s.workloadSchema)
+			if err != nil {
+				return errors.Wrap(err, "couldn't marshal workload schema to YAML")
+			}
+			if err := os.WriteFile("schema.yaml", data, 0644); err != nil {
+				return errors.Wrap(err, "couldn't write schema.yaml")
+			}
 			//err := os.WriteFile("/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/workload_generator/test_output.yaml", []byte(yamlOut), 0644)
 			//if err != nil {
 			//	return err
@@ -303,7 +313,7 @@ func (d *dbworkload) initGenerators() error {
 		for col, meta := range block.Columns {
 			gen := makeGenerator(meta, block.Count/baseBatchSize, baseBatchSize, d.workloadSchema)
 			d.columnGens[fmt.Sprintf("%s", col)] = &runtimeColumn{gen: gen}
-			fmt.Printf("Initialized generator for %s\n", col)
+			//	fmt.Printf("Initialized generator for %s\n", col)
 		}
 	}
 	return nil
@@ -312,6 +322,13 @@ func (d *dbworkload) initGenerators() error {
 func (d *dbworkload) Ops(
 	ctx context.Context, urls []string, reg *histogram.Registry,
 ) (workload.QueryLoad, error) {
+	raw, err := os.ReadFile("schema.yaml")
+	if err != nil {
+		return workload.QueryLoad{}, errors.Wrap(err, "couldn't read schema.yaml")
+	}
+	if err := yaml.Unmarshal(raw, &d.workloadSchema); err != nil {
+		return workload.QueryLoad{}, errors.Wrap(err, "couldn't unmarshal schema.yaml")
+	}
 	// Parse transactions from the tpcc file.
 	txns, err := ReadTPCC("pkg/workload/workload_generator/tpcc.sql")
 	if err != nil {
@@ -346,7 +363,7 @@ func (d *dbworkload) Ops(
 // getValueSmart picks values from the generator or cache.
 func (d *dbworkload) getValueSmart(p Placeholder) string {
 	key := fmt.Sprintf("%s", p.Name)
-	fmt.Printf("looking for key: %s\n", key)
+	//fmt.Printf("looking for key: %s\n", key)
 	rc := d.columnGens[key]
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
@@ -384,8 +401,54 @@ func (w *txnWorker) run(ctx context.Context) error {
 		for _, q := range txn.Queries {
 			args := make([]interface{}, len(q.Placeholders))
 			for i, p := range q.Placeholders {
-				args[i] = d.getValueSmart(p)
+				raw := d.getValueSmart(p)
+				var arg interface{}
+
+				// If we got an empty string and this column is nullable, emit a SQL NULL.
+				if raw == "" && p.IsNullable {
+					switch t := strings.ToUpper(p.ColType); t {
+					case "INT", "INT2", "INT4", "INT8", "BIGINT", "SMALLINT":
+						arg = sql.NullInt64{Valid: false}
+					case "FLOAT", "FLOAT4", "FLOAT8", "DECIMAL", "NUMERIC", "DOUBLE PRECISION":
+						arg = sql.NullFloat64{Valid: false}
+					case "BOOL", "BOOLEAN":
+						arg = sql.NullBool{Valid: false}
+					default:
+						arg = sql.NullString{Valid: false}
+					}
+				} else {
+					// Otherwise parse the raw string into the right Go/sql type
+					switch t := strings.ToUpper(p.ColType); t {
+					case "INT", "INT2", "INT4", "INT8", "BIGINT", "SMALLINT":
+						iv, err := strconv.ParseInt(raw, 10, 64)
+						if err != nil {
+							return err
+						}
+						arg = sql.NullInt64{Int64: iv, Valid: true}
+
+					case "FLOAT", "FLOAT4", "FLOAT8", "DECIMAL", "NUMERIC", "DOUBLE PRECISION":
+						fv, err := strconv.ParseFloat(raw, 64)
+						if err != nil {
+							return err
+						}
+						arg = sql.NullFloat64{Float64: fv, Valid: true}
+
+					case "BOOL", "BOOLEAN":
+						bv, err := strconv.ParseBool(raw)
+						if err != nil {
+							return err
+						}
+						arg = sql.NullBool{Bool: bv, Valid: true}
+
+					default:
+						// treat everything else as text/varchar/etc.
+						arg = sql.NullString{String: raw, Valid: raw != ""}
+					}
+				}
+
+				args[i] = arg
 			}
+
 			if _, err := tx.ExecContext(ctx, q.SQL, args...); err != nil {
 				return err
 			}
