@@ -406,34 +406,34 @@ func (w *txnWorker) run(ctx context.Context) error {
 
 				// If we got an empty string and this column is nullable, emit a SQL NULL.
 				if raw == "" && p.IsNullable {
-					switch t := strings.ToUpper(p.ColType); t {
-					case "INT", "INT2", "INT4", "INT8", "BIGINT", "SMALLINT":
+					switch t := strings.ToUpper(p.ColType); {
+					case strings.HasPrefix(t, "INT"):
 						arg = sql.NullInt64{Valid: false}
-					case "FLOAT", "FLOAT4", "FLOAT8", "DECIMAL", "NUMERIC", "DOUBLE PRECISION":
+					case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
 						arg = sql.NullFloat64{Valid: false}
-					case "BOOL", "BOOLEAN":
+					case t == "BOOL", t == "BOOLEAN":
 						arg = sql.NullBool{Valid: false}
 					default:
 						arg = sql.NullString{Valid: false}
 					}
 				} else {
 					// Otherwise parse the raw string into the right Go/sql type
-					switch t := strings.ToUpper(p.ColType); t {
-					case "INT", "INT2", "INT4", "INT8", "BIGINT", "SMALLINT":
+					switch t := strings.ToUpper(p.ColType); {
+					case strings.HasPrefix(t, "INT"):
 						iv, err := strconv.ParseInt(raw, 10, 64)
 						if err != nil {
 							return err
 						}
 						arg = sql.NullInt64{Int64: iv, Valid: true}
 
-					case "FLOAT", "FLOAT4", "FLOAT8", "DECIMAL", "NUMERIC", "DOUBLE PRECISION":
+					case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
 						fv, err := strconv.ParseFloat(raw, 64)
 						if err != nil {
 							return err
 						}
 						arg = sql.NullFloat64{Float64: fv, Valid: true}
 
-					case "BOOL", "BOOLEAN":
+					case t == "BOOL", t == "BOOLEAN":
 						bv, err := strconv.ParseBool(raw)
 						if err != nil {
 							return err
