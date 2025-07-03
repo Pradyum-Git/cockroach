@@ -38,6 +38,7 @@ type Transaction struct {
 }
 
 // ReadTPCC reads tpcc.sql and returns a slice of Transactions.
+// It will number placeholders $1…$N separately in each SQL statement.
 func ReadTPCC(path string) ([]Transaction, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -45,44 +46,43 @@ func ReadTPCC(path string) ([]Transaction, error) {
 	}
 	defer f.Close()
 
-	// read entire file
 	data, err := io.ReadAll(bufio.NewReader(f))
 	if err != nil {
 		return nil, fmt.Errorf("read file: %w", err)
 	}
 	text := string(data)
 
-	// split on transaction markers
-	blocks := regexp.MustCompile(`(?m)^-------Begin Transaction------\s*([\s\S]*?)-------End Transaction-------`).FindAllStringSubmatch(text, -1)
-	var txns []Transaction
+	// Each transaction block
+	txRe := regexp.MustCompile(
+		`(?m)^-------Begin Transaction------\s*([\s\S]*?)-------End Transaction-------`)
+	blocks := txRe.FindAllStringSubmatch(text, -1)
 
-	// placeholder regex
+	// placeholder pattern
 	phRe := regexp.MustCompile(`:-:\|(.+?)\|:-:`)
 
+	var txns []Transaction
 	for _, blk := range blocks {
 		body := blk[1]
 		lines := strings.Split(body, "\n")
-		var curr SQLQuery
 		var txn Transaction
-		posCounter := 1
+		var curr SQLQuery
 
 		for _, line := range lines {
 			line = strings.TrimSpace(line)
 			if line == "" || line == "BEGIN;" || line == "COMMIT;" {
 				continue
 			}
-			// accumulate statement until it ends with ";"
+			// build up the SQL text
 			curr.SQL += line + " "
 			if strings.HasSuffix(line, ";") {
-				// process placeholders
-				placeholders := []Placeholder{}
+				// once we hit the end of a statement, re-number from $1
+				stmtPos := 1
+				var placeholders []Placeholder
+
 				sqlOut := phRe.ReplaceAllStringFunc(curr.SQL, func(match string) string {
-					// extract inner
 					inner := phRe.FindStringSubmatch(match)[1]
-					// split fields: they were quoted ','-sep
 					parts := splitQuoted(inner)
 
-					// map parts
 					var p Placeholder
 					p.Name = trimQuotes(parts[0])
 					p.ColType = trimQuotes(parts[1])
@@ -93,18 +93,17 @@ func ReadTPCC(path string) ([]Transaction, error) {
 					}
 					p.IsUnique = trimQuotes(parts[5]) == "UNIQUE"
 					if fk := trimQuotes(parts[6]); fk != "" {
-						// form: FK→table.column
-						parts := strings.Split(strings.TrimPrefix(fk, "FK→"), ".")
-						p.FKReference = &FKRef{Table: parts[0], Column: parts[1]}
+						fkParts := strings.Split(strings.TrimPrefix(fk, "FK→"), ".")
+						p.FKReference = &FKRef{Table: fkParts[0], Column: fkParts[1]}
 					}
 					if chk := trimQuotes(parts[7]); chk != "" {
 						p.InlineCheck = &chk
 					}
-					// last part is clause
 					p.Clause = trimQuotes(parts[8])
-					p.Position = posCounter
+					p.Position = stmtPos
+					stmtPos++
+
 					placeholders = append(placeholders, p)
-					posCounter++
 					return fmt.Sprintf("$%d", p.Position)
 				})
 
@@ -112,12 +111,14 @@ func ReadTPCC(path string) ([]Transaction, error) {
 				curr.Placeholders = placeholders
 				txn.Queries = append(txn.Queries, curr)
 
-				// reset for next
+				// reset for next statement
 				curr = SQLQuery{}
 			}
 		}
+
 		txns = append(txns, txn)
 	}
+
 	return txns, nil
 }
 
