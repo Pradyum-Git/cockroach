@@ -26,9 +26,10 @@ import (
 
 // runtimeColumn holds a generator and a cache of prior values.
 type runtimeColumn struct {
-	gen   Generator
-	mu    sync.Mutex // protects gen and cache
-	cache []string   // ring buffer of recent values
+	gen        Generator
+	mu         sync.Mutex // protects gen and cache
+	cache      []string   // ring buffer of recent values
+	columnMeta ColumnMeta // metadata for this column
 }
 
 const (
@@ -317,8 +318,9 @@ func (d *dbworkload) initGenerators(db *sql.DB) error {
 			key := fmt.Sprintf("%s", colName)
 			gen := makeGenerator(meta, block.Count/baseBatchSize, baseBatchSize, d.workloadSchema)
 			d.columnGens[key] = &runtimeColumn{
-				gen:   gen,
-				cache: make([]string, 0, maxCacheSize),
+				gen:        gen,
+				cache:      make([]string, 0, maxCacheSize),
+				columnMeta: meta,
 			}
 		}
 	}
@@ -410,7 +412,7 @@ func (d *dbworkload) getValueSmart(p Placeholder) string {
 	defer rc.mu.Unlock()
 
 	// choose old or new depending on clause.
-	if p.Clause == "WHERE" || p.FKReference != nil {
+	if p.Clause == "WHERE" || d.columnGens[key].columnMeta.HasForeignKey == true {
 		if len(rc.cache) > 0 {
 			idx := rand.IntN(len(rc.cache))
 			return rc.cache[idx]
