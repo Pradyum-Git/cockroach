@@ -13,6 +13,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/workload"
 	"github.com/cockroachdb/cockroach/pkg/workload/histogram"
 	"github.com/cockroachdb/errors"
+	"github.com/lib/pq"
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v3"
 	"math/rand/v2"
@@ -305,17 +306,56 @@ func generateBatch(
 	}
 }
 
-// init generators once after ReadTPCC.
-func (d *dbworkload) initGenerators() error {
+// initGenerators seeds d.columnGens with both fresh generators and a cache
+// of real values pulled from the live database.
+func (d *dbworkload) initGenerators(db *sql.DB) error {
+	// 1) Build the generator + empty cache for every table.col
 	d.columnGens = make(map[string]*runtimeColumn)
 	for _, blocks := range d.workloadSchema {
 		block := blocks[0]
-		for col, meta := range block.Columns {
+		for colName, meta := range block.Columns {
+			key := fmt.Sprintf("%s", colName)
 			gen := makeGenerator(meta, block.Count/baseBatchSize, baseBatchSize, d.workloadSchema)
-			d.columnGens[fmt.Sprintf("%s", col)] = &runtimeColumn{gen: gen}
-			//	fmt.Printf("Initialized generator for %s\n", col)
+			d.columnGens[key] = &runtimeColumn{
+				gen:   gen,
+				cache: make([]string, 0, maxCacheSize),
+			}
 		}
 	}
+
+	// 2) Prime each cache by selecting up to maxInitialCacheSize existing rows.
+	//    We do this column-by-column to keep it simple.
+	for tableName, blocks := range d.workloadSchema {
+		block := blocks[0]
+		for _, colName := range block.ColumnOrder {
+			key := fmt.Sprintf("%s", colName)
+			rc := d.columnGens[key]
+
+			// build a query like: SELECT colName FROM tableName LIMIT maxInitialCacheSize
+			q := fmt.Sprintf(`SELECT %s FROM %s LIMIT %d`,
+				pq.QuoteIdentifier(colName), pq.QuoteIdentifier(tableName), maxCacheSize)
+			rows, err := db.QueryContext(context.Background(), q)
+			if err != nil {
+				return fmt.Errorf("priming cache for %s: %w", key, err)
+			}
+
+			for rows.Next() {
+				var raw sql.NullString
+				if err := rows.Scan(&raw); err != nil {
+					rows.Close()
+					return fmt.Errorf("scanning cache row for %s: %w", key, err)
+				}
+				if raw.Valid {
+					rc.cache = append(rc.cache, raw.String)
+				}
+				if len(rc.cache) >= maxCacheSize {
+					break
+				}
+			}
+			rows.Close()
+		}
+	}
+
 	return nil
 }
 
@@ -334,9 +374,6 @@ func (d *dbworkload) Ops(
 	if err != nil {
 		return workload.QueryLoad{}, err
 	}
-	if err := d.initGenerators(); err != nil {
-		return workload.QueryLoad{}, err
-	}
 
 	db, err := gosql.Open("postgres", strings.Join(urls, " "))
 	if err != nil {
@@ -344,6 +381,10 @@ func (d *dbworkload) Ops(
 	}
 	db.SetMaxOpenConns(d.connFlags.Concurrency + 1)
 	db.SetMaxIdleConns(d.connFlags.Concurrency + 1)
+
+	if err := d.initGenerators(db); err != nil {
+		return workload.QueryLoad{}, err
+	}
 
 	ql := workload.QueryLoad{}
 	for i := 0; i < d.connFlags.Concurrency; i++ {
