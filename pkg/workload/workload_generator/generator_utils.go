@@ -204,7 +204,8 @@ func mapDecimalType(sql string, col *Column, args map[string]any) (string, map[s
 		if intDigits > 0 {
 			// e.g. p=6,s=4 ⇒ intDigits=2 ⇒ base=99
 			base := float64(int(math.Pow10(intDigits)) - 1)
-			maxVal = base + (1.0 - fracUnit) // 99.9999
+			headroom := fracUnit / 2
+			maxVal = base + (1.0 - fracUnit) - headroom // 99.9999
 			minVal = -maxVal
 		} else {
 			// p==s ⇒ only fractional digits, e.g. 0.9999

@@ -404,7 +404,7 @@ func (d *dbworkload) Ops(
 }
 
 // getValueSmart picks values from the generator or cache.
-func (d *dbworkload) getValueSmart(p Placeholder) string {
+func (d *dbworkload) getValueSmart(p Placeholder, idx int) string {
 	key := fmt.Sprintf("%s", p.Name)
 	//fmt.Printf("looking for key: %s\n", key)
 	rc := d.columnGens[key]
@@ -412,9 +412,8 @@ func (d *dbworkload) getValueSmart(p Placeholder) string {
 	defer rc.mu.Unlock()
 
 	// choose old or new depending on clause.
-	if p.Clause == "WHERE" || d.columnGens[key].columnMeta.HasForeignKey == true {
+	if p.Clause == "WHERE" || rc.columnMeta.HasForeignKey == true {
 		if len(rc.cache) > 0 {
-			idx := rand.IntN(len(rc.cache))
 			return rc.cache[idx]
 		}
 	}
@@ -443,8 +442,30 @@ func (w *txnWorker) run(ctx context.Context) error {
 	err := crdb.ExecuteTx(ctx, w.db, nil, func(tx *gosql.Tx) error {
 		for _, q := range txn.Queries {
 			args := make([]interface{}, len(q.Placeholders))
+			// 1) pick a single fkIdx for ALL FK placeholders (or -1 if none)
+			fkIdx := -1
+			for _, p := range q.Placeholders {
+				if w.d.columnGens[p.Name].columnMeta.HasForeignKey {
+					cacheLen := len(w.d.columnGens[p.Name].cache)
+					if cacheLen > 0 {
+						fkIdx = w.rng.IntN(cacheLen)
+					}
+					break
+				}
+			}
+
+			// 2) build per-placeholder indexes
+			indexes := make([]int, len(q.Placeholders))
 			for i, p := range q.Placeholders {
-				raw := d.getValueSmart(p)
+				if w.d.columnGens[p.Name].columnMeta.HasForeignKey {
+					indexes[i] = fkIdx
+				} else {
+					cacheLen := len(w.d.columnGens[p.Name].cache)
+					indexes[i] = w.rng.IntN(cacheLen)
+				}
+			}
+			for i, p := range q.Placeholders {
+				raw := d.getValueSmart(p, indexes[i])
 				var arg interface{}
 
 				// If we got an empty string and this column is nullable, emit a SQL NULL.
