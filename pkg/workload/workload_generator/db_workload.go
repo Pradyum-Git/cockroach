@@ -77,7 +77,7 @@ type dbworkload struct {
 	workloadSchema Schema
 	yamlFile       string
 	columnGens     map[string]*runtimeColumn // table.col → runtimeColumn
-
+	logFile        *os.File
 }
 
 // Meta implements the Generator interface.
@@ -310,13 +310,22 @@ func generateBatch(
 // initGenerators seeds d.columnGens with both fresh generators and a cache
 // of real values pulled from the live database.
 func (d *dbworkload) initGenerators(db *sql.DB) error {
+
+	maxRows := 0
+	for _, tblBlocks := range d.workloadSchema {
+		if tblBlocks[0].Count > maxRows {
+			maxRows = tblBlocks[0].Count
+		}
+	}
+	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
+
 	// 1) Build the generator + empty cache for every table.col
 	d.columnGens = make(map[string]*runtimeColumn)
 	for _, blocks := range d.workloadSchema {
 		block := blocks[0]
 		for colName, meta := range block.Columns {
 			key := fmt.Sprintf("%s", colName)
-			gen := makeGenerator(meta, block.Count/baseBatchSize, baseBatchSize, d.workloadSchema)
+			gen := makeGenerator(meta, globalNumBatches, baseBatchSize, d.workloadSchema)
 			d.columnGens[key] = &runtimeColumn{
 				gen:        gen,
 				cache:      make([]string, 0, maxCacheSize),
@@ -364,6 +373,13 @@ func (d *dbworkload) initGenerators(db *sql.DB) error {
 func (d *dbworkload) Ops(
 	ctx context.Context, urls []string, reg *histogram.Registry,
 ) (workload.QueryLoad, error) {
+
+	f, err := os.OpenFile("sql_args.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return workload.QueryLoad{}, err
+	}
+	d.logFile = f
+
 	raw, err := os.ReadFile("schema.yaml")
 	if err != nil {
 		return workload.QueryLoad{}, errors.Wrap(err, "couldn't read schema.yaml")
@@ -391,11 +407,12 @@ func (d *dbworkload) Ops(
 	ql := workload.QueryLoad{}
 	for i := 0; i < d.connFlags.Concurrency; i++ {
 		worker := &txnWorker{
-			db:    db,
-			txns:  txns,
-			rng:   rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), uint64(i))),
-			hists: reg.GetHandle(),
-			d:     d, // reference to the dbworkload for generators
+			db:      db,
+			txns:    txns,
+			rng:     rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), uint64(i))),
+			hists:   reg.GetHandle(),
+			d:       d,         // reference to the dbworkload for generators
+			logFile: d.logFile, // pass the file into each worker
 		}
 		ql.WorkerFns = append(ql.WorkerFns, worker.run)
 	}
@@ -404,7 +421,7 @@ func (d *dbworkload) Ops(
 }
 
 // getValueSmart picks values from the generator or cache.
-func (d *dbworkload) getValueSmart(p Placeholder, idx int) string {
+func (d *dbworkload) getValueSmart(p Placeholder, idx int, allPksAreFks bool) string {
 	key := fmt.Sprintf("%s", p.Name)
 	//fmt.Printf("looking for key: %s\n", key)
 	rc := d.columnGens[key]
@@ -412,7 +429,7 @@ func (d *dbworkload) getValueSmart(p Placeholder, idx int) string {
 	defer rc.mu.Unlock()
 
 	// choose old or new depending on clause.
-	if p.Clause == "WHERE" || rc.columnMeta.HasForeignKey == true {
+	if p.Clause == "WHERE" || (rc.columnMeta.HasForeignKey == true && allPksAreFks == false) {
 		if len(rc.cache) > 0 {
 			return rc.cache[idx]
 		}
@@ -427,11 +444,12 @@ func (d *dbworkload) getValueSmart(p Placeholder, idx int) string {
 }
 
 type txnWorker struct {
-	db    *gosql.DB
-	txns  []Transaction
-	rng   *rand.Rand
-	hists *histogram.Histograms
-	d     *dbworkload // reference to the dbworkload for generators
+	db      *gosql.DB
+	txns    []Transaction
+	rng     *rand.Rand
+	hists   *histogram.Histograms
+	d       *dbworkload // reference to the dbworkload for generators
+	logFile *os.File
 }
 
 func (w *txnWorker) run(ctx context.Context) error {
@@ -440,11 +458,19 @@ func (w *txnWorker) run(ctx context.Context) error {
 	d := w.d // reference to the dbworkload for generators
 	start := timeutil.Now()
 	err := crdb.ExecuteTx(ctx, w.db, nil, func(tx *gosql.Tx) error {
-		for _, q := range txn.Queries {
-			args := make([]interface{}, len(q.Placeholders))
+		for _, sqlQuery := range txn.Queries {
+			args := make([]interface{}, len(sqlQuery.Placeholders))
+			//checking if we have a situation where all the pks in the query are foreign keys
+			allPksAreFK := true
+			for _, p := range sqlQuery.Placeholders {
+				if p.IsPrimaryKey && !w.d.columnGens[p.Name].columnMeta.HasForeignKey {
+					allPksAreFK = false
+					break
+				}
+			}
 			// 1) pick a single fkIdx for ALL FK placeholders (or -1 if none)
 			fkIdx := -1
-			for _, p := range q.Placeholders {
+			for _, p := range sqlQuery.Placeholders {
 				if w.d.columnGens[p.Name].columnMeta.HasForeignKey {
 					cacheLen := len(w.d.columnGens[p.Name].cache)
 					if cacheLen > 0 {
@@ -455,8 +481,8 @@ func (w *txnWorker) run(ctx context.Context) error {
 			}
 
 			// 2) build per-placeholder indexes
-			indexes := make([]int, len(q.Placeholders))
-			for i, p := range q.Placeholders {
+			indexes := make([]int, len(sqlQuery.Placeholders))
+			for i, p := range sqlQuery.Placeholders {
 				if w.d.columnGens[p.Name].columnMeta.HasForeignKey {
 					indexes[i] = fkIdx
 				} else {
@@ -464,8 +490,8 @@ func (w *txnWorker) run(ctx context.Context) error {
 					indexes[i] = w.rng.IntN(cacheLen)
 				}
 			}
-			for i, p := range q.Placeholders {
-				raw := d.getValueSmart(p, indexes[i])
+			for i, p := range sqlQuery.Placeholders {
+				raw := d.getValueSmart(p, indexes[i], allPksAreFK)
 				var arg interface{}
 
 				// If we got an empty string and this column is nullable, emit a SQL NULL.
@@ -512,8 +538,8 @@ func (w *txnWorker) run(ctx context.Context) error {
 
 				args[i] = arg
 			}
-
-			if _, err := tx.ExecContext(ctx, q.SQL, args...); err != nil {
+			fmt.Fprintf(w.logFile, "SQL: %s\nARGS: %v\n\n", sqlQuery.SQL, args)
+			if _, err := tx.ExecContext(ctx, sqlQuery.SQL, args...); err != nil {
 				return err
 			}
 		}

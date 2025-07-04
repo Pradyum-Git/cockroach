@@ -196,6 +196,9 @@ func mapDecimalType(sql string, col *Column, args map[string]any) (string, map[s
 		precision := atoi(m[1])
 		scale := atoi(m[2])
 		intDigits := precision - scale
+		if intDigits > 3 {
+			intDigits = intDigits - 2
+		}
 
 		// smallest fractional step: 10^(–scale)
 		fracUnit := math.Pow10(-scale)
@@ -204,8 +207,7 @@ func mapDecimalType(sql string, col *Column, args map[string]any) (string, map[s
 		if intDigits > 0 {
 			// e.g. p=6,s=4 ⇒ intDigits=2 ⇒ base=99
 			base := float64(int(math.Pow10(intDigits)) - 1)
-			headroom := fracUnit / 2
-			maxVal = base + (1.0 - fracUnit) - headroom // 99.9999
+			maxVal = base + (1.0 - fracUnit) // 99.9999
 			minVal = -maxVal
 		} else {
 			// p==s ⇒ only fractional digits, e.g. 0.9999
