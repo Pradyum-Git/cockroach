@@ -38,6 +38,9 @@ const (
 	fieldLength   = 100
 	baseBatchSize = 100
 	maxCacheSize  = 100_000 // max size of the cache for each column
+
+	insert = "INSERT"
+	update = "UPDATE"
 )
 
 func init() {
@@ -306,22 +309,18 @@ func (d *dbworkload) initGenerators(db *sql.DB) error {
 	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
 
 	// 1) Build the generator + empty cache for every table.col
-	d.columnGens = make(map[string]*runtimeColumn)
-	for _, blocks := range d.workloadSchema {
-		block := blocks[0]
-		for colName, meta := range block.Columns {
-			key := fmt.Sprintf("%s", colName)
-			gen := makeGenerator(meta, globalNumBatches, baseBatchSize, d.workloadSchema)
-			d.columnGens[key] = &runtimeColumn{
-				gen:        gen,
-				cache:      make([]string, 0, maxCacheSize),
-				columnMeta: meta,
-			}
-		}
-	}
+	d.buildRuntimeGenerators(globalNumBatches)
 
 	// 2) Prime each cache by selecting up to maxInitialCacheSize existing rows.
 	//    We do this column-by-column to keep it simple.
+	err := d.setCacheValues(db)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *dbworkload) setCacheValues(db *gosql.DB) error {
 	for tableName, blocks := range d.workloadSchema {
 		block := blocks[0]
 		for _, colName := range block.ColumnOrder {
@@ -353,6 +352,22 @@ func (d *dbworkload) initGenerators(db *sql.DB) error {
 		}
 	}
 	return nil
+}
+
+func (d *dbworkload) buildRuntimeGenerators(globalNumBatches int) {
+	d.columnGens = make(map[string]*runtimeColumn)
+	for _, blocks := range d.workloadSchema {
+		block := blocks[0]
+		for colName, meta := range block.Columns {
+			key := fmt.Sprintf("%s", colName)
+			gen := makeGenerator(meta, globalNumBatches, baseBatchSize, d.workloadSchema)
+			d.columnGens[key] = &runtimeColumn{
+				gen:        gen,
+				cache:      make([]string, 0, maxCacheSize),
+				columnMeta: meta,
+			}
+		}
+	}
 }
 
 func (d *dbworkload) Ops(
@@ -400,8 +415,8 @@ func (d *dbworkload) Ops(
 	return ql, nil
 }
 
-// getValueSmart picks values from the generator or cache depending on sql clause or whether there is a fk dependency.
-func (d *dbworkload) getValueSmart(p Placeholder, idx int) string {
+// getRegularColumnValue picks values from the generator or cache depending on sql clause or whether there is a fk dependency.
+func (d *dbworkload) getRegularColumnValue(p Placeholder, idx int) string {
 	key := fmt.Sprintf("%s", p.Name)
 	rc := d.columnGens[key]
 	rc.mu.Lock()
@@ -432,6 +447,7 @@ type txnWorker struct {
 	logFile      *os.File
 }
 
+// run executes a random transaction from the list of transactions.
 func (w *txnWorker) run(ctx context.Context) error {
 	//picking a random transaction from the list of transactions
 	//can consider switching to a round-robin approach later
@@ -446,109 +462,163 @@ func (w *txnWorker) run(ctx context.Context) error {
 	err := crdb.ExecuteTx(ctx, w.db, nil, func(tx *gosql.Tx) error {
 		for _, sqlQuery := range txn.Queries {
 			args := make([]interface{}, len(sqlQuery.Placeholders))
-			//checking if we have a situation where all the pks in the query are foreign keys
-			allPksAreFK := true
-			for _, p := range sqlQuery.Placeholders {
-				if p.IsPrimaryKey && !w.d.columnGens[p.Name].columnMeta.HasForeignKey {
-					allPksAreFK = false
-					break
-				}
-			}
-			// 1) pick a single fkIdx for ALL FK placeholders (or -1 if none)
-			fkIdx := -1
-			for _, p := range sqlQuery.Placeholders {
-				if w.d.columnGens[p.Name].columnMeta.HasForeignKey {
-					cacheLen := len(w.d.columnGens[p.Name].cache)
-					if cacheLen > 0 {
-						fkIdx = w.rng.IntN(cacheLen)
-					}
-					break
-				}
-			}
-
-			// 2) build per-placeholder indexes
-			indexes := make([]int, len(sqlQuery.Placeholders))
-			for i, p := range sqlQuery.Placeholders {
-				if w.d.columnGens[p.Name].columnMeta.HasForeignKey {
-					indexes[i] = fkIdx
-				} else {
-					cacheLen := len(w.d.columnGens[p.Name].cache)
-					indexes[i] = w.rng.IntN(cacheLen)
-				}
-			}
-			for i, p := range sqlQuery.Placeholders {
+			//checking if we have a situation where all the primary keys in the query have foreign key dependency
+			allPksAreFK := checkIfAllPkAreFk(sqlQuery, d)
+			// Pick a single fkIdx for ALL FK placeholders (or -1 if none).
+			//This ensures that for all column in a composite fk, the same row index from the parent column cache is chosen
+			fkIndex := w.pickFkIndex(sqlQuery, d)
+			// Build per-placeholder indexes
+			indexes := w.setCacheIndex(sqlQuery, d, fkIndex)
+			for i, placeholder := range sqlQuery.Placeholders {
 				var raw string
-				if allPksAreFK && (p.Clause == "INSERT" || p.Clause == "UPDATE") {
-					fk := w.d.columnGens[p.Name].columnMeta.FK
-					parts := strings.Split(fk, ".")
-					parentCol := parts[len(parts)-1] // last part is the column name
-					if vals, ok := inserted[parentCol]; ok && len(vals) > 0 {
-						raw = vals[0].(string)         // use the first value from the inserted map
-						inserted[parentCol] = vals[1:] // remove the first value
-					} else {
-						//fallback that shouldn't really happen
-						raw = d.getValueSmart(p, indexes[i])
-					}
-				} else {
-					raw = d.getValueSmart(p, indexes[i])
+				// Getting the value to be inserted for the placeholder
+				raw = getColumnValue(allPksAreFK, placeholder, d, inserted, raw, indexes, i)
+				// If the data was generated to be written, we need to insert it into the inserted map
+				if placeholder.Clause == insert || placeholder.Clause == update {
+					inserted[placeholder.Name] = append(inserted[placeholder.Name], raw)
 				}
-				if p.Clause == "INSERT" || p.Clause == "UPDATE" {
-					inserted[p.Name] = append(inserted[p.Name], raw)
+				// Set the value for the placeholder in the args slice based on the column type
+				err := setColumnValue(raw, placeholder, args, i)
+				if err != nil {
+					return err
 				}
-				var arg interface{}
-
-				// If we got an empty string and this column is nullable, emit a SQL NULL.
-				if raw == "" && p.IsNullable {
-					switch t := strings.ToUpper(p.ColType); {
-					case strings.HasPrefix(t, "INT"):
-						arg = sql.NullInt64{Valid: false}
-					case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
-						arg = sql.NullFloat64{Valid: false}
-					case t == "BOOL", t == "BOOLEAN":
-						arg = sql.NullBool{Valid: false}
-					default:
-						arg = sql.NullString{Valid: false}
-					}
-				} else {
-					// Otherwise parse the raw string into the right Go/sql type
-					switch t := strings.ToUpper(p.ColType); {
-					case strings.HasPrefix(t, "INT"):
-						iv, err := strconv.ParseInt(raw, 10, 64)
-						if err != nil {
-							return err
-						}
-						arg = sql.NullInt64{Int64: iv, Valid: true}
-
-					case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
-						fv, err := strconv.ParseFloat(raw, 64)
-						if err != nil {
-							return err
-						}
-						arg = sql.NullFloat64{Float64: fv, Valid: true}
-
-					case t == "BOOL", t == "BOOLEAN":
-						bv, err := strconv.ParseBool(raw)
-						if err != nil {
-							return err
-						}
-						arg = sql.NullBool{Bool: bv, Valid: true}
-
-					default:
-						// treat everything else as text/varchar/etc.
-						arg = sql.NullString{String: raw, Valid: raw != ""}
-					}
-				}
-
-				args[i] = arg
 			}
-
+			// Run the SQL query with the args
 			if _, err := tx.ExecContext(ctx, sqlQuery.SQL, args...); err != nil {
 				return err
 			}
 		}
 		return nil
 	})
+	// Calculate the elapsed time for the transaction metrics
 	elapsed := timeutil.Since(start)
 	w.hists.Get(fmt.Sprintf("txn_%d", idx)).Record(elapsed)
 	return err
+}
+
+// setColumnValue sets the value for a placeholder in the args slice.
+func setColumnValue(raw string, placeholder Placeholder, args []interface{}, i int) error {
+	var arg interface{}
+	// If we got an empty string and this column is nullable, emit a SQL NULL.
+	if raw == "" && placeholder.IsNullable {
+		arg = setNullType(placeholder, arg)
+	} else {
+		// Otherwise parse the raw string into the right Go/sql type
+		typedValue, err := setNotNullType(placeholder, raw, arg)
+		if err != nil {
+			return err
+		}
+		arg = typedValue
+	}
+
+	args[i] = arg
+	return nil
+}
+
+// setNotNullType converts the raw string value to the appropriate SQL type based on the placeholder's column type.
+func setNotNullType(placeholder Placeholder, raw string, arg interface{}) (interface{}, error) {
+	switch t := strings.ToUpper(placeholder.ColType); {
+	// integer types
+	case strings.HasPrefix(t, "INT"):
+		iv, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		arg = sql.NullInt64{Int64: iv, Valid: true}
+	// floating point types
+	case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
+		fv, err := strconv.ParseFloat(raw, 64)
+		if err != nil {
+			return nil, err
+		}
+		arg = sql.NullFloat64{Float64: fv, Valid: true}
+	// boolean types
+	case t == "BOOL", t == "BOOLEAN":
+		bv, err := strconv.ParseBool(raw)
+		if err != nil {
+			return nil, err
+		}
+		arg = sql.NullBool{Bool: bv, Valid: true}
+	// remaining types are parsed as raw strings
+	default:
+		// treat everything else as text/varchar/etc.
+		arg = sql.NullString{String: raw, Valid: raw != ""}
+	}
+	return arg, nil
+}
+
+// setNullType sets the argument to a SQL NULL value based on the column type of the placeholder.
+func setNullType(placeholder Placeholder, arg interface{}) interface{} {
+	switch t := strings.ToUpper(placeholder.ColType); {
+	case strings.HasPrefix(t, "INT"):
+		arg = sql.NullInt64{Valid: false}
+	case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
+		arg = sql.NullFloat64{Valid: false}
+	case t == "BOOL", t == "BOOLEAN":
+		arg = sql.NullBool{Valid: false}
+	default:
+		arg = sql.NullString{Valid: false}
+	}
+	return arg
+}
+
+// getColumnValue retrieves the value for a placeholder based on its clause and whether it has a foreign key dependency.
+func getColumnValue(allPksAreFK bool, p Placeholder, d *dbworkload, inserted map[string][]interface{}, raw string, indexes []int, i int) string {
+	if allPksAreFK && (p.Clause == insert || p.Clause == update) {
+		fk := d.columnGens[p.Name].columnMeta.FK
+		parts := strings.Split(fk, ".")
+		parentCol := parts[len(parts)-1] // last part is the column name
+		if vals, ok := inserted[parentCol]; ok && len(vals) > 0 {
+			raw = vals[0].(string)         // use the first value from the inserted map
+			inserted[parentCol] = vals[1:] // remove the first value
+		} else {
+			//fallback that shouldn't really happen
+			raw = d.getRegularColumnValue(p, indexes[i])
+		}
+	} else {
+		raw = d.getRegularColumnValue(p, indexes[i])
+	}
+	return raw
+}
+
+// setCacheIndex sets the indexes for each placeholder in the SQL query.
+// If the placeholder is a foreign key, it uses the fkIdx; otherwise, it picks a random index from the cache.
+func (w *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *dbworkload, fkIdx int) []int {
+	indexes := make([]int, len(sqlQuery.Placeholders))
+	for i, p := range sqlQuery.Placeholders {
+		if d.columnGens[p.Name].columnMeta.HasForeignKey {
+			indexes[i] = fkIdx
+		} else {
+			cacheLen := len(d.columnGens[p.Name].cache)
+			indexes[i] = w.rng.IntN(cacheLen)
+		}
+	}
+	return indexes
+}
+
+// pickFkIndex picks a random index from the cache of a foreign key column.
+func (w *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *dbworkload) int {
+	fkIdx := -1
+	for _, p := range sqlQuery.Placeholders {
+		if d.columnGens[p.Name].columnMeta.HasForeignKey {
+			cacheLen := len(d.columnGens[p.Name].cache)
+			if cacheLen > 0 {
+				fkIdx = w.rng.IntN(cacheLen)
+			}
+			break
+		}
+	}
+	return fkIdx
+}
+
+// checkIfAllPkAreFk checks if all primary keys in the SQL query are foreign keys.
+func checkIfAllPkAreFk(sqlQuery SQLQuery, d *dbworkload) bool {
+	allPksAreFK := true
+	for _, p := range sqlQuery.Placeholders {
+		if p.IsPrimaryKey && !d.columnGens[p.Name].columnMeta.HasForeignKey {
+			allPksAreFK = false
+			break
+		}
+	}
+	return allPksAreFK
 }
