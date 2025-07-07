@@ -1,3 +1,8 @@
+// Copyright 2025 The Cockroach Authors.
+//
+// Use of this software is governed by the CockroachDB Software License
+// included in the /LICENSE file.
+
 package workload_generator
 
 import (
@@ -39,8 +44,6 @@ const (
 	baseBatchSize = 100
 	maxCacheSize  = 100_000 // max size of the cache for each column
 
-	insert = "INSERT"
-	update = "UPDATE"
 )
 
 func init() {
