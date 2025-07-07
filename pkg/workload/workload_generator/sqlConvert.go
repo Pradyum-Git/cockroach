@@ -37,9 +37,9 @@ type Transaction struct {
 	Queries []SQLQuery
 }
 
-// ReadTPCC reads tpcc.sql and returns a slice of Transactions.
+// readSQL reads tpcc.sql and returns a slice of Transactions.
 // It will number placeholders $1…$N separately in each SQL statement.
-func ReadTPCC(path string) ([]Transaction, error) {
+func readSQL(path string) ([]Transaction, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open file: %w", err)
