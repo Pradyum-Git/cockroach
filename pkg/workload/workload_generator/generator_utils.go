@@ -196,6 +196,7 @@ func mapDecimalType(sql string, col *Column, args map[string]any) (string, map[s
 		precision := atoi(m[1])
 		scale := atoi(m[2])
 		intDigits := precision - scale
+		//
 		if intDigits > 3 {
 			intDigits = intDigits - 2
 		}
