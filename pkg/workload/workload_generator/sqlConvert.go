@@ -34,21 +34,22 @@ type SQLQuery struct {
 }
 
 type Transaction struct {
+	typ     string // e.g. "read", "write", "update"
 	Queries []SQLQuery
 }
 
 // readSQL reads tpcc.sql and returns a slice of Transactions.
 // It will number placeholders $1…$N separately in each SQL statement.
-func readSQL(path string) ([]Transaction, error) {
+func readSQL(path string) ([]Transaction, []Transaction, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("open file: %w", err)
+		return nil, nil, fmt.Errorf("open file: %w", err)
 	}
 	defer f.Close()
 
 	data, err := io.ReadAll(bufio.NewReader(f))
 	if err != nil {
-		return nil, fmt.Errorf("read file: %w", err)
+		return nil, nil, fmt.Errorf("read file: %w", err)
 	}
 	text := string(data)
 
@@ -60,7 +61,8 @@ func readSQL(path string) ([]Transaction, error) {
 	// placeholder pattern
 	phRe := regexp.MustCompile(`:-:\|(.+?)\|:-:`)
 
-	var txns []Transaction
+	var readTxns []Transaction
+	var writeTxns []Transaction
 	for _, blk := range blocks {
 		body := blk[1]
 		lines := strings.Split(body, "\n")
@@ -115,11 +117,29 @@ func readSQL(path string) ([]Transaction, error) {
 				curr = SQLQuery{}
 			}
 		}
-
-		txns = append(txns, txn)
+		setType(&txn)
+		if txn.typ == "read" {
+			readTxns = append(readTxns, txn)
+		} else {
+			writeTxns = append(writeTxns, txn)
+		}
 	}
 
-	return txns, nil
+	return readTxns, writeTxns, nil
+}
+
+func setType(txn *Transaction) {
+	//set to read if all selects otehrwise write
+	for _, q := range txn.Queries {
+		if strings.HasPrefix(strings.ToLower(q.SQL), "insert ") ||
+			strings.HasPrefix(strings.ToLower(q.SQL), "update ") ||
+			strings.HasPrefix(strings.ToLower(q.SQL), "delete ") {
+			txn.typ = "write"
+			return
+		}
+	}
+	//default to read if no insert update or delete found
+	txn.typ = "read"
 }
 
 // splitQuoted splits a string like "'a','b','c'" into ["'a'", "'b'", "'c'"].

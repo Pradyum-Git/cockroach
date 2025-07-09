@@ -15,6 +15,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"math/rand/v2"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -64,6 +65,7 @@ var dbworkloadMeta = workload.Meta{
 			"base number of rows per table before FK‐depth scaling")
 		g.flags.StringVar(&g.yamlLocation, "yaml", "", "location to write and read the <schema>.yaml file")
 		g.flags.StringVar(&g.sqlLocation, "sql", "", "location to write and read the <schema>.sql file")
+		g.flags.IntVar(&g.readPct, "read-pct", 90, " percentage of read transactions(0-100)")
 		g.flags.Meta = map[string]workload.FlagMeta{}
 		g.connFlags = workload.NewConnFlags(&g.flags)
 		return g
@@ -83,6 +85,7 @@ type dbworkload struct {
 
 	yamlLocation string                    // location to write and read the <schema>.yaml file
 	sqlLocation  string                    // location to write and read the <schema>.sql file
+	readPct      int                       // percentage of read transactions
 	columnGens   map[string]*runtimeColumn // table.col → runtimeColumn
 }
 
@@ -127,12 +130,13 @@ func (s *dbworkload) Hooks() workload.Hooks {
 				return errors.Wrap(err, "failed to marshal workload schema to YAML")
 			}
 			//if a location was given, write the yaml there
-			if path := s.yamlLocation; path != "" {
-				if err := os.WriteFile(path, yamlData, 0644); err != nil {
-					return errors.Wrapf(err, "could not write schema YAML to %s", path)
-				}
+			path := s.yamlLocation
+			if path == "" {
+				path = filepath.Join(os.TempDir(), "workload_schema.yaml")
 			}
-
+			if err := os.WriteFile(path, yamlData, 0644); err != nil {
+				return errors.Wrapf(err, "could not write schema YAML to %s", path)
+			}
 			return nil
 		},
 	}
@@ -381,16 +385,13 @@ func (d *dbworkload) Ops(
 	ctx context.Context, urls []string, reg *histogram.Registry,
 ) (workload.QueryLoad, error) {
 
-	raw, err := os.ReadFile("schema.yaml")
-	if err != nil {
-		return workload.QueryLoad{}, errors.Wrap(err, "couldn't read schema.yaml")
-	}
-	if err := yaml.Unmarshal(raw, &d.workloadSchema); err != nil {
-		return workload.QueryLoad{}, errors.Wrap(err, "couldn't unmarshal schema.yaml")
+	err, err2, done := d.getYamlData()
+	if done {
+		return workload.QueryLoad{}, err2
 	}
 	// Parse transactions from the sql file.
-	//TODO: generalize from tpcc.sql to any sql file, take that as flag input
-	transactions, err := readSQL("pkg/workload/workload_generator/tpcc.sql")
+	sqlPath := d.sqlLocation
+	readTransactions, writeTransactions, err := readSQL(sqlPath)
 	if err != nil {
 		return workload.QueryLoad{}, err
 	}
@@ -410,16 +411,32 @@ func (d *dbworkload) Ops(
 	ql := workload.QueryLoad{}
 	for i := 0; i < d.connFlags.Concurrency; i++ {
 		worker := &txnWorker{
-			db:           db,
-			transactions: transactions,
-			rng:          rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), uint64(i))),
-			hists:        reg.GetHandle(),
-			d:            d, // reference to the dbworkload for generators
+			db:                db,
+			readTransactions:  readTransactions,
+			writeTransactions: writeTransactions,
+			rng:               rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), uint64(i))),
+			hists:             reg.GetHandle(),
+			d:                 d, // reference to the dbworkload for generators
 		}
 		ql.WorkerFns = append(ql.WorkerFns, worker.run)
 	}
 	ql.Close = func(context.Context) error { return db.Close() }
 	return ql, nil
+}
+
+func (d *dbworkload) getYamlData() (error, error, bool) {
+	path := d.yamlLocation
+	if path == "" {
+		path = filepath.Join(os.TempDir(), "workload_schema.yaml")
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not read schema YAML from %s", path), true
+	}
+	if err := yaml.Unmarshal(raw, &d.workloadSchema); err != nil {
+		return nil, errors.Wrap(err, "couldn't unmarshal schema YAML"), true
+	}
+	return err, nil, false
 }
 
 // getRegularColumnValue picks values from the generator or cache depending on sql clause or whether there is a fk dependency.
@@ -446,20 +463,28 @@ func (d *dbworkload) getRegularColumnValue(p Placeholder, idx int) string {
 }
 
 type txnWorker struct {
-	db           *gosql.DB
-	transactions []Transaction
-	rng          *rand.Rand
-	hists        *histogram.Histograms
-	d            *dbworkload // reference to the dbworkload for generators
-	logFile      *os.File
+	db                *gosql.DB
+	readTransactions  []Transaction
+	writeTransactions []Transaction
+	rng               *rand.Rand
+	hists             *histogram.Histograms
+	d                 *dbworkload // reference to the dbworkload for generators
+	logFile           *os.File
 }
 
 // run executes a random transaction from the list of transactions.
 func (w *txnWorker) run(ctx context.Context) error {
-	//picking a random transaction from the list of transactions
-	//can consider switching to a round-robin approach later
-	idx := w.rng.IntN(len(w.transactions))
-	txn := w.transactions[idx]
+	var txn Transaction
+	readPct := w.d.readPct
+	if w.rng.IntN(100) < readPct {
+		// choose from read transactions
+		idx := w.rng.IntN(len(w.readTransactions))
+		txn = w.readTransactions[idx]
+	} else {
+		// choose from write transactions
+		idx := w.rng.IntN(len(w.writeTransactions))
+		txn = w.writeTransactions[idx]
+	}
 	// reference to the dbworkload for generators
 	d := w.d
 	// Start time for the metrics I think.
@@ -499,7 +524,7 @@ func (w *txnWorker) run(ctx context.Context) error {
 	})
 	// Calculate the elapsed time for the transaction metrics
 	elapsed := timeutil.Since(start)
-	w.hists.Get(fmt.Sprintf("txn_%d", idx)).Record(elapsed)
+	w.hists.Get(fmt.Sprintf("typ_%v", txn.typ)).Record(elapsed)
 	return err
 }
 
