@@ -65,7 +65,7 @@ var dbworkloadMeta = workload.Meta{
 			"base number of rows per table before FK‐depth scaling")
 		g.flags.StringVar(&g.yamlLocation, "yaml", "", "location to write and read the <schema>.yaml file")
 		g.flags.StringVar(&g.sqlLocation, "sql", "", "location to write and read the <schema>.sql file")
-		g.flags.IntVar(&g.readPct, "read-pct", 90, " percentage of read transactions(0-100)")
+		g.flags.IntVar(&g.readPct, "read-pct", 50, " percentage of read transactions(0-100)")
 		g.flags.Meta = map[string]workload.FlagMeta{}
 		g.connFlags = workload.NewConnFlags(&g.flags)
 		return g
