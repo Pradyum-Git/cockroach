@@ -841,7 +841,7 @@ func TestParseRedactedQueries(t *testing.T) {
 		},
 		{
 			name:  "select with redacted IN clause",
-			query: "SELECT * FROM products WHERE category IN (_, __more__)",
+			query: "SELECT * FROM products WHERE category IN ((_, __more__),__more__)",
 		},
 		{
 			name:  "values clause with redacted rows",
