@@ -1,0 +1,369 @@
+=== SQL 1 ===
+UPDATE customer SET c_delivery_cnt = c_delivery_cnt + _, c_balance = c_balance + CASE c_d_id WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ WHEN _ THEN _ END WHERE (c_w_id = _) AND ((c_d_id, c_id) IN ((_, __more__), __more__))
+--- Statement 1 AST ---
+Update
+  With: 
+    With
+  Table: 
+    AliasedTableExpr
+      Expr: 
+        TableName
+      IndexFlags: 
+        IndexFlags
+      Ordinality: false
+      Lateral: false
+      As: tree.AliasClause{Alias:"", Cols:tree.ColumnDefList(nil)}
+  Exprs: tree.UpdateExprs{(*tree.UpdateExpr)(0x14001028c00), (*tree.UpdateExpr)(0x14001028c30)}
+  From: tree.TableExprs{}
+  Where: 
+    Where
+      Type: "WHERE"
+      Expr: 
+        AndExpr
+          Left: 
+            ParenExpr
+              Expr: 
+                ComparisonExpr
+                  Operator: = (Explicit: false)
+                  SubOperator: = (Explicit: false)
+                  Left: 
+                    UnresolvedName: "c_w_id"
+                  Right: 
+                    UnresolvedName: "_"
+                  Op: (*tree.CmpOp)(nil)
+          Right: 
+            ParenExpr
+              Expr: 
+                ComparisonExpr
+                  Operator: IN (Explicit: false)
+                  SubOperator: = (Explicit: false)
+                  Left: 
+                    Tuple
+                      Exprs: tree.Exprs{(*tree.UnresolvedName)(0x14000e0b310), (*tree.UnresolvedName)(0x14000e0b360)}
+                      Labels: []string(nil)
+                      Row: false
+                  Right: 
+                    Tuple
+                      Exprs: tree.Exprs{(*tree.Tuple)(0x14000bf6800), (*tree.UnresolvedName)(0x14000e0b450)}
+                      Labels: []string(nil)
+                      Row: false
+                  Op: (*tree.CmpOp)(nil)
+  OrderBy: tree.OrderBy(nil)
+  Limit: 
+    Limit
+  Returning: 
+    NoReturningClause
+
+=== SQL 2 ===
+UPDATE stock SET s_quantity = CASE (s_i_id, s_w_id) WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ ELSE crdb_internal.force_error(_, _) END, s_ytd = CASE (s_i_id, s_w_id) WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ END, s_order_cnt = CASE (s_i_id, s_w_id) WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ END, s_remote_cnt = CASE (s_i_id, s_w_id) WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ WHEN (_, __more__) THEN _ END WHERE (s_i_id, s_w_id) IN ((_, __more__), __more__)
+--- Statement 1 AST ---
+Update
+  With: 
+    With
+  Table: 
+    AliasedTableExpr
+      Expr: 
+        TableName
+      IndexFlags: 
+        IndexFlags
+      Ordinality: false
+      Lateral: false
+      As: tree.AliasClause{Alias:"", Cols:tree.ColumnDefList(nil)}
+  Exprs: tree.UpdateExprs{(*tree.UpdateExpr)(0x14001028cc0), (*tree.UpdateExpr)(0x14001028cf0), (*tree.UpdateExpr)(0x14001028d20), (*tree.UpdateExpr)(0x14001028d50)}
+  From: tree.TableExprs{}
+  Where: 
+    Where
+      Type: "WHERE"
+      Expr: 
+        ComparisonExpr
+          Operator: IN (Explicit: false)
+          SubOperator: = (Explicit: false)
+          Left: 
+            Tuple
+              Exprs: tree.Exprs{(*tree.UnresolvedName)(0x14000e8f400), (*tree.UnresolvedName)(0x14000e8f450)}
+              Labels: []string(nil)
+              Row: false
+          Right: 
+            Tuple
+              Exprs: tree.Exprs{(*tree.Tuple)(0x14000bf7340), (*tree.UnresolvedName)(0x14000e8f540)}
+              Labels: []string(nil)
+              Row: false
+          Op: (*tree.CmpOp)(nil)
+  OrderBy: tree.OrderBy(nil)
+  Limit: 
+    Limit
+  Returning: 
+    NoReturningClause
+
+=== SQL 3 ===
+SELECT o_id, o_entry_d, o_carrier_id FROM "order" WHERE ((o_w_id = _) AND (o_d_id = _)) AND (o_c_id = _) ORDER BY o_id DESC LIMIT _
+--- Statement 1 AST ---
+Select
+  With: 
+    With
+  Select: 
+    SelectClause
+      From: tree.From{Tables:tree.TableExprs{(*tree.AliasedTableExpr)(0x14000e8f6d0)}, AsOf:tree.AsOfClause{Expr:tree.Expr(nil)}}
+      DistinctOn: tree.DistinctOn(nil)
+      Exprs: tree.SelectExprs{tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8f5e0), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8f630), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8f680), As:""}}
+      GroupBy: tree.GroupBy(nil)
+      Window: tree.Window(nil)
+      Having: 
+        Where
+      Where: 
+        Where
+          Type: "WHERE"
+          Expr: 
+            AndExpr
+              Left: 
+                ParenExpr
+                  Expr: 
+                    AndExpr
+                      Left: 
+                        ParenExpr
+                          Expr: 
+                            ComparisonExpr
+                              Operator: = (Explicit: false)
+                              SubOperator: = (Explicit: false)
+                              Left: 
+                                UnresolvedName: "o_w_id"
+                              Right: 
+                                UnresolvedName: "_"
+                              Op: (*tree.CmpOp)(nil)
+                      Right: 
+                        ParenExpr
+                          Expr: 
+                            ComparisonExpr
+                              Operator: = (Explicit: false)
+                              SubOperator: = (Explicit: false)
+                              Left: 
+                                UnresolvedName: "o_d_id"
+                              Right: 
+                                UnresolvedName: "_"
+                              Op: (*tree.CmpOp)(nil)
+              Right: 
+                ParenExpr
+                  Expr: 
+                    ComparisonExpr
+                      Operator: = (Explicit: false)
+                      SubOperator: = (Explicit: false)
+                      Left: 
+                        UnresolvedName: "o_c_id"
+                      Right: 
+                        UnresolvedName: "_"
+                      Op: (*tree.CmpOp)(nil)
+      Distinct: false
+      TableSelect: false
+  OrderBy: tree.OrderBy{(*tree.Order)(0x14001035260)}
+  Limit: 
+    Limit
+      Offset: <nil>
+      Count: 
+        UnresolvedName: "_"
+      LimitAll: false
+  Locking: tree.LockingClause(nil)
+
+=== SQL 4 ===
+SELECT i_price, i_name, i_data FROM item WHERE i_id IN (_, __more__) ORDER BY i_id
+--- Statement 1 AST ---
+Select
+  With: 
+    With
+  Select: 
+    SelectClause
+      From: tree.From{Tables:tree.TableExprs{(*tree.AliasedTableExpr)(0x14000e8fbd0)}, AsOf:tree.AsOfClause{Expr:tree.Expr(nil)}}
+      DistinctOn: tree.DistinctOn(nil)
+      Exprs: tree.SelectExprs{tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8fae0), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8fb30), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8fb80), As:""}}
+      GroupBy: tree.GroupBy(nil)
+      Window: tree.Window(nil)
+      Having: 
+        Where
+      Where: 
+        Where
+          Type: "WHERE"
+          Expr: 
+            ComparisonExpr
+              Operator: IN (Explicit: false)
+              SubOperator: = (Explicit: false)
+              Left: 
+                UnresolvedName: "i_id"
+              Right: 
+                Tuple
+                  Exprs: tree.Exprs{(*tree.UnresolvedName)(0x14000e8fc70), (*tree.UnresolvedName)(0x14000e8fcc0)}
+                  Labels: []string(nil)
+                  Row: false
+              Op: (*tree.CmpOp)(nil)
+      Distinct: false
+      TableSelect: false
+  OrderBy: tree.OrderBy{(*tree.Order)(0x140010352d0)}
+  Limit: 
+    Limit
+  Locking: tree.LockingClause(nil)
+
+=== SQL 5 ===
+SELECT s_quantity, s_ytd, s_order_cnt, s_remote_cnt, s_data, s_dist_02 FROM stock WHERE (s_i_id, s_w_id) IN ((_, __more__), __more__) ORDER BY s_i_id FOR UPDATE
+--- Statement 1 AST ---
+Select
+  With: 
+    With
+  Select: 
+    SelectClause
+      From: tree.From{Tables:tree.TableExprs{(*tree.AliasedTableExpr)(0x1400004e190)}, AsOf:tree.AsOfClause{Expr:tree.Expr(nil)}}
+      DistinctOn: tree.DistinctOn(nil)
+      Exprs: tree.SelectExprs{tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8fe00), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8fe50), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8fea0), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x14000e8fef0), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x1400004e0a0), As:""}, tree.SelectExpr{Expr:(*tree.UnresolvedName)(0x1400004e140), As:""}}
+      GroupBy: tree.GroupBy(nil)
+      Window: tree.Window(nil)
+      Having: 
+        Where
+      Where: 
+        Where
+          Type: "WHERE"
+          Expr: 
+            ComparisonExpr
+              Operator: IN (Explicit: false)
+              SubOperator: = (Explicit: false)
+              Left: 
+                Tuple
+                  Exprs: tree.Exprs{(*tree.UnresolvedName)(0x1400004e1e0), (*tree.UnresolvedName)(0x1400004e230)}
+                  Labels: []string(nil)
+                  Row: false
+              Right: 
+                Tuple
+                  Exprs: tree.Exprs{(*tree.Tuple)(0x14000bf7680), (*tree.UnresolvedName)(0x1400004e4b0)}
+                  Labels: []string(nil)
+                  Row: false
+              Op: (*tree.CmpOp)(nil)
+      Distinct: false
+      TableSelect: false
+  OrderBy: tree.OrderBy{(*tree.Order)(0x14001035340)}
+  Limit: 
+    Limit
+  Locking: tree.LockingClause{(*tree.LockingItem)(0x14001028fc0)}
+
+=== SQL 6 ===
+UPDATE customer SET (c_balance, c_ytd_payment, c_payment_cnt, c_data) = (c_balance - (_:::FLOAT8)::DECIMAL, c_ytd_payment + (_:::FLOAT8)::DECIMAL, c_payment_cnt + _, CASE c_credit WHEN _ THEN left((((((c_id::STRING || c_d_id::STRING) || c_w_id::STRING) || (_:::INT8)::STRING) || (_:::INT8)::STRING) || (_:::FLOAT8)::STRING) || c_data, _) ELSE c_data END) WHERE ((c_w_id = _) AND (c_d_id = _)) AND (c_id = _) RETURNING c_first, c_middle, c_last, c_street_1, c_street_2, c_city, c_state, c_zip, c_phone, c_since, c_credit, c_credit_lim, c_discount, c_balance, CASE c_credit WHEN _ THEN left(c_data, _) ELSE _ END
+--- Statement 1 AST ---
+Update
+  With: 
+    With
+  Table: 
+    AliasedTableExpr
+      Expr: 
+        TableName
+      IndexFlags: 
+        IndexFlags
+      Ordinality: false
+      Lateral: false
+      As: tree.AliasClause{Alias:"", Cols:tree.ColumnDefList(nil)}
+  Exprs: tree.UpdateExprs{(*tree.UpdateExpr)(0x14001029290)}
+  From: tree.TableExprs{}
+  Where: 
+    Where
+      Type: "WHERE"
+      Expr: 
+        AndExpr
+          Left: 
+            ParenExpr
+              Expr: 
+                AndExpr
+                  Left: 
+                    ParenExpr
+                      Expr: 
+                        ComparisonExpr
+                          Operator: = (Explicit: false)
+                          SubOperator: = (Explicit: false)
+                          Left: 
+                            UnresolvedName: "c_w_id"
+                          Right: 
+                            UnresolvedName: "_"
+                          Op: (*tree.CmpOp)(nil)
+                  Right: 
+                    ParenExpr
+                      Expr: 
+                        ComparisonExpr
+                          Operator: = (Explicit: false)
+                          SubOperator: = (Explicit: false)
+                          Left: 
+                            UnresolvedName: "c_d_id"
+                          Right: 
+                            UnresolvedName: "_"
+                          Op: (*tree.CmpOp)(nil)
+          Right: 
+            ParenExpr
+              Expr: 
+                ComparisonExpr
+                  Operator: = (Explicit: false)
+                  SubOperator: = (Explicit: false)
+                  Left: 
+                    UnresolvedName: "c_id"
+                  Right: 
+                    UnresolvedName: "_"
+                  Op: (*tree.CmpOp)(nil)
+  OrderBy: tree.OrderBy(nil)
+  Limit: 
+    Limit
+  Returning: 
+    ReturningExprs
+
+=== SQL 7 ===
+INSERT INTO history(h_c_id, h_c_d_id, h_c_w_id, h_d_id, h_w_id, h_amount, h_date, h_data) VALUES (_, __more__)
+--- Statement 1 AST ---
+Insert
+  With: 
+    With
+  Table: 
+    AliasedTableExpr
+      Expr: 
+        TableName
+      IndexFlags: 
+        IndexFlags
+      Ordinality: false
+      Lateral: false
+      As: tree.AliasClause{Alias:"", Cols:tree.ColumnDefList(nil)}
+  Columns: tree.NameList{"h_c_id", "h_c_d_id", "h_c_w_id", "h_d_id", "h_w_id", "h_amount", "h_date", "h_data"}
+  Rows: 
+    Select
+      With: 
+        With
+      Select: 
+        ValuesClause
+          Rows: []tree.Exprs{tree.Exprs{(*tree.UnresolvedName)(0x14000573310), (*tree.UnresolvedName)(0x14000573360)}}
+      OrderBy: tree.OrderBy(nil)
+      Limit: 
+        Limit
+      Locking: tree.LockingClause(nil)
+  OnConflict: (*tree.OnConflict)(nil)
+  Returning: 
+    NoReturningClause
+
+=== SQL 8 ===
+INSERT INTO order_line(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_dist_info) VALUES (_, __more__), (__more__)
+--- Statement 1 AST ---
+Insert
+  With: 
+    With
+  Table: 
+    AliasedTableExpr
+      Expr: 
+        TableName
+      IndexFlags: 
+        IndexFlags
+      Ordinality: false
+      Lateral: false
+      As: tree.AliasClause{Alias:"", Cols:tree.ColumnDefList(nil)}
+  Columns: tree.NameList{"ol_o_id", "ol_d_id", "ol_w_id", "ol_number", "ol_i_id", "ol_supply_w_id", "ol_quantity", "ol_amount", "ol_dist_info"}
+  Rows: 
+    Select
+      With: 
+        With
+      Select: 
+        ValuesClause
+          Rows: []tree.Exprs{tree.Exprs{(*tree.UnresolvedName)(0x140005734f0), (*tree.UnresolvedName)(0x14000573590)}, tree.Exprs{(*tree.UnresolvedName)(0x14000573630)}}
+      OrderBy: tree.OrderBy(nil)
+      Limit: 
+        Limit
+      Locking: tree.LockingClause(nil)
+  OnConflict: (*tree.OnConflict)(nil)
+  Returning: 
+    NoReturningClause
+

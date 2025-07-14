@@ -1,0 +1,81 @@
+=== Statement 1 ===
+Select
+  With: 
+    With
+  Select: 
+    SelectClause
+      From: tree.From{Tables:tree.TableExprs{(*tree.AliasedTableExpr)(0x1400086ea00)}, AsOf:tree.AsOfClause{Expr:tree.Expr(nil)}}
+      DistinctOn: 
+      Exprs: 
+        SelectExpr
+          Expr: 
+            UnresolvedName: "ol_i_id"
+          As: ""
+        SelectExpr
+          Expr: 
+            UnresolvedName: "ol_supply_w_id"
+          As: ""
+        SelectExpr
+          Expr: 
+            UnresolvedName: "ol_quantity"
+          As: ""
+        SelectExpr
+          Expr: 
+            UnresolvedName: "ol_amount"
+          As: ""
+        SelectExpr
+          Expr: 
+            UnresolvedName: "ol_delivery_d"
+          As: ""
+      GroupBy: 
+      Window: 
+      Having: 
+        Where
+      Where: 
+        Where
+          Type: "WHERE"
+          Expr: 
+            AndExpr
+              Left: 
+                ParenExpr
+                  Expr: 
+                    AndExpr
+                      Left: 
+                        ParenExpr
+                          Expr: 
+                            ComparisonExpr
+                              Operator: = (Explicit: false)
+                              SubOperator: = (Explicit: false)
+                              Left: 
+                                UnresolvedName: "ol_w_id"
+                              Right: 
+                                UnresolvedName: "_"
+                              Op: (*tree.CmpOp)(nil)
+                      Right: 
+                        ParenExpr
+                          Expr: 
+                            ComparisonExpr
+                              Operator: = (Explicit: false)
+                              SubOperator: = (Explicit: false)
+                              Left: 
+                                UnresolvedName: "ol_d_id"
+                              Right: 
+                                UnresolvedName: "_"
+                              Op: (*tree.CmpOp)(nil)
+              Right: 
+                ParenExpr
+                  Expr: 
+                    ComparisonExpr
+                      Operator: = (Explicit: false)
+                      SubOperator: = (Explicit: false)
+                      Left: 
+                        UnresolvedName: "ol_o_id"
+                      Right: 
+                        UnresolvedName: "_"
+                      Op: (*tree.CmpOp)(nil)
+      Distinct: false
+      TableSelect: false
+  OrderBy: 
+  Limit: 
+    Limit
+  Locking: 
