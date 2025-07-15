@@ -15,7 +15,6 @@ import (
 	"gopkg.in/yaml.v3"
 	"math/rand/v2"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,7 +62,8 @@ var dbworkloadMeta = workload.Meta{
 		g.flags.StringVar(&g.dbName, "db-name", "", "database name")
 		g.flags.IntVar(&g.rowCount, "rows", 1000,
 			"base number of rows per table before FK‐depth scaling")
-		g.flags.StringVar(&g.yamlLocation, "yaml", "", "location to write and read the <schema>.yaml file")
+		g.flags.StringVar(&g.outputYaml, "output-yaml", "", "path for storing the yaml for user modifications")
+		g.flags.StringVar(&g.inputYaml, "input-yaml", "", "path to read the user modified yaml")
 		g.flags.StringVar(&g.sqlLocation, "sql", "", "location to write and read the <schema>.sql file")
 		g.flags.IntVar(&g.readPct, "read-pct", 50, " percentage of read transactions(0-100)")
 		g.flags.Meta = map[string]workload.FlagMeta{}
@@ -83,10 +83,11 @@ type dbworkload struct {
 	createStmts    map[string]string       // table name → DDL string
 	workloadSchema Schema                  // table name → []TableBlock : the yaml marshal-able schema
 
-	yamlLocation string                    // location to write and read the <schema>.yaml file
-	sqlLocation  string                    // location to write and read the <schema>.sql file
-	readPct      int                       // percentage of read transactions
-	columnGens   map[string]*runtimeColumn // table.col → runtimeColumn
+	inputYaml   string                    //path to read the user modified yaml
+	outputYaml  string                    //path for storing teh yaml for user modifications
+	sqlLocation string                    // location to write and read the <schema>.sql file
+	readPct     int                       // percentage of read transactions
+	columnGens  map[string]*runtimeColumn // table.col → runtimeColumn
 }
 
 // Meta implements the Generator interface.
@@ -114,6 +115,7 @@ func (s *dbworkload) Hooks() workload.Hooks {
 			if s.connFlags.DBOverride != "" {
 				dbName = s.connFlags.DBOverride
 			}
+			s.dbName = dbName
 			//getting the debug zip location from the flags
 			debug := s.debugZip
 			//getting the schema and the DDl themselves from the debug folder
@@ -130,13 +132,32 @@ func (s *dbworkload) Hooks() workload.Hooks {
 				return errors.Wrap(err, "failed to marshal workload schema to YAML")
 			}
 			//if a location was given, write the yaml there
-			path := s.yamlLocation
-			if path == "" {
-				path = filepath.Join(os.TempDir(), "workload_schema.yaml")
+			var outPath string
+			if s.outputYaml != "" {
+				outPath = fmt.Sprintf("%s/schema_%s.yaml", s.outputYaml, dbName)
+			} else {
+				outPath = fmt.Sprintf("schema_%s.yaml", dbName)
 			}
-			if err := os.WriteFile(path, yamlData, 0644); err != nil {
-				return errors.Wrapf(err, "could not write schema YAML to %s", path)
+			if err := os.WriteFile(outPath, yamlData, 0644); err != nil {
+				return errors.Wrapf(err, "could not write schema YAML to %s", outPath)
 			}
+
+			//if alternate schema is provided (input-yaml), reload it
+			if s.inputYaml != "" {
+				raw, err := os.ReadFile(s.inputYaml)
+				if err != nil {
+					panic(errors.Wrapf(err, "failed to read file %s", s.inputYaml))
+				}
+				if err := yaml.Unmarshal(raw, &s.workloadSchema); err != nil {
+					panic(errors.Wrapf(err, "failed to unmarshal yaml %s", s.inputYaml))
+				}
+				fmt.Println("First 5 liens of the yaml:")
+				lines := strings.Split(string(raw), "\n")
+				for i := 0; i < len(lines) && i < 5; i++ {
+					fmt.Println(lines[i])
+				}
+			}
+
 			return nil
 		},
 	}
@@ -144,6 +165,11 @@ func (s *dbworkload) Hooks() workload.Hooks {
 
 // Tables implements workload.Generator.Tables
 func (d *dbworkload) Tables() []workload.Table {
+	//if we are in yaml output mode, emit no tables
+	if d.outputYaml != "" {
+		return []workload.Table{}
+	}
+
 	//tableOrder is the order in which the DDLs of different tables should be executed.
 	//It currently assumes that the order in which the DDLs show up in the debug folder is the correct sequence
 	tableOrder := getTableOrder(d.workloadSchema)
@@ -384,6 +410,11 @@ func (d *dbworkload) buildRuntimeGenerators(globalNumBatches int) {
 func (d *dbworkload) Ops(
 	ctx context.Context, urls []string, reg *histogram.Registry,
 ) (workload.QueryLoad, error) {
+	dbName := d.Meta().Name
+	if d.connFlags.DBOverride != "" {
+		dbName = d.connFlags.DBOverride
+	}
+	d.dbName = dbName
 
 	err, err2, done := d.getYamlData()
 	if done {
@@ -425,16 +456,18 @@ func (d *dbworkload) Ops(
 }
 
 func (d *dbworkload) getYamlData() (error, error, bool) {
-	path := d.yamlLocation
-	if path == "" {
-		path = filepath.Join(os.TempDir(), "workload_schema.yaml")
+	var path string
+	if d.inputYaml != "" {
+		path = d.inputYaml
+	} else {
+		path = fmt.Sprintf("schema_%s.yaml", d.dbName)
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not read schema YAML from %s", path), true
 	}
 	if err := yaml.Unmarshal(raw, &d.workloadSchema); err != nil {
-		return nil, errors.Wrap(err, "couldn't unmarshal schema YAML"), true
+		return nil, errors.Wrapf(err, "couldn't unmarshal schema YAML"), true
 	}
 	return err, nil, false
 }

@@ -1,5 +1,5 @@
 === Statement 1 ===
- SQL :  SELECT ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d FROM order_line WHERE ((ol_w_id > _) AND (ol_d_id = _)) AND (ol_o_id = _)
+ SQL :  SELECT ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d FROM order_line WHERE col_2 BETWEEN 4 AND 6
 Select
   With: 
     With
@@ -36,44 +36,15 @@ Select
         Where
           Type: WHERE
           Expr: 
-            AndExpr
+            RangeCond
+              Not: %!s(bool=false)
+              Symmetric: %!s(bool=false)
               Left: 
-                ParenExpr
-                  Expr: 
-                    AndExpr
-                      Left: 
-                        ParenExpr
-                          Expr: 
-                            ComparisonExpr
-                              Operator: > (Explicit: false)
-                              SubOperator: = (Explicit: false)
-                              Left: 
-                                UnresolvedName: "ol_w_id"
-                              Right: 
-                                UnresolvedName: "_"
-                              Op: %!s(*tree.CmpOp=<nil>)
-                      Right: 
-                        ParenExpr
-                          Expr: 
-                            ComparisonExpr
-                              Operator: = (Explicit: false)
-                              SubOperator: = (Explicit: false)
-                              Left: 
-                                UnresolvedName: "ol_d_id"
-                              Right: 
-                                UnresolvedName: "_"
-                              Op: %!s(*tree.CmpOp=<nil>)
-              Right: 
-                ParenExpr
-                  Expr: 
-                    ComparisonExpr
-                      Operator: = (Explicit: false)
-                      SubOperator: = (Explicit: false)
-                      Left: 
-                        UnresolvedName: "ol_o_id"
-                      Right: 
-                        UnresolvedName: "_"
-                      Op: %!s(*tree.CmpOp=<nil>)
+                UnresolvedName: "col_2"
+              From: 
+                NumVal
+              To: 
+                NumVal
       Distinct: %!s(bool=false)
       TableSelect: %!s(bool=false)
   OrderBy: 
