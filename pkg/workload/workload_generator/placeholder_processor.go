@@ -489,7 +489,7 @@ func rewriteUpdateSet(upd *tree.Update, allSchemas map[string]*TableSchema) {
 			newTuple := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
 			for i, name := range cols {
 				col := string(name)
-				parts := getFieldColPartsFor(col, allSchemas)
+				parts := getFieldCol(col, "UPDATE")
 				var np tree.NameParts
 				for j, p := range parts {
 					np[j] = p
@@ -514,7 +514,7 @@ func rewriteSetRHS(
 		// placeholder "_" or "__more__"
 		name := reconstructName(t)
 		if name == "_" || name == "__more__" {
-			parts := getFieldColPartsFor(targetCol, allSchemas)
+			parts := getFieldCol(targetCol, "UPDATE")
 			t.NumParts = len(parts)
 			for i, p := range parts {
 				t.Parts[i] = p
@@ -563,7 +563,7 @@ func rewriteCaseExpr(
 				// rebuild cond tuple with placeholders per keyCol
 				newCond := &tree.Tuple{Exprs: make(tree.Exprs, len(keyCols))}
 				for i, col := range keyCols {
-					parts := getFieldColPartsFor(col, allSchemas)
+					parts := getFieldCol(col, "WHERE")
 					var np tree.NameParts
 					for j, p := range parts {
 						np[j] = p
@@ -578,7 +578,7 @@ func rewriteCaseExpr(
 			// THEN arm.Val → placeholder for targetCol
 			if u, ok := arm.Val.(*tree.UnresolvedName); ok {
 				if name := reconstructName(u); name == "_" || name == "__more__" {
-					parts := getFieldColPartsFor(targetCol, allSchemas)
+					parts := getFieldCol(targetCol, "INSERT")
 					u.NumParts = len(parts)
 					for i, p := range parts {
 						u.Parts[i] = p
@@ -589,7 +589,7 @@ func rewriteCaseExpr(
 		// ELSE branch can be a placeholder or force_error; handle simple placeholder
 		if u, ok := c.Else.(*tree.UnresolvedName); ok {
 			if name := reconstructName(u); name == "_" || name == "__more__" {
-				parts := getFieldColPartsFor(targetCol, allSchemas)
+				parts := getFieldCol(targetCol, "INSERT")
 				u.NumParts = len(parts)
 				for i, p := range parts {
 					u.Parts[i] = p
