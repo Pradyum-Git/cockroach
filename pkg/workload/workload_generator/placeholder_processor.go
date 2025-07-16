@@ -98,7 +98,7 @@ func handleRangeCondition(rc *tree.RangeCond) tree.Expr {
 			case *tree.UnresolvedName:
 				// direct "_" or "__more__"
 				if n := reconstructName(t); n == "_" || n == "__more__" {
-					parts := getFieldColParts(colUn)
+					parts := getFieldColParts(colUn, "WHERE")
 					t.NumParts = len(parts)
 					for i, p := range parts {
 						t.Parts[i] = p
@@ -383,7 +383,7 @@ func reconstructName(u *tree.UnresolvedName) string {
 
 // getFieldColParts returns exactly four metadata strings for a column.
 // (Stub—replace with your real schema lookup & formatting.)
-func getFieldColParts(col *tree.UnresolvedName) []string {
+func getFieldColParts(col *tree.UnresolvedName, clause string) []string {
 	numParts := col.NumParts
 	parts := make([]string, numParts)
 	parts[0] = fmt.Sprintf(":-:%s:-:", col.Parts[0])
@@ -604,7 +604,7 @@ func rewriteCaseExpr(
 		// WHEN
 		if u, ok := arm.Cond.(*tree.UnresolvedName); ok {
 			if reconstructName(u) == "_" || reconstructName(u) == "__more__" {
-				parts := getFieldColPartsFor(targetCol, allSchemas)
+				parts := getFieldCol(targetCol, "WHERE")
 				u.NumParts = len(parts)
 				for i, p := range parts {
 					u.Parts[i] = p
@@ -614,7 +614,7 @@ func rewriteCaseExpr(
 		// THEN
 		if u, ok := arm.Val.(*tree.UnresolvedName); ok {
 			if reconstructName(u) == "_" || reconstructName(u) == "__more__" {
-				parts := getFieldColPartsFor(targetCol, allSchemas)
+				parts := getFieldCol(targetCol, "INSERT")
 				u.NumParts = len(parts)
 				for i, p := range parts {
 					u.Parts[i] = p
@@ -625,27 +625,13 @@ func rewriteCaseExpr(
 	// ELSE
 	if u, ok := c.Else.(*tree.UnresolvedName); ok {
 		if reconstructName(u) == "_" || reconstructName(u) == "__more__" {
-			parts := getFieldColPartsFor(targetCol, allSchemas)
+			parts := getFieldCol(targetCol, "INSERT")
 			u.NumParts = len(parts)
 			for i, p := range parts {
 				u.Parts[i] = p
 			}
 		}
 	}
-}
-
-// getFieldColPartsFor returns the placeholder parts for a given column name.
-// Replace the stub below with your real lookup into allSchemas[col].
-func getFieldColPartsFor(
-	col string,
-	allSchemas map[string]*TableSchema,
-) []string {
-	// STUB: single‐part placeholder.  In your real code, look up:
-	//    meta := allSchemas[<table>].Columns[col]
-	//    return []string{
-	//       meta.Name, meta.Type, meta.Nullable, meta.Desc,
-	//    }
-	return []string{fmt.Sprintf(":-:%s:-:", col)}
 }
 
 func rewriteSelectLimit(sel *tree.Select) {
