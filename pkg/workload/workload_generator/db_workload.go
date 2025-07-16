@@ -366,7 +366,7 @@ func (d *dbworkload) setCacheValues(db *gosql.DB) error {
 	for tableName, blocks := range d.workloadSchema {
 		block := blocks[0]
 		for _, colName := range block.ColumnOrder {
-			key := fmt.Sprintf("%s", colName)
+			key := fmt.Sprintf("%s.%s", tableName, colName)
 			rc := d.columnGens[key]
 
 			// build a query like: SELECT colName FROM tableName LIMIT maxInitialCacheSize
@@ -398,10 +398,10 @@ func (d *dbworkload) setCacheValues(db *gosql.DB) error {
 
 func (d *dbworkload) buildRuntimeGenerators(globalNumBatches int) {
 	d.columnGens = make(map[string]*runtimeColumn)
-	for _, blocks := range d.workloadSchema {
+	for tableNmae, blocks := range d.workloadSchema {
 		block := blocks[0]
 		for colName, meta := range block.Columns {
-			key := fmt.Sprintf("%s", colName)
+			key := fmt.Sprintf("%s.%s", tableNmae, colName)
 			gen := makeGenerator(meta, globalNumBatches, baseBatchSize, d.workloadSchema)
 			d.columnGens[key] = &runtimeColumn{
 				gen:        gen,
@@ -479,7 +479,8 @@ func (d *dbworkload) getYamlData() (error, error, bool) {
 
 // getRegularColumnValue picks values from the generator or cache depending on sql clause or whether there is a fk dependency.
 func (d *dbworkload) getRegularColumnValue(p Placeholder, idx int) string {
-	key := fmt.Sprintf("%s", p.Name)
+	tableName := getTableName(p, d)
+	key := fmt.Sprintf("%s.%s", tableName, p.Name)
 	rc := d.columnGens[key]
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
@@ -632,10 +633,33 @@ func setNullType(placeholder Placeholder, arg interface{}) interface{} {
 	return arg
 }
 
+// getTableName checks if the name field of placeholder is a column in the TableName column in the allSchema map inside d.
+// If yes, then returns that table name. otherwise looks for a table with that column and returns that
+func getTableName(p Placeholder, d *dbworkload) string {
+	for _, block := range d.workloadSchema[p.TableName] {
+		for colName, _ := range block.Columns {
+			if colName == p.Name {
+				return p.TableName
+			}
+		}
+	}
+	for tableName, blocks := range d.workloadSchema {
+		block := blocks[0]
+		for colName, _ := range block.Columns {
+			if colName == p.Name {
+				return tableName
+			}
+		}
+	}
+	return p.TableName
+}
+
 // getColumnValue retrieves the value for a placeholder based on its clause and whether it has a foreign key dependency.
 func getColumnValue(allPksAreFK bool, p Placeholder, d *dbworkload, inserted map[string][]interface{}, raw string, indexes []int, i int) string {
 	if allPksAreFK && (p.Clause == insert || p.Clause == update) {
-		fk := d.columnGens[p.Name].columnMeta.FK
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		fk := d.columnGens[key].columnMeta.FK
 		parts := strings.Split(fk, ".")
 		parentCol := parts[len(parts)-1] // last part is the column name
 		if vals, ok := inserted[parentCol]; ok && len(vals) > 0 {
@@ -656,10 +680,12 @@ func getColumnValue(allPksAreFK bool, p Placeholder, d *dbworkload, inserted map
 func (w *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *dbworkload, fkIdx int) []int {
 	indexes := make([]int, len(sqlQuery.Placeholders))
 	for i, p := range sqlQuery.Placeholders {
-		if d.columnGens[p.Name].columnMeta.HasForeignKey {
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		if d.columnGens[key].columnMeta.HasForeignKey {
 			indexes[i] = fkIdx
 		} else {
-			cacheLen := len(d.columnGens[p.Name].cache)
+			cacheLen := len(d.columnGens[key].cache)
 			indexes[i] = w.rng.IntN(cacheLen)
 		}
 	}
@@ -670,8 +696,10 @@ func (w *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *dbworkload, fkIdx int) [
 func (w *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *dbworkload) int {
 	fkIdx := -1
 	for _, p := range sqlQuery.Placeholders {
-		if d.columnGens[p.Name].columnMeta.HasForeignKey {
-			cacheLen := len(d.columnGens[p.Name].cache)
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		if d.columnGens[key].columnMeta.HasForeignKey {
+			cacheLen := len(d.columnGens[key].cache)
 			if cacheLen > 0 {
 				fkIdx = w.rng.IntN(cacheLen)
 			}
@@ -685,7 +713,9 @@ func (w *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *dbworkload) int {
 func checkIfAllPkAreFk(sqlQuery SQLQuery, d *dbworkload) bool {
 	allPksAreFK := true
 	for _, p := range sqlQuery.Placeholders {
-		if p.IsPrimaryKey && !d.columnGens[p.Name].columnMeta.HasForeignKey {
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		if p.IsPrimaryKey && !d.columnGens[key].columnMeta.HasForeignKey {
 			allPksAreFK = false
 			break
 		}

@@ -26,6 +26,7 @@ type Placeholder struct {
 	InlineCheck  *string
 	Clause       string // e.g. "WHERE", "INSERT", "UPDATE"
 	Position     int    // $1, $2, ...
+	TableName    string
 }
 
 type SQLQuery struct {
@@ -104,6 +105,7 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 					p.Clause = trimQuotes(parts[8])
 					p.Position = stmtPos
 					stmtPos++
+					p.TableName = trimQuotes(parts[9])
 
 					placeholders = append(placeholders, p)
 					return fmt.Sprintf("$%d", p.Position)
