@@ -1,5 +1,3 @@
-package workload_generator
-
 -------Begin Transaction------
 BEGIN;
 SELECT o_id, o_entry_d, o_carrier_id FROM "order" WHERE ((o_w_id = :-:|'o_w_id','INT8','NOT NULL','PRIMARY KEY','','','','','WHERE'|:-:) AND (o_d_id = :-:|'o_d_id','INT8','NOT NULL','PRIMARY KEY','','','','','WHERE'|:-:)) AND (o_c_id = :-:|'o_c_id','INT8','NULL','','','','','','WHERE'|:-:) ORDER BY o_id DESC LIMIT 16;
@@ -1495,5 +1493,6 @@ UPDATE order_line SET ol_delivery_d = :-:|'ol_delivery_d','TIMESTAMP','NULL','',
 SELECT no_o_id FROM new_order WHERE (no_w_id = :-:|'no_w_id','INT8','NOT NULL','PRIMARY KEY','','','','','WHERE'|:-:) AND (no_d_id = :-:|'no_d_id','INT8','NOT NULL','PRIMARY KEY','','','','','WHERE'|:-:) ORDER BY no_o_id ASC LIMIT 39 FOR UPDATE;
 COMMIT;
 -------End Transaction-------
+
 
 

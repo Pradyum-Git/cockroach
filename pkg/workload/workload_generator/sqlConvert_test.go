@@ -8,13 +8,13 @@ import (
 
 func TestReadTPCCAndWriteConvertedSQL(t *testing.T) {
 	// 1. Read and parse the tpcc.sql file
-	txns, _, err := readSQL("tpcc.sql")
+	txns, _, err := readSQL("tpccPy.sql")
 	if err != nil {
 		t.Fatalf("readSQL failed: %v", err)
 	}
 
 	// 2. Create the output file
-	out, err := os.Create("converted.sql")
+	out, err := os.Create("convertedPy.sql")
 	if err != nil {
 		t.Fatalf("could not create converted.sql: %v", err)
 	}

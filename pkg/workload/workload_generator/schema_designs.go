@@ -29,30 +29,63 @@ type Column struct {
 	InlineCheck  string // InlineCheck: CHECK constraint expression if defined inline with the column
 }
 
-// String function converts the Column schema details into a parsable placeholder.
+// String returns the column schema details as comma-quoted parts,
+// e.g. `'user_id','INT8','NOT NULL','PRIMARY KEY','DEFAULT 0','UNIQUE','FK→orders.id','CHECK(age>0)'`
 func (c *Column) String() string {
-	parts := []string{c.Name, c.ColType}
+	// 1. Build an 8-element slice, in the same order as Python’s parts list.
+	parts := make([]string, 8)
+	parts[0] = c.Name
+	parts[1] = c.ColType
+
 	if c.IsNullable {
-		parts = append(parts, sqlNull)
+		parts[2] = "NULL"
 	} else {
-		parts = append(parts, sqlNotNull)
+		parts[2] = "NOT NULL"
 	}
+
 	if c.IsPrimaryKey {
-		parts = append(parts, sqlPrimaryKey)
+		parts[3] = "PRIMARY KEY"
+	} else {
+		parts[3] = ""
 	}
+
 	if c.Default != "" {
-		parts = append(parts, fmt.Sprintf("%s %s", sqlDefault, c.Default))
+		parts[4] = "DEFAULT " + c.Default
+	} else {
+		parts[4] = ""
 	}
+
 	if c.IsUnique {
-		parts = append(parts, sqlUnique)
+		parts[5] = "UNIQUE"
+	} else {
+		parts[5] = ""
 	}
+
 	if c.FKTable != "" && c.FKColumn != "" {
-		parts = append(parts, fmt.Sprintf("%s→%s.%s", sqlForeignKey, c.FKTable, c.FKColumn))
+		parts[6] = fmt.Sprintf("FK→%s.%s", c.FKTable, c.FKColumn)
+	} else {
+		parts[6] = ""
 	}
+
 	if c.InlineCheck != "" {
-		parts = append(parts, fmt.Sprintf("%s(%s)", sqlCheck, c.InlineCheck))
+		parts[7] = fmt.Sprintf("CHECK(%s)", c.InlineCheck)
+	} else {
+		parts[7] = ""
 	}
-	return strings.Join(parts, " ")
+
+	// 2. Quote each part (empty → "''"), escaping any internal apostrophes.
+	for i, p := range parts {
+		escaped := strings.ReplaceAll(p, "'", "\\'")
+		parts[i] = fmt.Sprintf("'%s'", escaped)
+	}
+
+	// 3. Join with commas.
+	return strings.Join(parts, ",")
+}
+
+// escape replaces any single-quote in the input so we don't break out of our '
+func escape(s string) string {
+	return s
 }
 
 // TableSchema stores table level schema information based on input ddl.

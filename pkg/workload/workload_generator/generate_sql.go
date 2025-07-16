@@ -123,7 +123,7 @@ func GenerateWorkload(
 			fmt.Fprintf(outFile, "%s;\n", stmt)
 		}
 		fmt.Fprintln(outFile, "COMMIT;")
-		fmt.Fprintln(outFile, "-------Begin Transaction------")
+		fmt.Fprintln(outFile, "-------End Transaction-------")
 	}
 
 	return nil

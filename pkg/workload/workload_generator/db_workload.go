@@ -158,6 +158,11 @@ func (s *dbworkload) Hooks() workload.Hooks {
 				}
 			}
 
+			errWorkload := GenerateWorkload(s.debugZip, s.allSchema, s.dbName, s.sqlLocation)
+			if errWorkload != nil {
+				return errors.Wrap(err, "failed to generate workload")
+			}
+
 			return nil
 		},
 	}

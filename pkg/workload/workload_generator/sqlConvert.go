@@ -59,7 +59,7 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 	blocks := txRe.FindAllStringSubmatch(text, -1)
 
 	// placeholder pattern
-	phRe := regexp.MustCompile(`:-:\|(.+?)\|:-:`)
+	phRe := regexp.MustCompile(`"?:-:\|(.+?)\|:-:"?`)
 
 	var readTxns []Transaction
 	var writeTxns []Transaction
