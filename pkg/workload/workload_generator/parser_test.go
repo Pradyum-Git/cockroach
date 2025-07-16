@@ -83,8 +83,11 @@ func TestPain(t *testing.T) {
 	defer f.Close()
 	//making an sqls string array, each of whos eelements will get called again and again
 	sqls := []string{
-		`SELECT ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d FROM order_line WHERE col_2 IN (_,__more__)`,
+		`SELECT ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d FROM order_line WHERE col_2 IN (_,__more__) LIMIT _`,
 		`INSERT into order_line values (_,__more__)`,
+		`UPDATE district SET d_next_o_id = d_next_o_id + _ + _ WHERE (d_w_id = ":-:d_w_id:-:") AND (d_id = ":-:d_id:-:") RETURNING d_tax, d_next_o_id;`,
+		`select col from tbl where (ol_o_id BETWEEN (_ - _) AND (_ - _))`,
+		`SELECT count(DISTINCT s_i_id) FROM order_line JOIN stock ON (s_w_id = _)`,
 	}
 	for _, sql := range sqls {
 		stmts, err := parser.Parse(sql)

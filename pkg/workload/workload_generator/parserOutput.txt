@@ -1,5 +1,5 @@
 === Statement 1 ===
- SQL :  SELECT ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d FROM order_line WHERE col_2 BETWEEN 4 AND 6
+ SQL :  SELECT ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d FROM order_line WHERE col_2 IN (_,__more__) LIMIT _
 Select
   With: 
     With
@@ -36,20 +36,28 @@ Select
         Where
           Type: WHERE
           Expr: 
-            RangeCond
-              Not: %!s(bool=false)
-              Symmetric: %!s(bool=false)
+            ComparisonExpr
+              Operator: IN (Explicit: false)
+              SubOperator: = (Explicit: false)
               Left: 
                 UnresolvedName: "col_2"
-              From: 
-                NumVal
-              To: 
-                NumVal
+              Right: 
+                Tuple
+                  Exprs: 
+                    UnresolvedName: "_"
+                    UnresolvedName: "__more__"
+                  Labels: 
+                  Row: %!s(bool=false)
+              Op: %!s(*tree.CmpOp=<nil>)
       Distinct: %!s(bool=false)
       TableSelect: %!s(bool=false)
   OrderBy: 
   Limit: 
     Limit
+      Offset: %!s(<nil>)
+      Count: 
+        UnresolvedName: "_"
+      LimitAll: %!s(bool=false)
   Locking: 
 === Statement 1 ===
  SQL :  INSERT into order_line values (_,__more__)
@@ -81,3 +89,165 @@ Insert
   OnConflict: %!s(*tree.OnConflict=<nil>)
   Returning: 
     NoReturningClause
+=== Statement 1 ===
+ SQL :  UPDATE district SET d_next_o_id = d_next_o_id + _ + _ WHERE (d_w_id = ":-:d_w_id:-:") AND (d_id = ":-:d_id:-:") RETURNING d_tax, d_next_o_id;
+Update
+  With: 
+    With
+  Table: 
+    AliasedTableExpr
+      Expr: 
+        TableName
+      IndexFlags: 
+        IndexFlags
+      Ordinality: %!s(bool=false)
+      Lateral: %!s(bool=false)
+      As: { []}
+  Exprs: 
+    UpdateExpr
+      Tuple: %!s(bool=false)
+      Names: 
+        Name
+      Expr: 
+        BinaryExpr
+          Operator: +
+          Left: 
+            BinaryExpr
+              Operator: +
+              Left: 
+                UnresolvedName: "d_next_o_id"
+              Right: 
+                UnresolvedName: "_"
+              Op: %!s(*tree.BinOp=<nil>)
+          Right: 
+            UnresolvedName: "_"
+          Op: %!s(*tree.BinOp=<nil>)
+  From: 
+  Where: 
+    Where
+      Type: WHERE
+      Expr: 
+        AndExpr
+          Left: 
+            ParenExpr
+              Expr: 
+                ComparisonExpr
+                  Operator: = (Explicit: false)
+                  SubOperator: = (Explicit: false)
+                  Left: 
+                    UnresolvedName: "d_w_id"
+                  Right: 
+                    UnresolvedName: ":-:d_w_id:-:"
+                  Op: %!s(*tree.CmpOp=<nil>)
+          Right: 
+            ParenExpr
+              Expr: 
+                ComparisonExpr
+                  Operator: = (Explicit: false)
+                  SubOperator: = (Explicit: false)
+                  Left: 
+                    UnresolvedName: "d_id"
+                  Right: 
+                    UnresolvedName: ":-:d_id:-:"
+                  Op: %!s(*tree.CmpOp=<nil>)
+  OrderBy: 
+  Limit: 
+    Limit
+  Returning: 
+    ReturningExprs
+=== Statement 1 ===
+ SQL :  select col from tbl where (ol_o_id BETWEEN (_ - _) AND (_ - _))
+Select
+  With: 
+    With
+  Select: 
+    SelectClause
+      From: {[tbl] {<nil>}}
+      DistinctOn: 
+      Exprs: 
+        SelectExpr
+          Expr: 
+            UnresolvedName: "col"
+          As: 
+      GroupBy: 
+      Window: 
+      Having: 
+        Where
+      Where: 
+        Where
+          Type: WHERE
+          Expr: 
+            ParenExpr
+              Expr: 
+                RangeCond
+                  Not: %!s(bool=false)
+                  Symmetric: %!s(bool=false)
+                  Left: 
+                    UnresolvedName: "ol_o_id"
+                  From: 
+                    ParenExpr
+                      Expr: 
+                        BinaryExpr
+                          Operator: -
+                          Left: 
+                            UnresolvedName: "_"
+                          Right: 
+                            UnresolvedName: "_"
+                          Op: %!s(*tree.BinOp=<nil>)
+                  To: 
+                    ParenExpr
+                      Expr: 
+                        BinaryExpr
+                          Operator: -
+                          Left: 
+                            UnresolvedName: "_"
+                          Right: 
+                            UnresolvedName: "_"
+                          Op: %!s(*tree.BinOp=<nil>)
+      Distinct: %!s(bool=false)
+      TableSelect: %!s(bool=false)
+  OrderBy: 
+  Limit: 
+    Limit
+  Locking: 
+=== Statement 1 ===
+ SQL :  SELECT count(DISTINCT s_i_id) FROM order_line JOIN stock ON (s_w_id = _)
+Select
+  With: 
+    With
+  Select: 
+    SelectClause
+      From: {[order_line JOIN stock ON (s_w_id = _)] {<nil>}}
+      DistinctOn: 
+      Exprs: 
+        SelectExpr
+          Expr: 
+            FuncExpr
+              Func: 
+                ResolvableFunctionReference
+                  ReferenceByName: 
+                    UnresolvedObjectName
+                  FunctionReference: 
+                    UnresolvedName: "count"
+              Type: %!s(tree.funcType=1)
+              Exprs: 
+                UnresolvedName: "s_i_id"
+              Filter: %!s(<nil>)
+              WindowDef: 
+                WindowDef
+              AggType: %!s(tree.AggType=0)
+              OrderBy: 
+              InCall: %!s(bool=false)
+          As: 
+      GroupBy: 
+      Window: 
+      Having: 
+        Where
+      Where: 
+        Where
+      Distinct: %!s(bool=false)
+      TableSelect: %!s(bool=false)
+  OrderBy: 
+  Limit: 
+    Limit
+  Locking: 
