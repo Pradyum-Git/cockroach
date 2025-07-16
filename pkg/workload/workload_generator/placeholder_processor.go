@@ -156,7 +156,7 @@ func handleRangeCondition(rc *tree.RangeCond) tree.Expr {
 		out := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
 		for j, colNode := range cols {
 			//colName := reconstructName(colNode)
-			parts := getFieldColParts(colNode)
+			parts := getFieldColParts(colNode, "WHERE")
 			var np tree.NameParts
 			for k, p := range parts {
 				np[k] = p
@@ -181,7 +181,7 @@ func handleComparisonOperator(cmp *tree.ComparisonExpr) (bool, tree.Expr, bool) 
 		rhsName := reconstructName(rhs)
 		if rhsName == "_" || rhsName == "__more__" {
 			//colName := reconstructName(lhs)
-			parts := getFieldColParts(lhs)
+			parts := getFieldColParts(lhs, "WHERE")
 			//if len(parts) != 4 {
 			//	panic(fmt.Sprintf("getFieldColParts(%q) → %d parts, want 4", colName, len(parts)))
 			//}
@@ -225,7 +225,7 @@ func handleTupleComparison(lt, rt *tree.Tuple) *tree.Tuple {
 			return nil // safety, though LHS should always be a tuple of names
 		}
 		// Build tagged placeholder for this column
-		parts := getFieldColParts(col) // preserves qualifiers, wraps part0
+		parts := getFieldColParts(col, "WHERE") // preserves qualifiers, wraps part0
 		var np tree.NameParts
 		for j, p := range parts {
 			np[j] = p
@@ -275,7 +275,7 @@ func handleSingleColIn(
 		}
 	}
 
-	parts := getFieldColParts(col) // wraps part0, preserves qualifiers
+	parts := getFieldColParts(col, "WHERE") // wraps part0, preserves qualifiers
 	// Build new flat list of placeholders
 	var newExprs tree.Exprs
 	for _, e := range orig.Exprs {
@@ -354,7 +354,7 @@ func handleMultiColIn(lhs *tree.Tuple, orig *tree.Tuple) *tree.Tuple {
 	for i := 0; i < rowCount; i++ {
 		tpl := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
 		for j, col := range cols {
-			parts := getFieldColParts(col)
+			parts := getFieldColParts(col, "WHERE")
 			var np tree.NameParts
 			for k, p := range parts {
 				np[k] = p
@@ -386,7 +386,7 @@ func reconstructName(u *tree.UnresolvedName) string {
 func getFieldColParts(col *tree.UnresolvedName, clause string) []string {
 	numParts := col.NumParts
 	parts := make([]string, numParts)
-	parts[0] = fmt.Sprintf(":-:%s:-:", col.Parts[0])
+	parts[0] = fmt.Sprintf(":-:'%s','%s':-:", col.Parts[0], clause)
 	for i := 1; i < numParts; i++ {
 		parts[i] = col.Parts[i]
 	}

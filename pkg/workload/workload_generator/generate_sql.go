@@ -117,11 +117,13 @@ func GenerateWorkload(
 
 	for _, txnID := range txnOrder {
 		stmts := txnMap[txnID]
+		fmt.Fprintln(outFile, "-------Begin Transaction------")
 		fmt.Fprintln(outFile, "BEGIN;")
 		for _, stmt := range stmts {
 			fmt.Fprintf(outFile, "%s;\n", stmt)
 		}
 		fmt.Fprintln(outFile, "COMMIT;")
+		fmt.Fprintln(outFile, "-------Begin Transaction------")
 	}
 
 	return nil
