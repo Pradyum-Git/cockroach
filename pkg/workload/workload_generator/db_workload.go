@@ -157,7 +157,10 @@ func (s *dbworkload) Hooks() workload.Hooks {
 					fmt.Println(lines[i])
 				}
 			}
-
+			//Setting sql location
+			if s.sqlLocation == "" {
+				s.sqlLocation = fmt.Sprintf("%s.sql", s.dbName)
+			}
 			errWorkload := GenerateWorkload(s.debugZip, s.allSchema, s.dbName, s.sqlLocation)
 			if errWorkload != nil {
 				return errors.Wrap(err, "failed to generate workload")
@@ -415,15 +418,12 @@ func (d *dbworkload) buildRuntimeGenerators(globalNumBatches int) {
 func (d *dbworkload) Ops(
 	ctx context.Context, urls []string, reg *histogram.Registry,
 ) (workload.QueryLoad, error) {
-	dbName := d.Meta().Name
-	if d.connFlags.DBOverride != "" {
-		dbName = d.connFlags.DBOverride
-	}
-	d.dbName = dbName
-
-	err, err2, done := d.getYamlData()
+	//Set database name in the main workload struct.
+	d.setDbName()
+	//Load the schema information into memory from the yaml. This information is used for the runtime data generation.
+	errYaml, done := d.getYamlData()
 	if done {
-		return workload.QueryLoad{}, err2
+		return workload.QueryLoad{}, errYaml
 	}
 	// Parse transactions from the sql file.
 	sqlPath := d.sqlLocation
@@ -460,7 +460,19 @@ func (d *dbworkload) Ops(
 	return ql, nil
 }
 
-func (d *dbworkload) getYamlData() (error, error, bool) {
+// setDbName registers the database name in the main workload struct.
+// It uses the name provided using the --db flag, otherwise falls back to "workload_generator"
+func (d *dbworkload) setDbName() {
+	dbName := d.Meta().Name
+	if d.connFlags.DBOverride != "" {
+		dbName = d.connFlags.DBOverride
+	}
+	d.dbName = dbName
+}
+
+// getYamlData first checks whether the input yaml flag is set or not.
+// Accordingly, it loads the schema information into memory from the correct location.
+func (d *dbworkload) getYamlData() (error, bool) {
 	var path string
 	if d.inputYaml != "" {
 		path = d.inputYaml
@@ -469,12 +481,12 @@ func (d *dbworkload) getYamlData() (error, error, bool) {
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not read schema YAML from %s", path), true
+		return errors.Wrapf(err, "could not read schema YAML from %s", path), true
 	}
 	if err := yaml.Unmarshal(raw, &d.workloadSchema); err != nil {
-		return nil, errors.Wrapf(err, "couldn't unmarshal schema YAML"), true
+		return errors.Wrapf(err, "couldn't unmarshal schema YAML"), true
 	}
-	return err, nil, false
+	return nil, false
 }
 
 // getRegularColumnValue picks values from the generator or cache depending on sql clause or whether there is a fk dependency.
