@@ -1,13 +1,17 @@
 package workload_generator
 
 import (
+	"bufio"
 	"fmt"
-	"github.com/cockroachdb/cockroach/pkg/sql/parser"
-	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
-	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree/treecmp"
 	"go/constant"
 	"math/rand"
+	"os"
 	"strings"
+
+	"github.com/cockroachdb/cockroach/pkg/sql/parser/statements"
+	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
+	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree/treecmp"
+	"github.com/pkg/errors"
 )
 
 // placeholderRewriter handles both simple comparisons and IN-lists.
@@ -133,7 +137,7 @@ func handleRangeCondition(rc *tree.RangeCond, allSchemas map[string]*TableSchema
 			case *tree.UnresolvedName:
 				// direct "_" or "__more__"
 				if n := reconstructName(t); n == "_" || n == "__more__" {
-					parts := getFieldColParts(colUn, "WHERE", allSchemas, tableName)
+					parts := getFieldCol(colUn.Parts[0], "WHERE", allSchemas, tableName)
 					t.NumParts = len(parts)
 					for i, p := range parts {
 						t.Parts[i] = p
@@ -153,7 +157,7 @@ func handleRangeCondition(rc *tree.RangeCond, allSchemas map[string]*TableSchema
 
 				if _, lok := left.(*tree.UnresolvedName); lok {
 					if _, rok := right.(*tree.UnresolvedName); rok {
-						parts := getFieldColParts(colUn, "WHERE", allSchemas, tableName)
+						parts := getFieldCol(colUn.Parts[0], "WHERE", allSchemas, tableName)
 						var np tree.NameParts
 						for j, p := range parts {
 							np[j] = p
@@ -205,7 +209,7 @@ func handleRangeCondition(rc *tree.RangeCond, allSchemas map[string]*TableSchema
 		out := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
 		for j, colNode := range cols {
 			//colName := reconstructName(colNode)
-			parts := getFieldColParts(colNode, "WHERE", allSchemas)
+			parts := getFieldCol(colNode.Parts[0], "WHERE", allSchemas, tableName)
 			var np tree.NameParts
 			for k, p := range parts {
 				np[k] = p
@@ -230,10 +234,8 @@ func handleComparisonOperator(cmp *tree.ComparisonExpr, allSchemas map[string]*T
 		rhsName := reconstructName(rhs)
 		if rhsName == "_" || rhsName == "__more__" {
 			//colName := reconstructName(lhs)
-			parts := getFieldColParts(lhs, "WHERE", allSchemas, tableName)
-			//if len(parts) != 4 {
-			//	panic(fmt.Sprintf("getFieldColParts(%q) → %d parts, want 4", colName, len(parts)))
-			//}
+			parts := getFieldCol(lhs.Parts[0], "WHERE", allSchemas, tableName)
+
 			rhs.NumParts = len(parts)
 			var np tree.NameParts
 			for i, p := range parts {
@@ -274,7 +276,7 @@ func handleTupleComparison(lt, rt *tree.Tuple, allSchemas map[string]*TableSchem
 			return nil // safety, though LHS should always be a tuple of names
 		}
 		// Build tagged placeholder for this column
-		parts := getFieldColParts(col, "WHERE", allSchemas, tableName) // preserves qualifiers, wraps part0
+		parts := getFieldCol(col.Parts[0], "WHERE", allSchemas, tableName) // preserves qualifiers, wraps part0
 		var np tree.NameParts
 		for j, p := range parts {
 			np[j] = p
@@ -324,7 +326,7 @@ func handleSingleColIn(
 		}
 	}
 
-	parts := getFieldColParts(col, "WHERE", allSchemas, tableName) // wraps part0, preserves qualifiers
+	parts := getFieldCol(col.Parts[0], "WHERE", allSchemas, tableName) // wraps part0, preserves qualifiers
 	// Build new flat list of placeholders
 	var newExprs tree.Exprs
 	for _, e := range orig.Exprs {
@@ -403,7 +405,7 @@ func handleMultiColIn(lhs *tree.Tuple, orig *tree.Tuple, allSchemas map[string]*
 	for i := 0; i < rowCount; i++ {
 		tpl := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
 		for j, col := range cols {
-			parts := getFieldColParts(col, "WHERE", allSchemas, tableName)
+			parts := getFieldCol(col.Parts[0], "WHERE", allSchemas, tableName)
 			var np tree.NameParts
 			for k, p := range parts {
 				np[k] = p
@@ -430,39 +432,9 @@ func reconstructName(u *tree.UnresolvedName) string {
 	return strings.Join(clean, ".")
 }
 
-// getFieldColParts returns exactly four metadata strings for a column.
-// (Stub—replace with your real schema lookup & formatting.)
-func getFieldColParts(col *tree.UnresolvedName, clause string, allSchemas map[string]*TableSchema, tableName ...string) []string {
-	tn := ""
-	if len(tableName) > 0 {
-		tn = tableName[0]
-	}
-	numParts := col.NumParts
-	parts := make([]string, numParts)
-	var placeholder string
-	for _, schema := range allSchemas {
-		matched := false
-		for _, column := range schema.Columns {
-			if column.Name == col.Parts[0] {
-				placeholder = column.String()
-				placeholder = placeholder[1 : len(placeholder)-1]
-				matched = true
-				break
-			}
-		}
-		if matched {
-			break
-		}
-	}
-	parts[0] = fmt.Sprintf(":-:|'%s','%s','%s'|:-:", placeholder, clause, tn)
-	return parts
-}
-
-func getFieldCol(col string, clause string, allSchemas map[string]*TableSchema, tableName ...string) []string {
-	tn := ""
-	if len(tableName) > 0 {
-		tn = tableName[0]
-	}
+// getFieldCol returns a string that can be used to make UnresolvedName type of node.
+// The string basically consists of o
+func getFieldCol(col string, clause string, allSchemas map[string]*TableSchema, tableName string) []string {
 	numParts := 1
 	parts := make([]string, numParts)
 	var placeholder string
@@ -480,167 +452,8 @@ func getFieldCol(col string, clause string, allSchemas map[string]*TableSchema, 
 			break
 		}
 	}
-	parts[0] = fmt.Sprintf(":-:|'%s','%s','%s'|:-:", placeholder, clause, tn)
+	parts[0] = fmt.Sprintf(":-:|'%s','%s','%s'|:-:", placeholder, clause, tableName)
 	return parts
-}
-
-func handleInsert(ins *tree.Insert, allSchemas map[string]*TableSchema) {
-	// Only handle raw VALUES clauses (not INSERT … SELECT)
-
-	fmtCtx := tree.NewFmtCtx(tree.FmtSimple)
-	ins.Table.Format(fmtCtx)
-	tableName := fmtCtx.CloseAndGetString()
-
-	sel := ins.Rows
-	switch vals := sel.Select.(type) {
-	case *tree.ValuesClause:
-		rewriteValuesClause(ins, vals, allSchemas, tableName)
-	case *tree.LiteralValuesClause:
-		// rewriteLiteralValuesClause(ins, vals)  // if you need it
-	default:
-		// not a VALUES, leave it alone
-	}
-}
-
-// rewriteValuesClause now produces one output tuple per input row.
-func rewriteValuesClause(ins *tree.Insert, vals *tree.ValuesClause, allSchemas map[string]*TableSchema, tableName string) {
-	// 1) Figure out column names in order.
-	var cols []string
-	if len(ins.Columns) > 0 {
-		for _, n := range ins.Columns {
-			cols = append(cols, string(n))
-		}
-	} else {
-		// ==== no explicit cols: look up table in allSchemas ====
-		var tblName string
-		switch t := ins.Table.(type) {
-		case *tree.TableName:
-			// t.String() will give you something like `order_line` (with
-			// quoting preserved). Trim any double-quotes so it matches
-			// your map keys.
-			tblName = strings.Trim(t.String(), `"`)
-
-		case *tree.AliasedTableExpr:
-			if tn, ok := t.Expr.(*tree.TableName); ok {
-				tblName = strings.Trim(tn.String(), `"`)
-			}
-
-		default:
-			// fallback if it's some other TableExpr (JOIN, sub-query, etc.)
-			tblName = ""
-		}
-
-		if ts, ok := allSchemas[tblName]; ok {
-			// now collect all the column names from that TableSchema
-			for col := range ts.Columns {
-				cols = append(cols, col)
-			}
-		} else {
-			// table not found in schema map; you could error or leave cols empty
-		}
-
-	}
-
-	// 2) For each original row, emit exactly one mutated tuple:
-	newRows := make([]tree.Exprs, 0, len(vals.Rows))
-	for range vals.Rows {
-		// build one placeholder tuple of length len(cols)
-		base := make(tree.Exprs, len(cols))
-		for i, col := range cols {
-			parts := getFieldCol(col, "INSERT", allSchemas, tableName)
-			var np tree.NameParts
-			for j, p := range parts {
-				np[j] = p
-			}
-			base[i] = &tree.UnresolvedName{
-				NumParts: len(parts),
-				Parts:    np,
-			}
-		}
-		newRows = append(newRows, base)
-	}
-
-	// 3) Splice back in:
-	vals.Rows = newRows
-	//tree.Update{}
-}
-
-func rewriteUpdateSet(upd *tree.Update, allSchemas map[string]*TableSchema) {
-	var tableName string
-	switch t := upd.Table.(type) {
-	case *tree.TableName:
-		// unaliased: just a bare table
-		tableName = t.String()
-	case *tree.AliasedTableExpr:
-		// aliased: pull the inner TableName
-		if tn, ok := t.Expr.(*tree.TableName); ok {
-			tableName = tn.String()
-		}
-	default:
-		// anything else (subquery, join) we’ll just leave blank
-		tableName = ""
-	}
-	for _, setExpr := range upd.Exprs {
-		if !setExpr.Tuple {
-			// single‐column SET: "col = …"
-			targetCol := string(setExpr.Names[0])
-			setExpr.Expr = rewriteSetRHS(setExpr.Expr, targetCol, allSchemas, tableName)
-		} else {
-			// tuple‐form SET: "(a,b,…) = (…)"
-			// Build a new RHS tuple, one placeholder per LHS column.
-			cols := setExpr.Names
-			newTuple := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
-			for i, name := range cols {
-				col := string(name)
-				parts := getFieldCol(col, "UPDATE", allSchemas, tableName)
-				var np tree.NameParts
-				for j, p := range parts {
-					np[j] = p
-				}
-				newTuple.Exprs[i] = &tree.UnresolvedName{
-					NumParts: len(parts),
-					Parts:    np,
-				}
-			}
-			setExpr.Expr = newTuple
-		}
-	}
-}
-
-func rewriteSetRHS(
-	expr tree.Expr,
-	targetCol string,
-	allSchemas map[string]*TableSchema,
-	tableName string,
-) tree.Expr {
-	switch t := expr.(type) {
-	case *tree.UnresolvedName:
-		// placeholder "_" or "__more__"
-		name := reconstructName(t)
-		if name == "_" || name == "__more__" {
-			parts := getFieldCol(targetCol, "UPDATE", allSchemas, tableName)
-			t.NumParts = len(parts)
-			for i, p := range parts {
-				t.Parts[i] = p
-			}
-		}
-
-	case *tree.BinaryExpr:
-		// e.g. col + _  or deeper nested
-		t.Left = rewriteSetRHS(t.Left, targetCol, allSchemas, tableName)
-		t.Right = rewriteSetRHS(t.Right, targetCol, allSchemas, tableName)
-
-	case *tree.Tuple:
-		// e.g. CASE tuple‐arm might embed a Tuple
-		for i, elt := range t.Exprs {
-			t.Exprs[i] = rewriteSetRHS(elt, targetCol, allSchemas, tableName)
-		}
-
-	case *tree.CaseExpr:
-		// handle both tuple‐CASE and scalar‐CASE
-		rewriteCaseExpr(t, targetCol, allSchemas, tableName)
-	}
-	return expr
 }
 
 // rewriteCaseExpr tags every WHEN … THEN … and the final ELSE if it’s
@@ -739,7 +552,8 @@ func rewriteCaseExpr(
 	}
 }
 
-func rewriteSelectLimit(sel *tree.Select) {
+// handleSelectLimit replaces the placeholder in LIMIT _ with a random integer between 1 and 100.
+func handleSelectLimit(sel *tree.Select) {
 	if sel.Limit == nil || sel.Limit.Count == nil {
 		return
 	}
@@ -756,79 +570,239 @@ func rewriteSelectLimit(sel *tree.Select) {
 	}
 }
 
-// ReplacePlaceholders parses the given SQL, applies both the INSERT-VALUES
-// expansion and the expression-level placeholder rewrites, and returns the
-// resulting SQL (or an error).
-func ReplacePlaceholders(
-	rawSQL string,
+func getPlaceholderRewriter(stmt statements.Statement[tree.Statement], allSchemas map[string]*TableSchema) *placeholderRewriter {
+	// in ReplacePlaceholders, per stmt:
+	var tableName string
+	switch stmt := stmt.AST.(type) {
+	case *tree.Insert:
+		// ins.Table is a TableName or AliasedTableExpr
+		tableName = extractTableName(stmt.Table)
+	case *tree.Update:
+		tableName = extractTableName(stmt.Table)
+	case *tree.Delete:
+		tableName = extractTableName(stmt.Table)
+	case *tree.Select:
+		// pull from the first FROM table (skip joins/withs)
+		if sc, ok := stmt.Select.(*tree.SelectClause); ok {
+			if len(sc.From.Tables) > 0 {
+				tableName = extractTableNameFromTableExpr(sc.From.Tables[0])
+			}
+		}
+	}
+	// expression-level rewrites (WHERE, IN, BETWEEN, comparisons)
+	rw := &placeholderRewriter{
+		schemas:   allSchemas,
+		tableName: tableName,
+	}
+	return rw
+}
+
+// handleInsert focuses on INSERT … VALUES type of sqls.
+func handleInsert(ins *tree.Insert, allSchemas map[string]*TableSchema) {
+	// 1) Extract the table name.
+	fmtCtx := tree.NewFmtCtx(tree.FmtSimple)
+	ins.Table.Format(fmtCtx)
+	tableName := fmtCtx.CloseAndGetString()
+
+	// 2) Only rewrite raw VALUES clauses.
+	vals, ok := ins.Rows.Select.(*tree.ValuesClause)
+	if !ok {
+		return
+	}
+
+	// 3) Gather columns and rebuild the placeholder rows.
+	cols := collectInsertCols(ins, allSchemas, tableName)
+	ins.Rows.Select.(*tree.ValuesClause).Rows = buildInsertPlaceholderRows(
+		cols, len(vals.Rows), allSchemas, tableName,
+	)
+}
+
+// collectInsertCols returns the ordered list of column names for this INSERT.
+// If ins.Columns is non-empty, use that; otherwise look up the TableSchema.
+func collectInsertCols(
+	ins *tree.Insert,
 	allSchemas map[string]*TableSchema,
-) (string, error) {
-	stmts, err := parser.Parse(rawSQL)
-	if err != nil {
-		return "", err
+	tableName string,
+) []string {
+	// If column names are explicitly mentioned
+	if len(ins.Columns) > 0 {
+		cols := make([]string, len(ins.Columns))
+		for i, n := range ins.Columns {
+			cols[i] = string(n)
+		}
+		return cols
 	}
 
-	var out []string
-	for _, stmt := range stmts {
-		// statement-level INSERT…VALUES rewrite
-		if ins, ok := stmt.AST.(*tree.Insert); ok {
-			handleInsert(ins, allSchemas)
+	// No explicit columns → infer from schema
+	var tblKey string
+	switch t := ins.Table.(type) {
+	case *tree.TableName:
+		tblKey = strings.Trim(t.String(), `"`)
+	case *tree.AliasedTableExpr:
+		if tn, ok := t.Expr.(*tree.TableName); ok {
+			tblKey = strings.Trim(tn.String(), `"`)
 		}
-		//update ... set rewrite
-		if upd, ok := stmt.AST.(*tree.Update); ok {
-			// 1) Rewrite everything in the SET clause.
-			rewriteUpdateSet(upd, allSchemas)
+	}
+	if ts, ok := allSchemas[tblKey]; ok {
+		cols := make([]string, 0, len(ts.Columns))
+		for col := range ts.Columns {
+			cols = append(cols, col)
 		}
+		return cols
+	}
 
-		//handling limit _
-		if sel, ok := stmt.AST.(*tree.Select); ok {
-			rewriteSelectLimit(sel)
-		}
+	// fallback: no schema found → empty
+	return nil
+}
 
-		// in ReplacePlaceholders, per stmt:
-		var tableName string
-		switch stmt := stmt.AST.(type) {
-		case *tree.Insert:
-			// ins.Table is a TableName or AliasedTableExpr
-			tableName = extractTableName(stmt.Table)
-		case *tree.Update:
-			tableName = extractTableName(stmt.Table)
-		case *tree.Delete:
-			tableName = extractTableName(stmt.Table)
-		case *tree.Select:
-			// pull from the first FROM table (skip joins/withs)
-			if sc, ok := stmt.Select.(*tree.SelectClause); ok {
-				if len(sc.From.Tables) > 0 {
-					tableName = extractTableNameFromTableExpr(sc.From.Tables[0])
-				}
+// buildPlaceholderRows creates exactly rowCount placeholder tuples,
+// one per original VALUES row.
+// Ex: INSERT INTO tbl(col1,col2) VALUES ( _ ,__more__ ) , (__, __more__).. k times becomes INSERT INTO tbl(col1,col2) VALUES (:-:col1:-:,:-:col2:-:) , (:-:col1:-:,:-:col2:-:)).. k times
+func buildInsertPlaceholderRows(
+	cols []string,
+	rowCount int,
+	allSchemas map[string]*TableSchema,
+	tableName string,
+) []tree.Exprs {
+	newRows := make([]tree.Exprs, 0, rowCount)
+	for i := 0; i < rowCount; i++ {
+		base := make(tree.Exprs, len(cols))
+		for j, col := range cols {
+			parts := getFieldCol(col, "INSERT", allSchemas, tableName)
+			var np tree.NameParts
+			for k, p := range parts {
+				np[k] = p
+			}
+			base[j] = &tree.UnresolvedName{
+				NumParts: len(parts),
+				Parts:    np,
+			}
+		}
+		newRows = append(newRows, base)
+	}
+	return newRows
+}
+
+func handleUpdateSet(upd *tree.Update, allSchemas map[string]*TableSchema) {
+	tableName := getUpdTableName(upd)
+	for _, setExpr := range upd.Exprs {
+		if !setExpr.Tuple {
+			// single‐column SET: "col = …"
+			targetCol := string(setExpr.Names[0])
+			setExpr.Expr = rewriteSingleColSetRHS(setExpr.Expr, targetCol, allSchemas, tableName)
+		} else {
+			// tuple‐form SET: "(a,b,…) = (…)"
+			// Build a new RHS tuple, one placeholder per LHS column.
+			setExpr.Expr = rewriteMultiColSet(setExpr, allSchemas, tableName)
+		}
+	}
+}
+
+func rewriteMultiColSet(setExpr *tree.UpdateExpr, allSchemas map[string]*TableSchema, tableName string) *tree.Tuple {
+	cols := setExpr.Names
+	newTuple := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
+	for i, name := range cols {
+		col := string(name)
+		parts := getFieldCol(col, "UPDATE", allSchemas, tableName)
+		var np tree.NameParts
+		for j, p := range parts {
+			np[j] = p
+		}
+		newTuple.Exprs[i] = &tree.UnresolvedName{
+			NumParts: len(parts),
+			Parts:    np,
+		}
+	}
+	return newTuple
+}
+
+// getUpdTableName returns the table name being referred to in teh UPDATE statement.
+func getUpdTableName(upd *tree.Update) string {
+	var tableName string
+	switch t := upd.Table.(type) {
+	case *tree.TableName:
+		// unaliased: just a bare table
+		tableName = t.String()
+	case *tree.AliasedTableExpr:
+		// aliased: pull the inner TableName
+		if tn, ok := t.Expr.(*tree.TableName); ok {
+			tableName = tn.String()
+		}
+	default:
+		// anything else (subquery, join) we’ll just leave blank
+		tableName = ""
+	}
+	return tableName
+}
+
+func rewriteSingleColSetRHS(
+	expr tree.Expr,
+	targetCol string,
+	allSchemas map[string]*TableSchema,
+	tableName string,
+) tree.Expr {
+	switch t := expr.(type) {
+	case *tree.UnresolvedName:
+		// placeholder "_" or "__more__"
+		name := reconstructName(t)
+		if name == "_" || name == "__more__" {
+			parts := getFieldCol(targetCol, "UPDATE", allSchemas, tableName)
+			t.NumParts = len(parts)
+			for i, p := range parts {
+				t.Parts[i] = p
 			}
 		}
 
-		// expression-level rewrites (WHERE, IN, BETWEEN, comparisons)
-		rw := &placeholderRewriter{
-			schemas:   allSchemas,
-			tableName: tableName,
-		}
-		if sel, ok := stmt.AST.(*tree.Select); ok {
-			// Unbox the SelectClause
-			if sc, ok := sel.Select.(*tree.SelectClause); ok {
-				for _, tbl := range sc.From.Tables {
-					if j, ok := tbl.(*tree.JoinTableExpr); ok {
-						// Only handle ON‐joins here
-						if on, ok := j.Cond.(*tree.OnJoinCond); ok {
-							tree.WalkExpr(rw, on.Expr)
-						}
-					}
-				}
-			}
-		}
-		tree.WalkStmt(rw, stmt.AST)
+	case *tree.BinaryExpr:
+		// e.g. col + _  or deeper nested
+		t.Left = rewriteSingleColSetRHS(t.Left, targetCol, allSchemas, tableName)
+		t.Right = rewriteSingleColSetRHS(t.Right, targetCol, allSchemas, tableName)
 
-		// pretty-print
-		fmtCtx := tree.NewFmtCtx(tree.FmtSimple)
-		stmt.AST.Format(fmtCtx)
-		out = append(out, fmtCtx.CloseAndGetString())
+	case *tree.Tuple:
+		// e.g. CASE tuple‐arm might embed a Tuple
+		for i, elt := range t.Exprs {
+			t.Exprs[i] = rewriteSingleColSetRHS(elt, targetCol, allSchemas, tableName)
+		}
+
+	case *tree.CaseExpr:
+		// handle both tuple‐CASE and scalar‐CASE
+		rewriteCaseExpr(t, targetCol, allSchemas, tableName)
 	}
-	// join multiple statements with newline
-	return strings.Join(out, "\n"), nil
+	return expr
+}
+
+// writeTransaction writes out each transaction block, bracketed by BEGIN/COMMIT.
+func writeTransaction(txnOrder []string, txnMap map[string][]string, outFile *os.File) {
+	for _, txnID := range txnOrder {
+		stmts := txnMap[txnID]
+		fmt.Fprintln(outFile, "-------Begin Transaction------")
+		fmt.Fprintln(outFile, "BEGIN;")
+		for _, stmt := range stmts {
+			fmt.Fprintf(outFile, "%s;\n", stmt)
+		}
+		fmt.Fprintln(outFile, "COMMIT;")
+		fmt.Fprintln(outFile, "-------End Transaction-------")
+	}
+}
+
+// getColumnIndexes maps column names to their respective indexes.
+func getColumnIndexes(scanner *bufio.Scanner, f *os.File, statsPath string) (map[string]int, error) {
+	header := strings.Split(scanner.Text(), "\t")
+	idx := make(map[string]int, len(header))
+	for i, col := range header {
+		idx[col] = i
+	}
+	// required columns
+	for _, want := range []string{
+		"database_name", "application_name",
+		"txn_fingerprint_id", "key",
+	} {
+		if _, ok := idx[want]; !ok {
+			if err := f.Close(); err != nil {
+				return nil, err
+			}
+			return nil, errors.Errorf("missing column %q in %s", want, statsPath)
+		}
+	}
+	return idx, nil
 }

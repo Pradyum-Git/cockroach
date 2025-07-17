@@ -527,21 +527,21 @@ type txnWorker struct {
 // run executes a random transaction from the list of transactions.
 func (w *txnWorker) run(ctx context.Context) error {
 	txn := w.chooseTransaction()
-	// reference to the dbworkload for generators
+	// Reference to the dbworkload for generators.
 	d := w.d
-	// Start time for the metrics I think.
+	// Start time for the metrics.
 	start := timeutil.Now()
-	//inserted maintains a map of column names to the values that were inserted in this transaction
+	// Inserted maintains a map of column names to the values that were inserted in this transaction.
 	inserted := make(map[string][]interface{})
 	err := crdb.ExecuteTx(ctx, w.db, nil, func(tx *gosql.Tx) error {
 		for _, sqlQuery := range txn.Queries {
 			args := make([]interface{}, len(sqlQuery.Placeholders))
-			//checking if we have a situation where all the primary keys in the query have foreign key dependency
+			// Checking if we have a situation where all the primary keys in the query have foreign key dependency.
 			allPksAreFK := checkIfAllPkAreFk(sqlQuery, d)
 			// Pick a single fkIdx for ALL FK placeholders (or -1 if none).
-			//This ensures that for all column in a composite fk, the same row index from the parent column cache is chosen
+			// This ensures that for all column in a composite fk, the same row index from the parent column cache is chosen.
 			fkIndex := w.pickFkIndex(sqlQuery, d)
-			// Build per-placeholder indexes
+			// Build per-placeholder indexes.
 			indexes := w.setCacheIndex(sqlQuery, d, fkIndex)
 			for i, placeholder := range sqlQuery.Placeholders {
 				var raw string
@@ -570,6 +570,7 @@ func (w *txnWorker) run(ctx context.Context) error {
 	return err
 }
 
+// chooseTransaction returns a random transaction of type read or write absed on the readPct flag
 func (w *txnWorker) chooseTransaction() Transaction {
 	var txn Transaction
 	reads := w.readTransactions
