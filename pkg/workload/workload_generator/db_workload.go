@@ -365,6 +365,7 @@ func (d *dbworkload) initGenerators(db *sql.DB) error {
 	return nil
 }
 
+// setCacheValues fills into the runtimeColumn structs the cache data consisting of values generated during the initial bulk insert.
 func (d *dbworkload) setCacheValues(db *gosql.DB) error {
 	for tableName, blocks := range d.workloadSchema {
 		block := blocks[0]
@@ -513,14 +514,14 @@ func (d *dbworkload) getRegularColumnValue(p Placeholder, idx int) string {
 	return v
 }
 
+// txnWorker consists of all teh data that is needed for the runtime routines
 type txnWorker struct {
-	db                *gosql.DB
+	db                *gosql.DB //db is the connection to the running cluster.
 	readTransactions  []Transaction
 	writeTransactions []Transaction
 	rng               *rand.Rand
 	hists             *histogram.Histograms
 	d                 *dbworkload // reference to the dbworkload for generators
-	logFile           *os.File
 }
 
 // run executes a random transaction from the list of transactions.

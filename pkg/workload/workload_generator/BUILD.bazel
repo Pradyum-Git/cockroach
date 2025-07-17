@@ -12,6 +12,7 @@ go_library(
         "generator_utils.go",
         "make_generator.go",
         "placeholder_processor.go",
+        "run_utils.go",
         "schema_designs.go",
         "sqlConvert.go",
     ],

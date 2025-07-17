@@ -10,6 +10,13 @@ import (
 	"strings"
 )
 
+var (
+	// txnRe defines how to separate the transactions from the <dbName.sql> file
+	txnRe = regexp.MustCompile(`(?m)^-------Begin Transaction------\s*([\s\S]*?)-------End Transaction-------`)
+	// placeholderRe defines the structure of the placeholders that need to be converted into $1, $2...
+	placeholderRe = regexp.MustCompile(`"?:-:\|(.+?)\|:-:"?`)
+)
+
 type FKRef struct {
 	Table  string
 	Column string
@@ -55,21 +62,18 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 	text := string(data)
 
 	// Each transaction block
-	txRe := regexp.MustCompile(
-		`(?m)^-------Begin Transaction------\s*([\s\S]*?)-------End Transaction-------`)
-	blocks := txRe.FindAllStringSubmatch(text, -1)
+	blocks := txnRe.FindAllStringSubmatch(text, -1)
 
-	// placeholder pattern
-	phRe := regexp.MustCompile(`"?:-:\|(.+?)\|:-:"?`)
-
+	// Currently we are defining two types of transactions - read and write.
 	var readTxns []Transaction
 	var writeTxns []Transaction
+	// For every transaction block.
 	for _, blk := range blocks {
 		body := blk[1]
 		lines := strings.Split(body, "\n")
 		var txn Transaction
 		var curr SQLQuery
-
+		// For every sql query line.
 		for _, line := range lines {
 			line = strings.TrimSpace(line)
 			if line == "" || line == "BEGIN;" || line == "COMMIT;" {
@@ -81,35 +85,8 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 				// once we hit the end of a statement, re-number from $1
 				stmtPos := 1
 				var placeholders []Placeholder
-
-				sqlOut := phRe.ReplaceAllStringFunc(curr.SQL, func(match string) string {
-					inner := phRe.FindStringSubmatch(match)[1]
-					parts := splitQuoted(inner)
-
-					var p Placeholder
-					p.Name = trimQuotes(parts[0])
-					p.ColType = trimQuotes(parts[1])
-					p.IsNullable = trimQuotes(parts[2]) == "NULL"
-					p.IsPrimaryKey = strings.Contains(trimQuotes(parts[3]), "PRIMARY KEY")
-					if d := trimQuotes(parts[4]); d != "" {
-						p.Default = &d
-					}
-					p.IsUnique = trimQuotes(parts[5]) == "UNIQUE"
-					if fk := trimQuotes(parts[6]); fk != "" {
-						fkParts := strings.Split(strings.TrimPrefix(fk, "FK→"), ".")
-						p.FKReference = &FKRef{Table: fkParts[0], Column: fkParts[1]}
-					}
-					if chk := trimQuotes(parts[7]); chk != "" {
-						p.InlineCheck = &chk
-					}
-					p.Clause = trimQuotes(parts[8])
-					p.Position = stmtPos
-					stmtPos++
-					p.TableName = trimQuotes(parts[9])
-
-					placeholders = append(placeholders, p)
-					return fmt.Sprintf("$%d", p.Position)
-				})
+				// sqlOut is the reWritten sql where teh placeholders have been replaced with $x.
+				sqlOut := placeholderRe.ReplaceAllStringFunc(curr.SQL, makePlaceholderReplacer(&placeholders, &stmtPos))
 
 				curr.SQL = strings.TrimSpace(sqlOut)
 				curr.Placeholders = placeholders
@@ -119,6 +96,7 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 				curr = SQLQuery{}
 			}
 		}
+		// Decide whether the transaction is a read type or write type.
 		setType(&txn)
 		if txn.typ == "read" {
 			readTxns = append(readTxns, txn)
@@ -128,6 +106,40 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 	}
 
 	return readTxns, writeTxns, nil
+}
+
+// makePlaceholderReplacer returns a ReplaceAllStringFunc that
+// appends to placeholders and increments stmtPos.
+func makePlaceholderReplacer(placeholders *[]Placeholder, stmtPos *int) func(string) string {
+	return func(match string) string {
+		inner := placeholderRe.FindStringSubmatch(match)[1]
+		parts := splitQuoted(inner)
+
+		var p Placeholder
+		//Set all the fields in the placeholder struct based on teh information from the sql.
+		p.Name = trimQuotes(parts[0])
+		p.ColType = trimQuotes(parts[1])
+		p.IsNullable = trimQuotes(parts[2]) == "NULL"
+		p.IsPrimaryKey = strings.Contains(trimQuotes(parts[3]), "PRIMARY KEY")
+		if d := trimQuotes(parts[4]); d != "" {
+			p.Default = &d
+		}
+		p.IsUnique = trimQuotes(parts[5]) == "UNIQUE"
+		if fk := trimQuotes(parts[6]); fk != "" {
+			fkParts := strings.Split(strings.TrimPrefix(fk, "FK→"), ".")
+			p.FKReference = &FKRef{Table: fkParts[0], Column: fkParts[1]}
+		}
+		if chk := trimQuotes(parts[7]); chk != "" {
+			p.InlineCheck = &chk
+		}
+		p.Clause = trimQuotes(parts[8])
+		p.Position = *stmtPos
+		p.TableName = trimQuotes(parts[9])
+
+		*stmtPos++
+		*placeholders = append(*placeholders, p)
+		return fmt.Sprintf("$%d", p.Position)
+	}
 }
 
 func setType(txn *Transaction) {
