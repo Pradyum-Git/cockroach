@@ -526,17 +526,7 @@ type txnWorker struct {
 
 // run executes a random transaction from the list of transactions.
 func (w *txnWorker) run(ctx context.Context) error {
-	var txn Transaction
-	readPct := w.d.readPct
-	if w.rng.IntN(100) < readPct {
-		// choose from read transactions
-		idx := w.rng.IntN(len(w.readTransactions))
-		txn = w.readTransactions[idx]
-	} else {
-		// choose from write transactions
-		idx := w.rng.IntN(len(w.writeTransactions))
-		txn = w.writeTransactions[idx]
-	}
+	txn := w.chooseTransaction()
 	// reference to the dbworkload for generators
 	d := w.d
 	// Start time for the metrics I think.
@@ -578,6 +568,31 @@ func (w *txnWorker) run(ctx context.Context) error {
 	elapsed := timeutil.Since(start)
 	w.hists.Get(fmt.Sprintf("typ_%v", txn.typ)).Record(elapsed)
 	return err
+}
+
+func (w *txnWorker) chooseTransaction() Transaction {
+	var txn Transaction
+	reads := w.readTransactions
+	writes := w.writeTransactions
+
+	// If neither set has any transactions, just return the zero-Txn
+	if len(reads) == 0 && len(writes) == 0 {
+		return txn
+	}
+	// If there are no read txns, always pick a write transaction.
+	if len(reads) == 0 {
+		return writes[w.rng.IntN(len(writes))]
+	}
+	// If there are no write txns, always pick a read transaction.
+	if len(writes) == 0 {
+		return reads[w.rng.IntN(len(reads))]
+	}
+
+	// Both non-empty: choose based on readPct
+	if w.rng.IntN(100) < w.d.readPct {
+		return reads[w.rng.IntN(len(reads))]
+	}
+	return writes[w.rng.IntN(len(writes))]
 }
 
 // setColumnValue sets the value for a placeholder in the args slice.
