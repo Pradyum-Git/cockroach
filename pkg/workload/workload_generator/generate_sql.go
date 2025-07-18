@@ -9,9 +9,16 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
+	"github.com/cockroachdb/cockroach/pkg/sql/parser/statements"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/pkg/errors"
 )
+
+// placeholderRewriter handles both simple comparisons and IN-lists.
+type placeholderRewriter struct {
+	schemas   map[string]*TableSchema
+	tableName string
+}
 
 func GenerateWorkload(
 	debugZip string,
@@ -77,7 +84,7 @@ func GenerateWorkload(
 			}
 
 			// 5d) placeholder-process
-			rewritten, err := ReplacePlaceholders(rawSQL, allSchemas)
+			rewritten, err := replacePlaceholders(rawSQL, allSchemas)
 			if err != nil {
 				err := f.Close()
 				if err != nil {
@@ -101,24 +108,30 @@ func GenerateWorkload(
 		}
 	}
 
-	// 6) Write out <sqlLocation>/<dbName>.sql
-	outPath := sqlLocation
+	// 6) Write out <sqlLocation><Read/Write>/<dbName>.sql
+	var outPathRead, outPathWrite string
 	if fi, err := os.Stat(sqlLocation); err == nil && fi.IsDir() {
-		outPath = filepath.Join(sqlLocation, dbName+".sql")
+		outPathRead = filepath.Join(sqlLocation, dbName+"_read.sql")
+		outPathWrite = filepath.Join(sqlLocation, dbName+"_write.sql")
 	}
-	outFile, err := os.Create(outPath)
-	if err != nil {
-		return errors.Wrapf(err, "creating %s", outPath)
+	outReadFile, errRead := os.Create(outPathRead)
+	if errRead != nil {
+		return errors.Wrapf(errRead, "creating %s", outPathRead)
 	}
-	defer outFile.Close()
+	defer outReadFile.Close()
+	outWriteFile, errWrite := os.Create(outPathWrite)
+	if errWrite != nil {
+		return errors.Wrapf(errWrite, "creating %s", outPathWrite)
+	}
+	defer outWriteFile.Close()
 
-	writeTransaction(txnOrder, txnMap, outFile)
+	writeTransaction(txnOrder, txnMap, outReadFile, outWriteFile)
 	return nil
 }
 
-// ReplacePlaceholders parses the given SQL and locates all the _, __more__ placeholders.
+// replacePlaceholders parses the given SQL and locates all the _, __more__ placeholders.
 // The placeholders are then matched to what column's data do they represent and are replaced with information about that column for data generation
-func ReplacePlaceholders(
+func replacePlaceholders(
 	rawSQL string,
 	allSchemas map[string]*TableSchema,
 ) (string, error) {
@@ -144,7 +157,7 @@ func ReplacePlaceholders(
 		}
 
 		// Setting up the rewriter with the required table name and schemas.
-		rewriter := getPlaceholderRewriter(stmt, allSchemas)
+		rewriter := buildPlaceholderRewriter(stmt, allSchemas)
 		// Wiring in for the join (col = __) case
 		if sel, ok := stmt.AST.(*tree.Select); ok {
 			// Unbox the SelectClause
@@ -169,4 +182,31 @@ func ReplacePlaceholders(
 	}
 	// join multiple statements with newline
 	return strings.Join(out, "\n"), nil
+}
+
+func buildPlaceholderRewriter(stmt statements.Statement[tree.Statement], allSchemas map[string]*TableSchema) *placeholderRewriter {
+	// in replacePlaceholders, per stmt:
+	var tableName string
+	switch stmt := stmt.AST.(type) {
+	case *tree.Insert:
+		// ins.Table is a TableName or AliasedTableExpr
+		tableName = extractTableName(stmt.Table)
+	case *tree.Update:
+		tableName = extractTableName(stmt.Table)
+	case *tree.Delete:
+		tableName = extractTableName(stmt.Table)
+	case *tree.Select:
+		// pull from the first FROM table (skip joins/withs)
+		if sc, ok := stmt.Select.(*tree.SelectClause); ok {
+			if len(sc.From.Tables) > 0 {
+				tableName = extractTableName(sc.From.Tables[0])
+			}
+		}
+	}
+	// expression-level rewrites (WHERE, IN, BETWEEN, comparisons)
+	rw := &placeholderRewriter{
+		schemas:   allSchemas,
+		tableName: tableName,
+	}
+	return rw
 }

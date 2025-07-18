@@ -8,17 +8,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cockroachdb/cockroach/pkg/sql/parser/statements"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree/treecmp"
 	"github.com/pkg/errors"
 )
-
-// placeholderRewriter handles both simple comparisons and IN-lists.
-type placeholderRewriter struct {
-	schemas   map[string]*TableSchema
-	tableName string
-}
 
 func extractTableName(tbl tree.TableExpr) string {
 	switch t := tbl.(type) {
@@ -653,33 +646,6 @@ func handleSelectLimit(sel *tree.Select) {
 	}
 }
 
-func getPlaceholderRewriter(stmt statements.Statement[tree.Statement], allSchemas map[string]*TableSchema) *placeholderRewriter {
-	// in ReplacePlaceholders, per stmt:
-	var tableName string
-	switch stmt := stmt.AST.(type) {
-	case *tree.Insert:
-		// ins.Table is a TableName or AliasedTableExpr
-		tableName = extractTableName(stmt.Table)
-	case *tree.Update:
-		tableName = extractTableName(stmt.Table)
-	case *tree.Delete:
-		tableName = extractTableName(stmt.Table)
-	case *tree.Select:
-		// pull from the first FROM table (skip joins/withs)
-		if sc, ok := stmt.Select.(*tree.SelectClause); ok {
-			if len(sc.From.Tables) > 0 {
-				tableName = extractTableNameFromTableExpr(sc.From.Tables[0])
-			}
-		}
-	}
-	// expression-level rewrites (WHERE, IN, BETWEEN, comparisons)
-	rw := &placeholderRewriter{
-		schemas:   allSchemas,
-		tableName: tableName,
-	}
-	return rw
-}
-
 // handleInsert focuses on INSERT … VALUES type of sqls.
 func handleInsert(ins *tree.Insert, allSchemas map[string]*TableSchema) {
 	// 1) Extract the table name.
@@ -855,9 +821,15 @@ func rewriteSingleColSetRHS(
 }
 
 // writeTransaction writes out each transaction block, bracketed by BEGIN/COMMIT.
-func writeTransaction(txnOrder []string, txnMap map[string][]string, outFile *os.File) {
+func writeTransaction(txnOrder []string, txnMap map[string][]string, outReadFile *os.File, outWriteFile *os.File) {
 	for _, txnID := range txnOrder {
 		stmts := txnMap[txnID]
+		var outFile *os.File
+		if isWriteTransaction(stmts) {
+			outFile = outWriteFile
+		} else {
+			outFile = outReadFile
+		}
 		fmt.Fprintln(outFile, "-------Begin Transaction------")
 		fmt.Fprintln(outFile, "BEGIN;")
 		for _, stmt := range stmts {
@@ -888,4 +860,17 @@ func getColumnIndexes(scanner *bufio.Scanner, f *os.File, statsPath string) (map
 		}
 	}
 	return idx, nil
+}
+
+// returns true if any statement is INSERT/UPDATE/DELETE
+func isWriteTransaction(stmts []string) bool {
+	for _, s := range stmts {
+		up := strings.ToUpper(strings.TrimSpace(s))
+		if strings.HasPrefix(up, "INSERT") ||
+			strings.HasPrefix(up, "UPDATE") ||
+			strings.HasPrefix(up, "DELETE") {
+			return true
+		}
+	}
+	return false
 }

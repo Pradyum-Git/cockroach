@@ -148,9 +148,11 @@ func (s *dbworkload) Hooks() workload.Hooks {
 			}
 
 			// 3b) Always generate the SQL file (even in schema-only mode).
-			sqlPath := filepath.Join(s.outputDir, fmt.Sprintf("%s.sql", s.dbName))
-			if err := GenerateWorkload(s.debugLogsLocation, s.allSchema, s.dbName, sqlPath); err != nil {
-				return errors.Wrapf(err, "failed to generate SQL workload to %s", sqlPath)
+			if err := GenerateWorkload(s.debugLogsLocation, s.allSchema, s.dbName, s.outputDir); err != nil {
+				return errors.Wrapf(err,
+					"failed to generate SQL workload to %s_read.sql and %s_write.sql",
+					s.dbName, s.dbName,
+				)
 			}
 
 			return nil
