@@ -81,7 +81,7 @@ func TestPain(t *testing.T) {
 		t.Fatalf("failed to create output file: %v", err)
 	}
 	defer f.Close()
-	//making an sqls string array, each of whos eelements will get called again and again
+	//making an sqls string array, each of whos elements will get called again and again
 	sqls := []string{
 		`SELECT ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d FROM order_line WHERE col_2 IN (_,__more__) LIMIT _`,
 		`INSERT into order_line values (_,__more__)`,

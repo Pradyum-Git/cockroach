@@ -54,19 +54,17 @@ func extractTableNameFromTableExpr(tbl tree.TableExpr) string {
 
 // VisitPre rewrites any ComparisonExpr for =,>,<,… and IN.
 func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
-	//handle BETWEEN … AND …
+
 	if ce, ok := expr.(*tree.CaseExpr); ok {
 		switch key := ce.Expr.(type) {
-
 		// ── scalar CASE: CASE col WHEN _ THEN _ …
 		case *tree.UnresolvedName:
 			rewriteCaseExpr(
 				ce,
 				reconstructName(key), // e.g. "c_credit"
 				v.schemas,
-				"",
+				"", //return type unknown
 			)
-
 		// ── tuple CASE: CASE (col1,col2) WHEN … THEN …
 		case *tree.Tuple:
 			// rewriteCaseExpr’s tuple‐branch ignores the target string,
@@ -75,17 +73,16 @@ func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 				ce,
 				"", // unused for tuple‐mode
 				v.schemas,
-				"",
+				"", //return type unknown
 			)
-
 		default:
-			// neither a scalar nor tuple key, skip
+			// neither a scalar nor tuple key, skip. Other nodes are handles in their own way
 		}
 
 		// don’t descend into the old CASE again
 		return false, ce
 	}
-
+	//handle BETWEEN … AND …
 	if rc, ok := expr.(*tree.RangeCond); ok {
 		if newExpr := handleRangeCondition(rc, v.schemas, v.tableName); newExpr != nil {
 			return false, newExpr
@@ -114,7 +111,7 @@ func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 		}
 	}
 
-	// ── Fallback: simple one-column comparisons as before ───────────────
+	//simple one-column comparisons
 	b, t, done := handleComparisonOperator(cmp, v.schemas, v.tableName)
 	if done {
 		return b, t
@@ -126,90 +123,127 @@ func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 // handleRangeCondition rewrites any RangeCond (a BETWEEN b AND c or NOT BETWEEN)
 // where b and/or c embed "_" or "__more__" placeholders. Supports both single-col
 // and tuple-col BETWEEN.
-func handleRangeCondition(rc *tree.RangeCond, allSchemas map[string]*TableSchema, tableName string) tree.Expr {
-	// --- single-column BETWEEN a AND b ---
+func handleRangeCondition(
+	rc *tree.RangeCond,
+	allSchemas map[string]*TableSchema,
+	tableName string,
+) tree.Expr {
+	// single-column BETWEEN a AND b
 	if colUn, ok := rc.Left.(*tree.UnresolvedName); ok {
-		//targetCol := reconstructName(colUn)
-		// Helper to rewrite any placeholder inside an Expr:
-		var rewriteBound func(tree.Expr) tree.Expr
-		rewriteBound = func(e tree.Expr) tree.Expr {
-			switch t := e.(type) {
-			case *tree.UnresolvedName:
-				// direct "_" or "__more__"
-				if n := reconstructName(t); n == "_" || n == "__more__" {
-					parts := getFieldCol(colUn.Parts[0], "WHERE", allSchemas, tableName)
-					t.NumParts = len(parts)
-					for i, p := range parts {
-						t.Parts[i] = p
-					}
-				}
-				return t
-
-			case *tree.ParenExpr:
-				// unwrap parentheses
-				t.Expr = rewriteBound(t.Expr)
-				return t
-
-			case *tree.BinaryExpr:
-				// recurse into both sides of any arithmetic
-				left := rewriteBound(t.Left)
-				right := rewriteBound(t.Right)
-
-				if _, lok := left.(*tree.UnresolvedName); lok {
-					if _, rok := right.(*tree.UnresolvedName); rok {
-						parts := getFieldCol(colUn.Parts[0], "WHERE", allSchemas, tableName)
-						var np tree.NameParts
-						for j, p := range parts {
-							np[j] = p
-						}
-						return &tree.UnresolvedName{
-							NumParts: len(parts),
-							Parts:    np,
-						}
-					}
-				}
-				return t
-
-			default:
-				return t
-			}
-		}
-
-		// rewrite both ends
-		rc.From = rewriteBound(rc.From)
-		rc.To = rewriteBound(rc.To)
-		// we always return rc since we may have rewritten
-		return rc
+		return rewriteSingleRange(rc, colUn, allSchemas, tableName)
 	}
 
-	// --- tuple-column BETWEEN (a,b) AND (c,d) ---
-	lt, lok := rc.Left.(*tree.Tuple)
-	rf, rfok := rc.From.(*tree.Tuple)
-	rt, rtok := rc.To.(*tree.Tuple)
-	if !lok || !rfok || !rtok {
+	// tuple-column BETWEEN (a,b) AND (c,d)
+	if tpl, ok := rc.Left.(*tree.Tuple); ok {
+		return rewriteTupleRange(rc, tpl, allSchemas, tableName)
+	}
+
+	return nil
+}
+
+// rewriteSingleRange handles the single-column BETWEEN case.
+func rewriteSingleRange(
+	rc *tree.RangeCond,
+	colUn *tree.UnresolvedName,
+	allSchemas map[string]*TableSchema,
+	tableName string,
+) tree.Expr {
+	rc.From = rewriteRangeBound(rc.From, colUn, allSchemas, tableName)
+	rc.To = rewriteRangeBound(rc.To, colUn, allSchemas, tableName)
+	return rc
+}
+
+// rewriteRangeBound rewrites a single bound expression, replacing "_" or "__more__"
+// with a tagged placeholder for the given column.
+func rewriteRangeBound(
+	expr tree.Expr,
+	colUn *tree.UnresolvedName,
+	allSchemas map[string]*TableSchema,
+	tableName string,
+) tree.Expr {
+	switch t := expr.(type) {
+	case *tree.UnresolvedName:
+		// direct "_" or "__more__"
+		if name := reconstructName(t); name == "_" || name == "__more__" {
+			colName := reconstructName(colUn)
+			parts := getFieldCol(colName, "WHERE", allSchemas, tableName)
+			t.NumParts = len(parts)
+			for i, p := range parts {
+				t.Parts[i] = p
+			}
+		}
+		return t
+
+	case *tree.ParenExpr:
+		// unwrap parentheses
+		t.Expr = rewriteRangeBound(t.Expr, colUn, allSchemas, tableName)
+		return t
+
+	case *tree.BinaryExpr:
+		// recurse into both sides of any arithmetic
+		left := rewriteRangeBound(t.Left, colUn, allSchemas, tableName)
+		right := rewriteRangeBound(t.Right, colUn, allSchemas, tableName)
+
+		// if both sides turned into placeholders, collapse into one
+		if _, lok := left.(*tree.UnresolvedName); lok {
+			if _, rok := right.(*tree.UnresolvedName); rok {
+				colName := reconstructName(colUn)
+				parts := getFieldCol(colName, "WHERE", allSchemas, tableName)
+				var np tree.NameParts
+				for i, p := range parts {
+					np[i] = p
+				}
+				return &tree.UnresolvedName{
+					NumParts: len(parts),
+					Parts:    np,
+				}
+			}
+		}
+		return t
+
+	default:
+		return t
+	}
+}
+
+// rewriteTupleRange handles the tuple-column BETWEEN case.
+func rewriteTupleRange(
+	rc *tree.RangeCond,
+	keyTpl *tree.Tuple,
+	allSchemas map[string]*TableSchema,
+	tableName string,
+) tree.Expr {
+	// must have tuple bounds
+	fromTpl, fromOk := rc.From.(*tree.Tuple)
+	toTpl, toOk := rc.To.(*tree.Tuple)
+	if !fromOk || !toOk {
 		return nil
 	}
-	// verify both bounds are tuples of "_" / "__more__"
-	for _, tup := range []*tree.Tuple{rf, rt} {
-		for _, e := range tup.Exprs {
-			if u, ok := e.(*tree.UnresolvedName); !ok {
-				return nil
-			} else if n := reconstructName(u); n != "_" && n != "__more__" {
+
+	// verify both bounds are purely "_" or "__more__"
+	for _, bound := range []*tree.Tuple{fromTpl, toTpl} {
+		for _, e := range bound.Exprs {
+			u, ok := e.(*tree.UnresolvedName)
+			if !ok || (func(n string) bool {
+				return n == "_" || n == "__more__"
+			})(reconstructName(u)) {
 				return nil
 			}
 		}
 	}
-	// extract the key columns
-	cols := make([]*tree.UnresolvedName, len(lt.Exprs))
-	for i, e := range lt.Exprs {
+
+	// extract key columns
+	cols := make([]*tree.UnresolvedName, len(keyTpl.Exprs))
+	for i, e := range keyTpl.Exprs {
 		cols[i] = e.(*tree.UnresolvedName)
 	}
+
 	// build a new placeholder tuple for each bound
 	build := func() *tree.Tuple {
 		out := &tree.Tuple{Exprs: make(tree.Exprs, len(cols))}
 		for j, colNode := range cols {
-			//colName := reconstructName(colNode)
-			parts := getFieldCol(colNode.Parts[0], "WHERE", allSchemas, tableName)
+			colName := reconstructName(colNode)
+			parts := getFieldCol(colName, "WHERE", allSchemas, tableName)
 			var np tree.NameParts
 			for k, p := range parts {
 				np[k] = p
