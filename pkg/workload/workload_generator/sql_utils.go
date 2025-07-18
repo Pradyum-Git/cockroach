@@ -52,7 +52,7 @@ func extractTableNameFromTableExpr(tbl tree.TableExpr) string {
 	return ""
 }
 
-// VisitPre rewrites any ComparisonExpr for =,>,<,… and IN.
+// VisitPre handles any expr type of nodes with _ or __more__ inside them
 func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 
 	if ce, ok := expr.(*tree.CaseExpr); ok {
@@ -82,6 +82,12 @@ func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 		// don’t descend into the old CASE again
 		return false, ce
 	}
+
+	if co, ok := expr.(*tree.CoalesceExpr); ok && strings.EqualFold(co.Name, "IFNULL") {
+		// don’t recurse into the old IFNULL; swap it out now
+		return false, handleIfNull(co, v.schemas, v.tableName)
+	}
+
 	//handle BETWEEN … AND …
 	if rc, ok := expr.(*tree.RangeCond); ok {
 		if newExpr := handleRangeCondition(rc, v.schemas, v.tableName); newExpr != nil {
@@ -118,6 +124,49 @@ func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 	}
 
 	return true, expr
+}
+
+func handleIfNull(
+	co *tree.CoalesceExpr,
+	allSchemas map[string]*TableSchema,
+	tableName string,
+) tree.Expr {
+	// only IFNULL(a, b)
+	if len(co.Exprs) != 2 {
+		return co
+	}
+
+	// second arg must be a placeholder
+	rhs, ok := co.Exprs[1].(*tree.UnresolvedName)
+	if !ok || reconstructName(rhs) != "_" {
+		return co
+	}
+
+	// try to extract the “key” column from the first arg—either
+	//   a bare column, or any single‐arg FuncExpr(col)
+	var keyCol string
+	switch first := co.Exprs[0].(type) {
+	case *tree.UnresolvedName:
+		keyCol = reconstructName(first)
+	case *tree.FuncExpr:
+		if len(first.Exprs) == 1 {
+			if col, ok := first.Exprs[0].(*tree.UnresolvedName); ok {
+				keyCol = reconstructName(col)
+			}
+		}
+	}
+
+	if keyCol == "" {
+		return co
+	}
+
+	// now tag that “_” as coming from keyCol
+	parts := getFieldCol(keyCol, "WHERE", allSchemas, tableName)
+	rhs.NumParts = len(parts)
+	for i, p := range parts {
+		rhs.Parts[i] = p
+	}
+	return co
 }
 
 // handleRangeCondition rewrites any RangeCond (a BETWEEN b AND c or NOT BETWEEN)
