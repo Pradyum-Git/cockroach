@@ -13,6 +13,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// extractTableName returns the unaliased table name for a
+// simple TableExpr (either a bare *tree.TableName or an *tree.AliasedTableExpr).
+// If the expr is something else (JOIN, subquery, etc.) it returns "".
 func extractTableName(tbl tree.TableExpr) string {
 	switch t := tbl.(type) {
 	case *tree.TableName:
@@ -23,26 +26,6 @@ func extractTableName(tbl tree.TableExpr) string {
 		}
 	}
 	return "" // unknown or a subquery/join
-}
-
-// extractTableNameFromTableExpr returns the unaliased table name for a
-// simple TableExpr (either a bare *tree.TableName or an *tree.AliasedTableExpr).
-// If the expr is something else (JOIN, subquery, etc.) it returns "".
-func extractTableNameFromTableExpr(tbl tree.TableExpr) string {
-	switch t := tbl.(type) {
-	case *tree.TableName:
-		// bare table, e.g.  foo or "Foo"
-		return t.String()
-
-	case *tree.AliasedTableExpr:
-		// aliased, e.g.  foo AS f  or "Foo" f
-		if tn, ok := t.Expr.(*tree.TableName); ok {
-			return tn.String()
-		}
-	}
-
-	// any other TableExpr (JOIN, ParenTableExpr, Subquery, etc.) → no simple name
-	return ""
 }
 
 // VisitPre handles any expr type of nodes with _ or __more__ inside them

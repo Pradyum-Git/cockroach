@@ -20,6 +20,40 @@ type placeholderRewriter struct {
 	tableName string
 }
 
+// GenerateWorkload extracts and organizes SQL workload from CockroachDB debug logs.
+// It scans each node’s statement statistics TSV in the unzipped debug directory, filters
+// statements for the given database, rewrites queries using schema metadata, groups them
+// by transaction fingerprint, and writes out separate read and write workload files.
+//
+// Parameters:
+//
+//	debugZip    – path to the unzipped debug-logs directory (contains “nodes/…” subfolders)
+//	allSchemas  – map of table names to *TableSchema objects (as returned by GenerateDDLs)
+//	dbName      – the target database name to filter statements by
+//	sqlLocation – directory in which to create the output SQL files
+//
+// Steps:
+//  1. Initialize txnOrder (first-seen transaction IDs) and txnMap (map txnID → []SQL).
+//  2. For each node directory under debugZip/nodes:
+//     a) Open “crdb_internal.node_statement_statistics.txt” and scan its TSV contents.
+//     b) Read the header row to map column names to indices.
+//     c) For each data row:
+//     • Filter out rows not matching dbName.
+//     • Skip internal “job id=” entries.
+//     • Extract txn_fingerprint_id and raw SQL (column “key”), dropping statements
+//     containing DEALLOCATE or WHEN.
+//     • Unquote the TSV literal (strip outer quotes, unescape "").
+//     • Call replacePlaceholders(rawSQL, allSchemas) to substitute schema-driven placeholders.
+//     • Append the rewritten statement to txnMap[txnID], and record txnID in txnOrder if first-seen.
+//  3. After all nodes are processed, determine output file paths:
+//     sqlLocation/<dbName>_read.sql and sqlLocation/<dbName>_write.sql.
+//  4. Create or truncate these two files, then defer their closure.
+//  5. Call writeTransaction(txnOrder, txnMap, outReadFile, outWriteFile) to emit the workloads.
+//  6. Propagate any I/O, scanning, or SQL-rewriting errors.
+//
+// Returns:
+//
+//	error – if any file I/O, scanner error, or placeholder-replacement error occurs.
 func GenerateWorkload(
 	debugZip string,
 	allSchemas map[string]*TableSchema,
