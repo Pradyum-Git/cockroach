@@ -53,10 +53,10 @@ func init() {
 
 var dbworkloadMeta = workload.Meta{
 	Name:        "workload_generator",
-	Description: "dbworkload tries to generate workloads from debug zip",
+	Description: "workloadGeneratorStruct tries to generate workloads from debug zip",
 	Version:     "1.0.0",
 	New: func() workload.Generator {
-		g := &dbworkload{}
+		g := &workloadGeneratorStruct{}
 		g.flags.FlagSet = pflag.NewFlagSet("db_workload", pflag.ContinueOnError)
 		g.flags.StringVar(&g.debugLogsLocation, "debug-logs", "",
 			"path to unzipped debug zip")
@@ -75,7 +75,7 @@ var dbworkloadMeta = workload.Meta{
 	},
 }
 
-type dbworkload struct {
+type workloadGeneratorStruct struct {
 	flags             workload.Flags
 	connFlags         *workload.ConnFlags
 	debugLogsLocation string // path to the unzipped debug zip file
@@ -94,64 +94,64 @@ type dbworkload struct {
 }
 
 // Meta implements the Generator interface.
-func (*dbworkload) Meta() workload.Meta { return dbworkloadMeta }
+func (*workloadGeneratorStruct) Meta() workload.Meta { return dbworkloadMeta }
 
 // Flags implements the Flagser interface.
-func (s *dbworkload) Flags() workload.Flags {
+func (w *workloadGeneratorStruct) Flags() workload.Flags {
 	return workload.Flags{
-		FlagSet: s.flags.FlagSet,
+		FlagSet: w.flags.FlagSet,
 	}
 }
 
 // ConnFlags implements the ConnFlagser interface.
-func (s *dbworkload) ConnFlags() *workload.ConnFlags {
-	return s.connFlags
+func (w *workloadGeneratorStruct) ConnFlags() *workload.ConnFlags {
+	return w.connFlags
 }
 
-func (s *dbworkload) Hooks() workload.Hooks {
+func (w *workloadGeneratorStruct) Hooks() workload.Hooks {
 	return workload.Hooks{
 		//before data generation begins, we have to parse the DDLs and generate the schema required for further steps
 		PreCreate: func(db *gosql.DB) error {
 			// 1) Determine the database name (use --db override if set).
-			dbName := s.Meta().Name
-			if s.connFlags.DBOverride != "" {
-				dbName = s.connFlags.DBOverride
+			dbName := w.Meta().Name
+			if w.connFlags.DBOverride != "" {
+				dbName = w.connFlags.DBOverride
 			}
-			s.dbName = dbName
+			w.dbName = dbName
 
 			// 2) Parse DDLs out of the debug logs.
-			schemas, stmts, err := GenerateDDLs(s.debugLogsLocation, s.dbName, false)
+			schemas, stmts, err := GenerateDDLs(w.debugLogsLocation, w.dbName, false)
 			if err != nil {
 				return errors.Wrap(err, "failed to generate DDLs from debug logs")
 			}
-			s.allSchema, s.createStmts = schemas, stmts
+			w.allSchema, w.createStmts = schemas, stmts
 
 			// 3a) Auto-generate (or) load schema YAML
-			if s.inputYAML == "" {
-				s.workloadSchema = buildWorkloadSchema(s.allSchema, s.dbName, s.rowCount)
-				data, err := yaml.Marshal(s.workloadSchema)
+			if w.inputYAML == "" {
+				w.workloadSchema = buildWorkloadSchema(w.allSchema, w.dbName, w.rowCount)
+				data, err := yaml.Marshal(w.workloadSchema)
 				if err != nil {
 					return errors.Wrap(err, "failed to marshal workload schema to YAML")
 				}
-				yamlPath := filepath.Join(s.outputDir, fmt.Sprintf("%s_schema.yaml", s.dbName))
+				yamlPath := filepath.Join(w.outputDir, fmt.Sprintf("schema_%s.yaml", w.dbName))
 				if err := os.WriteFile(yamlPath, data, 0644); err != nil {
 					return errors.Wrapf(err, "failed to write schema YAML to %s", yamlPath)
 				}
 			} else {
-				raw, err := os.ReadFile(s.inputYAML)
+				raw, err := os.ReadFile(w.inputYAML)
 				if err != nil {
-					return errors.Wrapf(err, "failed to read schema YAML from %s", s.inputYAML)
+					return errors.Wrapf(err, "failed to read schema YAML from %s", w.inputYAML)
 				}
-				if err := yaml.Unmarshal(raw, &s.workloadSchema); err != nil {
-					return errors.Wrapf(err, "failed to unmarshal schema YAML from %s", s.inputYAML)
+				if err := yaml.Unmarshal(raw, &w.workloadSchema); err != nil {
+					return errors.Wrapf(err, "failed to unmarshal schema YAML from %s", w.inputYAML)
 				}
 			}
 
 			// 3b) Always generate the SQL file (even in schema-only mode).
-			if err := GenerateWorkload(s.debugLogsLocation, s.allSchema, s.dbName, s.outputDir); err != nil {
+			if err := GenerateWorkload(w.debugLogsLocation, w.allSchema, w.dbName, w.outputDir); err != nil {
 				return errors.Wrapf(err,
 					"failed to generate SQL workload to %s_read.sql and %s_write.sql",
-					s.dbName, s.dbName,
+					w.dbName, w.dbName,
 				)
 			}
 
@@ -161,21 +161,21 @@ func (s *dbworkload) Hooks() workload.Hooks {
 }
 
 // Tables implements workload.Generator.Tables
-func (d *dbworkload) Tables() []workload.Table {
+func (w *workloadGeneratorStruct) Tables() []workload.Table {
 	//if we are in yaml output mode, emit no tables
-	if d.schemaOnly {
+	if w.schemaOnly {
 		return []workload.Table{}
 	}
 
 	//tableOrder is the order in which the DDLs of different tables should be executed.
 	//It currently assumes that the order in which the DDLs show up in the debug folder is the correct sequence
-	tableOrder := getTableOrder(d.workloadSchema)
+	tableOrder := getTableOrder(w.workloadSchema)
 	// Finding the number of batches to generate for each table.
 	// We use the maximum number of rows in any table to determine the number of batches.
 	// Currently, we maintain the same number of batches across all tables, vary the batchSize if the rowCount varies.
 	// Since our generators seeds are made using batch numbers, this helps to ensure foreign key constraints are held.
 	maxRows := 0
-	for _, tblBlocks := range d.workloadSchema {
+	for _, tblBlocks := range w.workloadSchema {
 		if tblBlocks[0].Count > maxRows {
 			maxRows = tblBlocks[0].Count
 		}
@@ -184,17 +184,17 @@ func (d *dbworkload) Tables() []workload.Table {
 
 	var tables []workload.Table
 	for _, tableName := range tableOrder {
-		blocks := d.workloadSchema[tableName]
+		blocks := w.workloadSchema[tableName]
 		block := blocks[0]
 		total := block.Count
 		batch_size_i := total / globalNumBatches
 
 		tables = append(tables, workload.Table{
 			Name:   tableName,
-			Schema: generateSchema(d.createStmts[tableName]), // your short DDL string
+			Schema: generateSchema(w.createStmts[tableName]), // your short DDL string
 			InitialRows: workload.BatchedTuples{
 				NumBatches: globalNumBatches,
-				FillBatch:  generateBatch(tableName, block, d.workloadSchema, batch_size_i, d),
+				FillBatch:  generateBatch(tableName, block, w.workloadSchema, batch_size_i, w),
 			},
 		})
 	}
@@ -247,13 +247,13 @@ func generateSchema(createStmt string) string {
 //   - block: the TableBlock containing metadata about the table
 //   - fullSchema: the full schema of the workload (the full amp of all TableBlocks)
 //   - batchSize: the size of each batch to generate, since different tables have different batchSizes
-//   - d: the dbworkload instance, which contains the generators and caches
+//   - d : the workloadGeneratorStruct instance, which contains the generators and caches
 func generateBatch(
 	tableName string,
 	block TableBlock,
 	fullSchema Schema,
 	batchSize int,
-	d *dbworkload,
+	d *workloadGeneratorStruct,
 ) func(batchIdx int, cb coldata.Batch, _ *bufalloc.ByteAllocator) {
 	// determine the Cockroach columnar types and a stable column order
 	colOrder := block.ColumnOrder
@@ -330,12 +330,12 @@ func generateBatch(
 
 // initGenerators seeds d.columnGens with both fresh generators and a cache
 // of real values pulled from the live database.
-func (d *dbworkload) initGenerators(db *sql.DB) error {
+func (w *workloadGeneratorStruct) initGenerators(db *sql.DB) error {
 	// need globalNumBatches to seed the generators.
 	// 0-globalNumBatches-1 was used during initial bulk insertions.
 	// So, globalNumBatches can be the batch index for run time generators
 	maxRows := 0
-	for _, tblBlocks := range d.workloadSchema {
+	for _, tblBlocks := range w.workloadSchema {
 		if tblBlocks[0].Count > maxRows {
 			maxRows = tblBlocks[0].Count
 		}
@@ -343,11 +343,11 @@ func (d *dbworkload) initGenerators(db *sql.DB) error {
 	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
 
 	// 1) Build the generator + empty cache for every table.col
-	d.buildRuntimeGenerators(globalNumBatches)
+	w.buildRuntimeGenerators(globalNumBatches)
 
 	// 2) Prime each cache by selecting up to maxInitialCacheSize existing rows.
 	//    We do this column-by-column to keep it simple.
-	err := d.setCacheValues(db)
+	err := w.setCacheValues(db)
 	if err != nil {
 		return err
 	}
@@ -355,12 +355,12 @@ func (d *dbworkload) initGenerators(db *sql.DB) error {
 }
 
 // setCacheValues fills into the runtimeColumn structs the cache data consisting of values generated during the initial bulk insert.
-func (d *dbworkload) setCacheValues(db *gosql.DB) error {
-	for tableName, blocks := range d.workloadSchema {
+func (w *workloadGeneratorStruct) setCacheValues(db *gosql.DB) error {
+	for tableName, blocks := range w.workloadSchema {
 		block := blocks[0]
 		for _, colName := range block.ColumnOrder {
 			key := fmt.Sprintf("%s.%s", tableName, colName)
-			rc := d.columnGens[key]
+			rc := w.columnGens[key]
 
 			// build a query like: SELECT colName FROM tableName LIMIT maxInitialCacheSize
 			q := fmt.Sprintf(`SELECT %s FROM %s LIMIT %d`,
@@ -389,14 +389,14 @@ func (d *dbworkload) setCacheValues(db *gosql.DB) error {
 	return nil
 }
 
-func (d *dbworkload) buildRuntimeGenerators(globalNumBatches int) {
-	d.columnGens = make(map[string]*runtimeColumn)
-	for tableNmae, blocks := range d.workloadSchema {
+func (w *workloadGeneratorStruct) buildRuntimeGenerators(globalNumBatches int) {
+	w.columnGens = make(map[string]*runtimeColumn)
+	for tableNmae, blocks := range w.workloadSchema {
 		block := blocks[0]
 		for colName, meta := range block.Columns {
 			key := fmt.Sprintf("%s.%s", tableNmae, colName)
-			gen := makeGenerator(meta, globalNumBatches, baseBatchSize, d.workloadSchema)
-			d.columnGens[key] = &runtimeColumn{
+			gen := makeGenerator(meta, globalNumBatches, baseBatchSize, w.workloadSchema)
+			w.columnGens[key] = &runtimeColumn{
 				gen:        gen,
 				cache:      make([]string, 0, maxCacheSize),
 				columnMeta: meta,
@@ -405,44 +405,49 @@ func (d *dbworkload) buildRuntimeGenerators(globalNumBatches int) {
 	}
 }
 
-func (d *dbworkload) Ops(
+func (w *workloadGeneratorStruct) Ops(
 	ctx context.Context, urls []string, reg *histogram.Registry,
 ) (workload.QueryLoad, error) {
 	//Set database name in the main workload struct.
-	d.setDbName()
+	w.setDbName()
 	//Load the schema information into memory from the yaml. This information is used for the runtime data generation.
-	errYaml, done := d.getYamlData()
+	errYaml, done := w.getYamlData()
 	if done {
 		return workload.QueryLoad{}, errYaml
 	}
 	// Parse transactions from the sql file.
-	sqlPath := filepath.Join(d.outputDir, fmt.Sprintf("%s.sql", d.dbName))
-	readTransactions, writeTransactions, err := readSQL(sqlPath)
-	if err != nil {
-		return workload.QueryLoad{}, err
+	readPath := filepath.Join(w.outputDir, fmt.Sprintf("%s_read.sql", w.dbName))
+	writePath := filepath.Join(w.outputDir, fmt.Sprintf("%s_write.sql", w.dbName))
+	readTransactions, errRead := readSQL(readPath)
+	writeTransactions, errWrite := readSQL(writePath)
+	if errRead != nil {
+		return workload.QueryLoad{}, errRead
+	}
+	if errWrite != nil {
+		return workload.QueryLoad{}, errWrite
 	}
 
 	db, err := gosql.Open("postgres", strings.Join(urls, " "))
 	if err != nil {
 		return workload.QueryLoad{}, err
 	}
-	db.SetMaxOpenConns(d.connFlags.Concurrency + 1)
-	db.SetMaxIdleConns(d.connFlags.Concurrency + 1)
+	db.SetMaxOpenConns(w.connFlags.Concurrency + 1)
+	db.SetMaxIdleConns(w.connFlags.Concurrency + 1)
 
 	//initialise teh generators and column old data caches
-	if err := d.initGenerators(db); err != nil {
+	if err := w.initGenerators(db); err != nil {
 		return workload.QueryLoad{}, err
 	}
 
 	ql := workload.QueryLoad{}
-	for i := 0; i < d.connFlags.Concurrency; i++ {
+	for i := 0; i < w.connFlags.Concurrency; i++ {
 		worker := &txnWorker{
 			db:                db,
 			readTransactions:  readTransactions,
 			writeTransactions: writeTransactions,
 			rng:               rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), uint64(i))),
 			hists:             reg.GetHandle(),
-			d:                 d, // reference to the dbworkload for generators
+			d:                 w, // reference to the workloadGeneratorStruct for generators
 		}
 		ql.WorkerFns = append(ql.WorkerFns, worker.run)
 	}
@@ -452,38 +457,38 @@ func (d *dbworkload) Ops(
 
 // setDbName registers the database name in the main workload struct.
 // It uses the name provided using the --db flag, otherwise falls back to "workload_generator"
-func (d *dbworkload) setDbName() {
-	dbName := d.Meta().Name
-	if d.connFlags.DBOverride != "" {
-		dbName = d.connFlags.DBOverride
+func (w *workloadGeneratorStruct) setDbName() {
+	dbName := w.Meta().Name
+	if w.connFlags.DBOverride != "" {
+		dbName = w.connFlags.DBOverride
 	}
-	d.dbName = dbName
+	w.dbName = dbName
 }
 
 // getYamlData first checks whether the input yaml flag is set or not.
 // Accordingly, it loads the schema information into memory from the correct location.
-func (d *dbworkload) getYamlData() (error, bool) {
+func (w *workloadGeneratorStruct) getYamlData() (error, bool) {
 	var path string
-	if d.inputYAML != "" {
-		path = d.inputYAML
+	if w.inputYAML != "" {
+		path = w.inputYAML
 	} else {
-		path = fmt.Sprintf("schema_%s.yaml", d.dbName)
+		path = fmt.Sprintf("schema_%s.yaml", w.dbName)
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return errors.Wrapf(err, "could not read schema YAML from %s", path), true
 	}
-	if err := yaml.Unmarshal(raw, &d.workloadSchema); err != nil {
+	if err := yaml.Unmarshal(raw, &w.workloadSchema); err != nil {
 		return errors.Wrapf(err, "couldn't unmarshal schema YAML"), true
 	}
 	return nil, false
 }
 
 // getRegularColumnValue picks values from the generator or cache depending on sql clause or whether there is a fk dependency.
-func (d *dbworkload) getRegularColumnValue(p Placeholder, idx int) string {
-	tableName := getTableName(p, d)
+func (w *workloadGeneratorStruct) getRegularColumnValue(p Placeholder, idx int) string {
+	tableName := getTableName(p, w)
 	key := fmt.Sprintf("%s.%s", tableName, p.Name)
-	rc := d.columnGens[key]
+	rc := w.columnGens[key]
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
 
@@ -510,28 +515,28 @@ type txnWorker struct {
 	writeTransactions []Transaction
 	rng               *rand.Rand
 	hists             *histogram.Histograms
-	d                 *dbworkload // reference to the dbworkload for generators
+	d                 *workloadGeneratorStruct // reference to the workloadGeneratorStruct for generators
 }
 
 // run executes a random transaction from the list of transactions.
-func (w *txnWorker) run(ctx context.Context) error {
-	txn := w.chooseTransaction()
-	// Reference to the dbworkload for generators.
-	d := w.d
+func (t *txnWorker) run(ctx context.Context) error {
+	txn := t.chooseTransaction()
+	// Reference to the workloadGeneratorStruct for generators.
+	d := t.d
 	// Start time for the metrics.
 	start := timeutil.Now()
 	// Inserted maintains a map of column names to the values that were inserted in this transaction.
 	inserted := make(map[string][]interface{})
-	err := crdb.ExecuteTx(ctx, w.db, nil, func(tx *gosql.Tx) error {
+	err := crdb.ExecuteTx(ctx, t.db, nil, func(tx *gosql.Tx) error {
 		for _, sqlQuery := range txn.Queries {
 			args := make([]interface{}, len(sqlQuery.Placeholders))
 			// Checking if we have a situation where all the primary keys in the query have foreign key dependency.
 			allPksAreFK := checkIfAllPkAreFk(sqlQuery, d)
 			// Pick a single fkIdx for ALL FK placeholders (or -1 if none).
 			// This ensures that for all column in a composite fk, the same row index from the parent column cache is chosen.
-			fkIndex := w.pickFkIndex(sqlQuery, d)
+			fkIndex := t.pickFkIndex(sqlQuery, d)
 			// Build per-placeholder indexes.
-			indexes := w.setCacheIndex(sqlQuery, d, fkIndex)
+			indexes := t.setCacheIndex(sqlQuery, d, fkIndex)
 			for i, placeholder := range sqlQuery.Placeholders {
 				var raw string
 				// Getting the value to be inserted for the placeholder
@@ -555,15 +560,15 @@ func (w *txnWorker) run(ctx context.Context) error {
 	})
 	// Calculate the elapsed time for the transaction metrics
 	elapsed := timeutil.Since(start)
-	w.hists.Get(fmt.Sprintf("typ_%v", txn.typ)).Record(elapsed)
+	t.hists.Get(fmt.Sprintf("typ_%v", txn.typ)).Record(elapsed)
 	return err
 }
 
 // chooseTransaction returns a random transaction of type read or write absed on the readPct flag
-func (w *txnWorker) chooseTransaction() Transaction {
+func (t *txnWorker) chooseTransaction() Transaction {
 	var txn Transaction
-	reads := w.readTransactions
-	writes := w.writeTransactions
+	reads := t.readTransactions
+	writes := t.writeTransactions
 
 	// If neither set has any transactions, just return the zero-Txn
 	if len(reads) == 0 && len(writes) == 0 {
@@ -571,18 +576,18 @@ func (w *txnWorker) chooseTransaction() Transaction {
 	}
 	// If there are no read txns, always pick a write transaction.
 	if len(reads) == 0 {
-		return writes[w.rng.IntN(len(writes))]
+		return writes[t.rng.IntN(len(writes))]
 	}
 	// If there are no write txns, always pick a read transaction.
 	if len(writes) == 0 {
-		return reads[w.rng.IntN(len(reads))]
+		return reads[t.rng.IntN(len(reads))]
 	}
 
 	// Both non-empty: choose based on readPct
-	if w.rng.IntN(100) < w.d.readPct {
-		return reads[w.rng.IntN(len(reads))]
+	if t.rng.IntN(100) < t.d.readPct {
+		return reads[t.rng.IntN(len(reads))]
 	}
-	return writes[w.rng.IntN(len(writes))]
+	return writes[t.rng.IntN(len(writes))]
 }
 
 // setColumnValue sets the value for a placeholder in the args slice.
@@ -653,7 +658,7 @@ func setNullType(placeholder Placeholder, arg interface{}) interface{} {
 
 // getTableName checks if the name field of placeholder is a column in the TableName column in the allSchema map inside d.
 // If yes, then returns that table name. otherwise looks for a table with that column and returns that
-func getTableName(p Placeholder, d *dbworkload) string {
+func getTableName(p Placeholder, d *workloadGeneratorStruct) string {
 	for _, block := range d.workloadSchema[p.TableName] {
 		for colName, _ := range block.Columns {
 			if colName == p.Name {
@@ -673,7 +678,7 @@ func getTableName(p Placeholder, d *dbworkload) string {
 }
 
 // getColumnValue retrieves the value for a placeholder based on its clause and whether it has a foreign key dependency.
-func getColumnValue(allPksAreFK bool, p Placeholder, d *dbworkload, inserted map[string][]interface{}, raw string, indexes []int, i int) string {
+func getColumnValue(allPksAreFK bool, p Placeholder, d *workloadGeneratorStruct, inserted map[string][]interface{}, raw string, indexes []int, i int) string {
 	if allPksAreFK && (p.Clause == insert || p.Clause == update) {
 		tableName := getTableName(p, d)
 		key := fmt.Sprintf("%s.%s", tableName, p.Name)
@@ -695,7 +700,7 @@ func getColumnValue(allPksAreFK bool, p Placeholder, d *dbworkload, inserted map
 
 // setCacheIndex sets the indexes for each placeholder in the SQL query.
 // If the placeholder is a foreign key, it uses the fkIdx; otherwise, it picks a random index from the cache.
-func (w *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *dbworkload, fkIdx int) []int {
+func (t *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *workloadGeneratorStruct, fkIdx int) []int {
 	indexes := make([]int, len(sqlQuery.Placeholders))
 	for i, p := range sqlQuery.Placeholders {
 		tableName := getTableName(p, d)
@@ -704,14 +709,14 @@ func (w *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *dbworkload, fkIdx int) [
 			indexes[i] = fkIdx
 		} else {
 			cacheLen := len(d.columnGens[key].cache)
-			indexes[i] = w.rng.IntN(cacheLen)
+			indexes[i] = t.rng.IntN(cacheLen)
 		}
 	}
 	return indexes
 }
 
 // pickFkIndex picks a random index from the cache of a foreign key column.
-func (w *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *dbworkload) int {
+func (t *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *workloadGeneratorStruct) int {
 	fkIdx := -1
 	for _, p := range sqlQuery.Placeholders {
 		tableName := getTableName(p, d)
@@ -719,7 +724,7 @@ func (w *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *dbworkload) int {
 		if d.columnGens[key].columnMeta.HasForeignKey {
 			cacheLen := len(d.columnGens[key].cache)
 			if cacheLen > 0 {
-				fkIdx = w.rng.IntN(cacheLen)
+				fkIdx = t.rng.IntN(cacheLen)
 			}
 			break
 		}
@@ -728,7 +733,7 @@ func (w *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *dbworkload) int {
 }
 
 // checkIfAllPkAreFk checks if all primary keys in the SQL query are foreign keys.
-func checkIfAllPkAreFk(sqlQuery SQLQuery, d *dbworkload) bool {
+func checkIfAllPkAreFk(sqlQuery SQLQuery, d *workloadGeneratorStruct) bool {
 	allPksAreFK := true
 	for _, p := range sqlQuery.Placeholders {
 		tableName := getTableName(p, d)

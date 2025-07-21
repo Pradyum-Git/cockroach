@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	testZipDir = "/Users/pradyumagarwal/workloads/git-dbworkload/dbworkload_intProj/debug-zips/debug_2"
+	testZipDir = "/Users/pradyumagarwal/workloads/git-workloadGeneratorStruct/dbworkload_intProj/debug-zips/debug_2"
 	testDBName = "tpcc"
 )
 

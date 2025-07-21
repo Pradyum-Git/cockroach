@@ -46,18 +46,18 @@ type Transaction struct {
 	Queries []SQLQuery
 }
 
-// readSQL reads tpcc.sql and returns a slice of Transactions.
+// readSQL reads <dbName><read/write>.sql and returns a slice of Transactions.
 // It will number placeholders $1…$N separately in each SQL statement.
-func readSQL(path string) ([]Transaction, []Transaction, error) {
+func readSQL(path string) ([]Transaction, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, nil, fmt.Errorf("open file: %w", err)
+		return nil, fmt.Errorf("open file: %w", err)
 	}
 	defer f.Close()
 
 	data, err := io.ReadAll(bufio.NewReader(f))
 	if err != nil {
-		return nil, nil, fmt.Errorf("read file: %w", err)
+		return nil, fmt.Errorf("read file: %w", err)
 	}
 	text := string(data)
 
@@ -65,8 +65,7 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 	blocks := txnRe.FindAllStringSubmatch(text, -1)
 
 	// Currently we are defining two types of transactions - read and write.
-	var readTxns []Transaction
-	var writeTxns []Transaction
+	var txns []Transaction
 	// For every transaction block.
 	for _, blk := range blocks {
 		body := blk[1]
@@ -97,15 +96,10 @@ func readSQL(path string) ([]Transaction, []Transaction, error) {
 			}
 		}
 		// Decide whether the transaction is a read type or write type.
-		setType(&txn)
-		if txn.typ == "read" {
-			readTxns = append(readTxns, txn)
-		} else {
-			writeTxns = append(writeTxns, txn)
-		}
+		txns = append(txns, txn)
 	}
 
-	return readTxns, writeTxns, nil
+	return txns, nil
 }
 
 // makePlaceholderReplacer returns a ReplaceAllStringFunc that
@@ -140,20 +134,6 @@ func makePlaceholderReplacer(placeholders *[]Placeholder, stmtPos *int) func(str
 		*placeholders = append(*placeholders, p)
 		return fmt.Sprintf("$%d", p.Position)
 	}
-}
-
-func setType(txn *Transaction) {
-	//set to read if all selects otehrwise write
-	for _, q := range txn.Queries {
-		if strings.HasPrefix(strings.ToLower(q.SQL), "insert ") ||
-			strings.HasPrefix(strings.ToLower(q.SQL), "update ") ||
-			strings.HasPrefix(strings.ToLower(q.SQL), "delete ") {
-			txn.typ = "write"
-			return
-		}
-	}
-	//default to read if no insert update or delete found
-	txn.typ = "read"
 }
 
 // splitQuoted splits a string like "'a','b','c'" into ["'a'", "'b'", "'c'"].

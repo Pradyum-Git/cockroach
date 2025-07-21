@@ -111,7 +111,7 @@ func TestReplacePlaceholders(t *testing.T) {
 }
 
 func TestGenerateWorkload_Smoke(t *testing.T) {
-	debugZip := "/Users/pradyumagarwal/workloads/git-dbworkload/dbworkload_intProj/debug-zips/debug_2"
+	debugZip := "/Users/pradyumagarwal/workloads/git-workloadGeneratorStruct/dbworkload_intProj/debug-zips/debug_2"
 	dbName := "tpcc"
 	outputDir := "/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/pkg/workload/workload_generator"
 
