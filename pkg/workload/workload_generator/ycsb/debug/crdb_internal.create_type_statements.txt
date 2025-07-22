@@ -1,0 +1,1 @@
+database_id	database_name	schema_name	descriptor_id	descriptor_name	create_statement	enum_members

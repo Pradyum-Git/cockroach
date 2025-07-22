@@ -1,0 +1,1 @@
+tenant_id	instance_id	next_instance_id	last_update	ru_burst_limit	ru_refill_rate	ru_current	current_share_sum	total_consumption	instance_lease	instance_seq	instance_shares	current_rates	next_rates

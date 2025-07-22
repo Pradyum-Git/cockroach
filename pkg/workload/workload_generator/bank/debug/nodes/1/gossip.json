@@ -1,0 +1,107 @@
+{
+  "infos": {
+    "cluster-id": {
+      "value": {
+        "raw_bytes": "diEzzQOMxWSB5fZD6p1ndfyD0HIC",
+        "timestamp": {
+          "wall_time": 1753161552267401000
+        }
+      },
+      "orig_stamp": 1753161552267403000,
+      "ttl_stamp": 9223372036854775807,
+      "node_id": 1
+    },
+    "distsql-draining:1": {
+      "value": {
+        "raw_bytes": "gzaodQMIAA==",
+        "timestamp": {
+          "wall_time": 1753077930025088000
+        }
+      },
+      "orig_stamp": 1753077930025090000,
+      "ttl_stamp": 9223372036854775807,
+      "node_id": 1
+    },
+    "first-range": {
+      "value": {
+        "raw_bytes": "gwzE1wMIARIAGgsEAGxpdmVuZXNzLSIICAEQARgBIAAoAjAAOgA=",
+        "timestamp": {
+          "wall_time": 1753161552267484000
+        }
+      },
+      "orig_stamp": 1753161552267485000,
+      "ttl_stamp": 9223372036854775807,
+      "node_id": 1
+    },
+    "health-alert:1": {
+      "value": {
+        "raw_bytes": "01GxTAMKIwgBGhZyYW5nZXMudW5kZXJyZXBsaWNhdGVkIQAAAAAAACRA",
+        "timestamp": {
+          "wall_time": 1753161432829349000
+        }
+      },
+      "orig_stamp": 1753161432829353000,
+      "ttl_stamp": 1753161452829349000,
+      "node_id": 1
+    },
+    "liveness:1": {
+      "value": {
+        "raw_bytes": "zrQmzgMIARAFGgwI8PeAi9vknqoYEAA=",
+        "timestamp": {
+          "wall_time": 1753161550785862000
+        }
+      },
+      "orig_stamp": 1753161550785865000,
+      "ttl_stamp": 9223372036854775807,
+      "node_id": 1
+    },
+    "node:1": {
+      "value": {
+        "raw_bytes": "Hwn/1gMIARIoCgN0Y3ASIWNybE1CUC1WNERQN0QzS1QwTkRNeC5sb2NhbDoyNjI1NxoAIgAqCgjZhD0QAhgAIAYyE3YyNS4zLjAtYWxwaGEuNC1kZXY42LCb2Ozii6oYSgBSKAoDdGNwEiFjcmxNQlAtVjREUDdEM0tUME5ETXgubG9jYWw6MjYyNTdaJwoDdGNwEiBjcmxNQlAtVjREUDdEM0tUME5ETXgubG9jYWw6ODA4MA==",
+        "timestamp": {
+          "wall_time": 1753099530026737000
+        }
+      },
+      "orig_stamp": 1753099530026781000,
+      "ttl_stamp": 1753106730026737000,
+      "node_id": 1
+    },
+    "sentinel": {
+      "value": {
+        "raw_bytes": "kjZgegOMxWSB5fZD6p1ndfyD0HIC",
+        "timestamp": {
+          "wall_time": 1753161552267476000
+        }
+      },
+      "orig_stamp": 1753161552267477000,
+      "ttl_stamp": 1753161555267476000,
+      "node_id": 1
+    },
+    "store:1": {
+      "value": {
+        "raw_bytes": "8ZRacwMIARIAGrABCAESKAoDdGNwEiFjcmxNQlAtVjREUDdEM0tUME5ETXgubG9jYWw6MjYyNTcaACIAKgoI2YQ9EAIYACAGMhN2MjUuMy4wLWFscGhhLjQtZGV2ONiwm9js4ouqGEoAUigKA3RjcBIhY3JsTUJQLVY0RFA3RDNLVDBORE14LmxvY2FsOjI2MjU3WicKA3RjcBIgY3JsTUJQLVY0RFA3RDNLVDBORE14LmxvY2FsOjgwODAiyQEIgKCKtPkcEIDghdeXFRhFIEUp+XlH43h+iEAyNgkAAAAAAAAAABEAAAAAAAAAABkAAAAAAAyTQCEAAAAAZD1BQSkAAABo9MqDQTEAAAD1Wp2yQTo2CYAcLw9cvWM/EWKZvL2SvWM/GSpWd8/gRXE/IfhHz41Ki98/KaQ0RO+jw0lAMUXs9ZbHvldAQNy5x68BSLGMx4IFUYE0OKbCpnJAagoQFCCgHzCAgMACcTE9nF5qpIpBehIIARAUGAIgoB8om/VBMICAwAIqvQEIABAAGmkKTC9Vc2Vycy9wcmFkeXVtYWdhcndhbC9nby9zcmMvZ2l0aHViLmNvbS9jb2Nrcm9hY2hkYi9jb2Nrcm9hY2gvY29ja3JvYWNoLWRhdGESBGFwZnMaDi9kZXYvZGlzazNzMXMxIgEvKgAiTC9Vc2Vycy9wcmFkeXVtYWdhcndhbC9nby9zcmMvZ2l0aHViLmNvbS9jb2Nrcm9hY2hkYi9jb2Nrcm9hY2gvY29ja3JvYWNoLWRhdGE=",
+        "timestamp": {
+          "wall_time": 1753161542782438000
+        }
+      },
+      "orig_stamp": 1753161542782446000,
+      "ttl_stamp": 1753161562782438000,
+      "node_id": 1
+    }
+  },
+  "client": {
+    "conn_status": null,
+    "max_conns": 3
+  },
+  "server": {
+    "conn_status": null,
+    "max_conns": 3,
+    "metrics": {}
+  },
+  "connectivity": {
+    "client_conns": null
+  },
+  "high_water_stamps": {
+    "1": 1753161552267485000
+  }
+}

@@ -1,0 +1,35 @@
+Store 1:
+      |                             |                |       |   ingested   |     moved    |    written   |       |    amp
+level | tables  size val-bl vtables | score  ff  cff |   in  | tables  size | tables  size | tables  size |  read |   r   w
+------+-----------------------------+----------------+-------+--------------+--------------+--------------+-------+---------
+    0 |     0     0B     0B       0 |    -    0    0 | 3.3GB |     0     0B |     0     0B |   290  129MB |    0B |   0 0.04
+    1 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    2 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    3 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    4 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    5 |    11   31MB  2.8MB       0 |    - 0.49 0.94 | 122MB |     0     0B |    16  7.0MB |   756  2.0GB | 2.0GB |   1 16.5
+    6 |    37  204MB  2.7MB       0 |    - 0.96 0.96 |  57MB |     1   12MB |    20   47MB |   100  212MB | 300MB |   1 3.72
+total |    48  235MB  5.5MB       0 |    -    -    - | 3.4GB |     1   12MB |    36   54MB |  1.1K  5.7GB | 2.3GB |   2 1.69
+----------------------------------------------------------------------------------------------------------------------------
+WAL: 1 files (2.8MB)  in: 3.3GB  written: 3.4GB (1% overhead)
+Flushes: 68
+Compactions: 317  estimated debt: 0B  in progress: 0 (0B)  canceled: 0 (0B)  failed: 0  problem spans: 0
+             default: 216  delete: 4  elision: 0  move: 36  read: 3  tombstone-density: 58  rewrite: 0  copy: 0  multi-level: 0
+MemTables: 1 (64MB)  zombie: 1 (64MB)
+Zombie tables: 0 (0B, local: 0B)
+Backing tables: 0 (0B)
+Virtual tables: 0 (0B)
+Local tables size: 235MB
+Compression types: unknown: 48
+Garbage: point-deletions 29MB range-deletions 64KB
+Table stats: all loaded
+Block cache: 0 entries (0B)  hit rate: 8.5%
+File cache: 38 tables, 0 blobfiles (18KB)  hit rate: 100.0%
+Range key sets: 0  Tombstones: 142K  Total missized tombstones encountered: 0
+Snapshots: 0  earliest seq num: 0
+Table iters: 0
+Filter utility: 67.9%
+Ingestions: 1  as flushable: 0 (0B in 0 tables)
+Cgo memory usage: 129MB  block cache: 541KB (data: 0B, maps: 540KB, entries: 800B)  memtables: 128MB
+
+

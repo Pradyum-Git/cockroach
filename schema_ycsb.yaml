@@ -1,0 +1,130 @@
+usertable:
+    - count: 1000
+      columns:
+        field0:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 21
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field1:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 70
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field2:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 63
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field3:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 72
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field4:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 51
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field5:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 10
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field6:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 87
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field7:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 3
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field8:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 6
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        field9:
+            type: string
+            args:
+                max: 30
+                min: 5
+                null_pct: 0
+                seed: 22
+            isPrimaryKey: false
+            isUnique: false
+            hasForeignKey: false
+        ycsb_key:
+            type: string
+            args:
+                max: 255
+                min: 1
+                null_pct: 0
+                seed: 51
+            isPrimaryKey: true
+            isUnique: true
+            hasForeignKey: false
+      pk:
+        - ycsb_key
+      sort-by: []
+      original_table: ycsb.public.usertable
+      column_order:
+        - ycsb_key
+        - field0
+        - field1
+        - field2
+        - field3
+        - field4
+        - field5
+        - field6
+        - field7
+        - field8
+        - field9
+      table_number: 0

@@ -1,0 +1,2 @@
+id	info	name	data_state	service_mode
+1	\x080110001a0020002a004200	system	1	2

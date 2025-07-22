@@ -1,0 +1,110 @@
+root 12 MiB (8.0 GiB / 0 B)
+    sql 10 MiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-480cf38b 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+                flow-14398f70 20 KiB
+                    cfetcher-unlimited 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 340 KiB (21 KiB / 84 KiB)
+            txn 70 KiB
+                flow-eb0caf55 30 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+                flow-78e21cae 20 KiB
+                    cfetcher-unlimited 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+                flow-74bb65be 20 KiB
+                    cfetcher-unlimited 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-6fee7a29 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+                flow-43ec06ab 20 KiB
+                    cfetcher-unlimited 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-38d0b620 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-0d2d572d 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+                flow-984b96ce 20 KiB
+                    cfetcher-unlimited 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+                flow-bbf37433 20 KiB
+                    cfetcher-unlimited 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-b1021869 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-dfade6d1 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-d377b8ed 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+                flow-0eb3aace 20 KiB
+                    cfetcher-unlimited 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 20 KiB (21 KiB / 84 KiB)
+            session 10 KiB
+        conn 2.2 MiB
+        SQLStats 950 KiB
+        SQLStats 740 KiB
+    server-cache-mon 10 KiB
+    closed-session-cache 1.1 MiB
+    kv-mem 90 KiB
+        rangefeed-monitor 20 KiB
+        rangefeed-system-monitor 80 KiB (128 MiB / 0 B)

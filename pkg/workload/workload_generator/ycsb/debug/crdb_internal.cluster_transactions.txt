@@ -1,0 +1,2 @@
+id	node_id	session_id	start	txn_string	application_name	num_stmts	num_retries	num_auto_retries	last_auto_retry_reason	isolation_level	priority	quality_of_service
+a3bef94c-d090-4cb7-bc17-88d18c93b347	1	18547da1f1fa9f100000000000000001	2025-07-22 06:04:49.885078	"""sql txn"" meta={id=a3bef94c key=/Min iso=Serializable pri=0.06121844 epo=0 ts=1753164289.785037000,0 min=1753164289.785037000,0 seq=0} lock=false stat=PENDING rts=1753164289.785037000,0 gul=1753164289.785037000,0 obs={n1@1753164289.885072000,0}"	$ internal cockroach zip	2	0	0		SERIALIZABLE	normal	regular

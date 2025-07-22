@@ -1,0 +1,164 @@
+feature_name	usage_count
+sql.plan.hints.index.select	6
+sql.query.count.internal	5202
+import.speed-mbps.0	1
+pgwire.command.parse	22
+sql.plan.builtins.merge_stats_metadata(arg1: jsonb) -> jsonb	2
+import.size-mb.0	1
+sql.plan.ops.cast.string::int	2
+sql.plan.opt.node.join.algo.cross	1
+sql.plan.builtins.gen_random_uuid() -> uuid	12
+sql.plan.ops.cast.string::float	30
+sql.plan.builtins.array_agg(arg1: string) -> string[]	2
+sql.plan.opt.node.sort	52
+sql.plan.ops.cmp.timestamp < timestamp	1
+sql.delete.count.internal	594
+sql.misc.count.internal	80
+sql.txn.begin.started.count.internal	80
+sql.plan.ops.bin.jsonb -> string	295
+sql.plan.ops.bin.decimal - int	2
+sql.plan.builtins.unique_rowid() -> int	29
+sql.exec.query.is-vectorized	97476
+sql.plan.ops.cmp.oid = oid	1
+sql.plan.builtins.jsonb_array_elements(input: jsonb) -> jsonb	2
+sql.plan.ops.cast.array::string	4
+sql.plan.builtins.count(arg1: anyelement) -> int	206
+sql.plan.ops.bin.string || string	2
+sql.select.count.internal	2879
+sql.schema.schema_changer_mode.legacy	1
+sql.plan.builtins.crdb_internal.sql_liveness_is_alive(session_id: bytes) -> bool	55
+sql.txn.rollback.count.internal	79
+sql.plan.builtins.merge_statement_stats(arg1: jsonb) -> jsonb	2
+sql.plan.builtins.crdb_internal.probe_ranges(timeout: interval, probe_type: unknown_enum) -> tuple{int AS range_id, string AS error, int AS end_to_end_latency_ms, string AS verbose_trace}	1
+sql.plan.builtins.now() -> timestamp	32
+import.csv.attempted	1
+sql.plan.builtins.crdb_internal.pb_to_json(pbname: string, data: bytes, emit_defaults: bool, emit_redacted: bool) -> jsonb	1
+sql.update.started.count	92401
+txn.restarts.writetooold	1
+sql.plan.ops.cast.jsonb::float	60
+import.rows.1000	1
+sql.schema.create_table	1
+sql.plan.ops.bin.int - int	21
+sql.plan.ops.cmp.string LIKE string	108
+sql.update.started.count.internal	650
+sql.crud_query.started.count	92404
+sql.plan.opt.partial-index.scan	628
+sql.insert.count.internal	828
+sql.crud_query.count	92350
+sql.plan.builtins.fnv32(string...) -> int	12
+sql.plan.ops.cmp.timestamp < timestamptz	1
+sql.plan.ops.bin.string || jsonb	2
+sql.restart_savepoint.started.count	1
+sql.plan.ops.cmp.int IN tuple	30
+sql.plan.subquery.correlated	1
+sql.schema.new_column_type.string	1
+sql.plan.ops.cast.decimal::interval	2
+sql.plan.builtins.count_rows() -> int	28
+sql.plan.ops.cmp.string < string	2
+sql.plan.builtins.greatest(anyelement...) -> anyelement	4
+sql.delete.started.count.internal	594
+sql.plan.ops.cast.string::decimal	2
+sql.plan.ops.cmp.timestamptz IN tuple	4
+sql.plan.ops.cmp.string <= string	2
+job.auto_create_partial_stats.successful	9
+pgwire.command.execute	92364
+import.csv.succeeded	1
+sql.plan.type.auto-custom	95204
+sql.plan.ops.bin.jsonb ->> string	39
+sql.plan.ops.bin.decimal / decimal	2
+sql.plan.opt.node.join.algo.hash	13
+pgwire.command.bind	92364
+import.files.1	1
+pgwire.command.describe	23
+sql.plan.opt.node.distinct-on	9
+sql.plan.builtins.mod(x: int, y: int) -> int	27
+sql.plan.ops.cmp.int < int	3
+sql.plan.ops.cmp.bytes < bytes	6
+sql.plan.ops.cmp.string IN tuple	96
+sql.plan.ops.cmp.bytes = bytes	64
+sql.query.started.count	92428
+sql.schema.schema_changer_mode.declarative	1
+sql.txn.rollback.started.count.internal	79
+sql.crud_query.started.count.internal	4952
+sql.restart_savepoint.count	1
+sql.plan.ops.cmp.bool = bool	236
+sql.schema.new_column_type.int8	2
+sql.plan.opt.node.ensure-upsert-distinct-on	32
+sql.plan.opt.node.join.algo.lookup	404
+sql.plan.opt.node.join.type.left-outer	368
+sql.plan.ops.cmp.bytes IN tuple	4
+sql.plan.builtins.random() -> float	40
+sql.ddl.count	3
+sql.plan.builtins.timezone(timezone: string, timestamptz: timestamptz) -> timestamp	1
+sql.schema.create_database	1
+sql.update.count.internal	650
+sql.plan.subquery	8
+sql.ddl.started.count.internal	12
+sql.plan.lateral-join	5
+sql.plan.builtins.max(arg1: timestamptz) -> anyelement	2
+sql.plan.ops.cmp.tuple IN tuple	1
+sql.plan.opt.node.project-set	81
+sql.select.started.count	3
+sql.txn.begin.count.internal	80
+kv.closed_timestamp.txns_pushed	1
+sql.plan.opt.node.join.type.anti	10
+import.into	1
+sql.plan.hints.index	6
+sql.plan.builtins.uuid_v4() -> bytes	3
+job.import.successful	1
+sql.plan.builtins.json_object_agg(arg1: string, arg2: anyelement) -> jsonb	2
+sql.plan.builtins.follower_read_timestamp() -> timestamptz	329
+sql.select.started.count.internal	2880
+sql.plan.window_function.lag	1
+sql.select.count	3
+sql.misc.started.count	19
+sql.plan.cte	17
+sql.misc.count	19
+txn.restarts.txnaborted	38
+sql.plan.ops.array.cons	1
+sql.plan.builtins.crdb_internal.merge_statement_stats(input: jsonb[]) -> jsonb	1
+sql.plan.opt.order-by-nulls-standard	833
+sql.ddl.count.internal	12
+sql.plan.ops.cmp.timestamptz < timestamptz	286
+import.csv.started	1
+sql.plan.builtins.crdb_internal.datums_to_bytes(any...) -> bytes	27
+sql.plan.ops.cast.bytes::bytes	57
+sql.misc.started.count.internal	80
+job.auto_create_stats.successful	3
+sql.txn.begin.started.count	1
+sql.uds.schema_used_by_object	1
+sql.plan.builtins.md5(bytes...) -> string	12
+sql.plan.builtins.crdb_internal.pb_to_json(pbname: string, data: bytes) -> jsonb	3
+job.auto_sql_stats_compaction.successful	9
+sql.plan.builtins.min(arg1: int) -> anyelement	102
+sql.plan.builtins.crdb_internal.pretty_key(raw_key: bytes, skip_fields: int) -> string	4
+sql.plan.opt.node.group-by	94
+sql.plan.ops.bin.float * float	15
+sql.plan.ops.cmp.string = string	59
+sql.plan.builtins.decode(text: string, format: string) -> bytes	4
+sql.plan.ops.bin.timestamptz - interval	2
+sql.plan.builtins.fnv32(bytes...) -> int	15
+sql.plan.ops.bin.int + int	21
+sql.plan.opt.node.join.type.inner	371
+import.duration-sec.succeeded.0	1
+sql.plan.type.auto-generic	1388
+sql.update.count	92347
+sql.query.count	92374
+job.schema_change_gc.successful	4
+sql.plan.builtins.cluster_logical_timestamp() -> decimal	2
+sql.plan.opt.node.join.algo.merge	331
+sql.plan.ops.cmp.int = int	579
+sql.ddl.started.count	3
+sql.schema.create_stats	12
+sql.insert.started.count.internal	828
+sql.plan.ops.cast.timestamp::timestamptz	4
+sql.plan.builtins.crdb_internal.privilege_name(internal_key: string[]) -> string[]	2
+sql.plan.ops.cast.jsonb::int	15
+sql.plan.builtins.crdb_internal.session_pending_jobs() -> tuple{int AS job_id, string AS job_type, string AS description, string AS user_name}	4
+sql.query.started.count.internal	5203
+sql.plan.opt.node.scalar-group-by	314
+sql.txn.begin.count	1
+sql.plan.builtins.date_trunc(element: string, input: interval) -> interval	2
+sql.plan.builtins.now() -> timestamptz	307
+sql.plan.builtins.current_timestamp() -> timestamptz	49
+sql.crud_query.count.internal	4951

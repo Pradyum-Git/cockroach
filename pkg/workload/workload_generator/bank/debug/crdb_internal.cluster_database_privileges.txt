@@ -1,0 +1,3 @@
+database_name	grantee	privilege_type	is_grantable
+system	admin	CONNECT	YES
+system	root	CONNECT	YES

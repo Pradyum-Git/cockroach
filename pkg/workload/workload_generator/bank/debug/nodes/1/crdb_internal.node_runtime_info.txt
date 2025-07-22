@@ -1,0 +1,13 @@
+node_id	component	field	value
+1	DB	URL	postgresql://root@crlMBP-V4DP7D3KT0NDMx.local:26257/defaultdb?sslmode=disable
+1	DB	Scheme	postgresql
+1	DB	User	root
+1	DB	Host	crlMBP-V4DP7D3KT0NDMx.local
+1	DB	Port	26257
+1	DB	URI	/defaultdb?sslmode=disable
+1	UI	URL	http://crlMBP-V4DP7D3KT0NDMx.local:8080
+1	UI	Scheme	http
+1	UI	User	
+1	UI	Host	crlMBP-V4DP7D3KT0NDMx.local
+1	UI	Port	8080
+1	UI	URI	/

@@ -1,0 +1,98 @@
+root 12 MiB (8.0 GiB / 0 B)
+    sql 10 MiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-911c4d83 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-c61a87d0 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-21ab7f59 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-d4247725 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-5c48cd8a 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-ebfe96f4 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-e70347bf 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 290 KiB (21 KiB / 84 KiB)
+            txn 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-eb866ecc 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-2a1a46cd 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-55ff5d4f 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 270 KiB (21 KiB / 84 KiB)
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-74dea839 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 330 KiB (21 KiB / 84 KiB)
+            txn 60 KiB
+                flow-1789f3da 20 KiB
+            session 270 KiB
+                session prepared statements 243 KiB
+        session root 20 KiB (21 KiB / 84 KiB)
+            session 10 KiB
+        conn 2.2 MiB
+        SQLStats 950 KiB
+        SQLStats 740 KiB
+    server-cache-mon 10 KiB
+    closed-session-cache 1.1 MiB
+    kv-mem 90 KiB
+        rangefeed-monitor 20 KiB
+        rangefeed-system-monitor 80 KiB (128 MiB / 0 B)

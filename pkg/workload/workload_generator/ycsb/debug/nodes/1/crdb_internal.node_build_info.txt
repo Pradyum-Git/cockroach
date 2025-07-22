@@ -1,0 +1,8 @@
+node_id	field	value
+1	ClusterID	8cc56481-e5f6-43ea-9d67-75fc83d07202
+1	Organization	
+1	Build	CockroachDB CCL v25.3.0-alpha.4-dev (darwin arm64, built , go1.23.7 X:nocoverageredesign)
+1	Version	v25.3.0-alpha.4-dev
+1	Channel	unknown
+1	VirtualClusterName	system
+1	Name	CockroachDB

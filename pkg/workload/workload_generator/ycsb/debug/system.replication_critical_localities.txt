@@ -1,0 +1,1 @@
+zone_id	subzone_id	locality	report_id	at_risk_ranges

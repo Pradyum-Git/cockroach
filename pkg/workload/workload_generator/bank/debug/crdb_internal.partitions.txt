@@ -1,0 +1,1 @@
+table_id	index_id	parent_name	name	columns	column_names	list_value	range_value	zone_id	subzone_id

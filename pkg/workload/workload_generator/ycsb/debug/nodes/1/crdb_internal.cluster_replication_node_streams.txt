@@ -1,0 +1,1 @@
+stream_id	consumer	spans	state	read	emit	last_read_ms	last_emit_ms	seq	chkpts	last_chkpt	batches	megabytes	last_kb	rf_chk	rf_adv	rf_last_adv	resolved_age

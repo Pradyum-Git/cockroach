@@ -1,0 +1,1 @@
+stream_id	consumer	state	recv_time	last_recv_time	ingest_time	flush_time	flush_count	flush_kvs	flush_bytes	flush_batches	last_flush_time	chunks_running	chunks_done	last_kvs_done	last_kvs_todo	last_batches	last_slowest	last_checkpoint	checkpoints	retry_size	resolved_age

@@ -1,0 +1,1 @@
+id	statement_fingerprint	statement	collected_at	trace	bundle_chunks	error

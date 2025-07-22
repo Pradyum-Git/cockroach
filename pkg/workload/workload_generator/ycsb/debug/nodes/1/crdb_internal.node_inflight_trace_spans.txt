@@ -1,0 +1,1 @@
+trace_id	parent_span_id	span_id	goroutine_id	finished	start_time	duration	operation	payload_type	payload_jsonb

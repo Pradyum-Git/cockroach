@@ -1,0 +1,104 @@
+I250721 05:59:45.129227 65 util/log/file_sync_buffer.go:237 ⋮ [T1,config] file created at: 2025/07/21 05:59:45
+I250721 05:59:45.129231 65 util/log/file_sync_buffer.go:237 ⋮ [T1,config] running on machine: ‹crlMBP-V4DP7D3KT0NDMx.local›
+I250721 05:59:45.129235 65 util/log/file_sync_buffer.go:237 ⋮ [T1,config] binary: CockroachDB CCL v25.3.0-alpha.4-dev (darwin arm64, built , go1.23.7 X:nocoverageredesign)
+I250721 05:59:45.129237 65 util/log/file_sync_buffer.go:237 ⋮ [T1,config] arguments: [‹./cockroach› ‹start-single-node› ‹--insecure›]
+I250721 05:59:45.129242 65 util/log/file_sync_buffer.go:237 ⋮ [T1,config] log format (utf8=✓): crdb-v2
+I250721 05:59:45.129244 65 util/log/file_sync_buffer.go:237 ⋮ [T1,config] line format: [IWEF]yymmdd hh:mm:ss.uuuuuu goid [chan@]file:line redactionmark \[tags\] [counter] msg
+I250721 05:59:45.128803 65 3@pebble/objstorage/objstorageprovider/remote.go:102 ⋮ [T1,n?,s?,pebble] 1 remote storage configured; creatorID = 1
+I250721 05:59:45.145613 65 3@pebble/open.go:382 ⋮ [T1,n?,s?,pebble] 2 Found 2 WALs
+I250721 05:59:45.145649 65 3@pebble/open.go:384 ⋮ [T1,n?,s?,pebble] 3   - ‹022669›: {(/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/cockroach-data,‹000›)}
+I250721 05:59:45.145666 65 3@pebble/open.go:384 ⋮ [T1,n?,s?,pebble] 4   - ‹022686›: {(/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/cockroach-data,‹000›)}
+I250721 05:59:45.203889 65 3@pebble/open.go:1061 ⋮ [T1,n?,s?,pebble] 5 [JOB ‹1›] WAL ‹022686: {(/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/cockroach-data,000)}› stopped reading at offset: (‹/Users/pradyumagarwal/go/src/github.com/cockroachdb/cockroach/cockroach-data/022686.log›: 41659237); replayed 122261 keys in 4026 batches
+I250721 05:59:45.204157 98 3@pebble/event.go:1191 ⋮ [T1,n?,s?,pebble] 6 [JOB 2] flushing 8 memtables (44MB) to L0
+I250721 05:59:45.204575 98 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 7 [JOB 2] flushing: sstable created 022704
+I250721 05:59:45.212089 98 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 8 [JOB 2] flushing: sstable created 022705
+I250721 05:59:45.218970 98 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 9 [JOB 2] flushing: sstable created 022706
+I250721 05:59:45.251532 98 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 10 [JOB 2] flushing: sstable created 022707
+I250721 05:59:45.271787 98 3@pebble/event.go:1211 ⋮ [T1,n?,s?,pebble] 11 [JOB 2] MANIFEST created 022708
+I250721 05:59:45.271860 98 3@pebble/event.go:1195 ⋮ [T1,n?,s?,pebble] 12 [JOB 2] flushed 8 memtables (44MB) to L0 [022704 022705 022706 022707] (461KB), in 0.1s (0.1s total), output rate 7.8MB/s
+I250721 05:59:45.278360 65 3@pebble/event.go:1239 ⋮ [T1,n?,s?,pebble] 13 [JOB 1] WAL created 022709
+I250721 05:59:45.284765 96 3@pebble/event.go:1243 ⋮ [T1,n?,s?,pebble] 14 [JOB 2] WAL deleted 022669
+I250721 05:59:45.291113 27 3@pebble/event.go:1179 ⋮ [T1,n?,s?,pebble] 15 [JOB 4] compacting(default) L0 [022705 022704] (89KB) Score=2.55 + L5 [] (0B) Score=0.00; OverlappingRatio: Single 0.00, Multi 0.00
+I250721 05:59:45.291244 130 3@pebble/event.go:1179 ⋮ [T1,n?,s?,pebble] 16 [JOB 6] compacting(default) L0 [022706] (221KB) Score=2.54 + L5 [022692 022693 022694 022695 022696 022697 022698] (19MB) Score=0.00; OverlappingRatio: Single 89.99, Multi 0.00
+I250721 05:59:45.291391 27 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 17 [JOB 4] compacting: sstable created 022711
+I250721 05:59:45.292530 130 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 18 [JOB 6] compacting: sstable created 022712
+I250721 05:59:45.299198 132 3@pebble/event.go:1231 ⋮ [T1,n?,s?,pebble] 19 [JOB 7] all initial table stats loaded
+I250721 05:59:45.303972 96 3@pebble/event.go:1243 ⋮ [T1,n?,s?,pebble] 20 [JOB 2] WAL deleted 022686
+I250721 05:59:45.317751 27 3@pebble/event.go:1183 ⋮ [T1,n?,s?,pebble] 21 [JOB 4] compacted(default) L0 [022705 022704] (89KB) Score=2.55 + L5 [] (0B) Score=0.00 -> L5 [022711] (88KB), in 0.0s (0.0s total), output rate 4.7MB/s
+I250721 05:59:45.375954 130 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 22 [JOB 6] compacting: sstable created 022713
+I250721 05:59:45.437901 130 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 23 [JOB 6] compacting: sstable created 022714
+I250721 05:59:45.516943 130 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 24 [JOB 6] compacting: sstable created 022715
+I250721 05:59:45.562677 130 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 25 [JOB 6] compacting: sstable created 022716
+I250721 05:59:45.628083 130 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 26 [JOB 6] compacting: sstable created 022717
+I250721 05:59:45.696046 130 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 27 [JOB 6] compacting: sstable created 022718
+I250721 05:59:45.719903 130 3@pebble/event.go:1183 ⋮ [T1,n?,s?,pebble] 28 [JOB 6] compacted(default) L0 [022706] (221KB) Score=2.54 + L5 [022692 022693 022694 022695 022696 022697 022698] (19MB) Score=0.00 -> L5 [022712 022713 022714 022715 022716 022717 022718] (20MB), in 0.4s (0.4s total), output rate 46MB/s
+I250721 05:59:45.720281 103 3@pebble/event.go:1179 ⋮ [T1,n?,s?,pebble] 29 [JOB 9] compacting(default) L0 [022707] (151KB) Score=2.53 + L5 [022699 022700 022701] (5.7MB) Score=0.00; OverlappingRatio: Single 38.37, Multi 0.00
+I250721 05:59:45.720729 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 30 [JOB 6] sstable deleted 022692
+I250721 05:59:45.721022 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 31 [JOB 6] sstable deleted 022693
+I250721 05:59:45.721094 103 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 32 [JOB 9] compacting: sstable created 022719
+I250721 05:59:45.721512 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 33 [JOB 6] sstable deleted 022694
+I250721 05:59:45.721804 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 34 [JOB 6] sstable deleted 022695
+I250721 05:59:45.722683 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 35 [JOB 6] sstable deleted 022696
+I250721 05:59:45.724114 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 36 [JOB 6] sstable deleted 022697
+I250721 05:59:45.725394 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 37 [JOB 6] sstable deleted 022698
+I250721 05:59:45.725512 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 38 [JOB 6] sstable deleted 022704
+I250721 05:59:45.725591 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 39 [JOB 6] sstable deleted 022705
+I250721 05:59:45.725698 96 3@pebble/event.go:1223 ⋮ [T1,n?,s?,pebble] 40 [JOB 6] sstable deleted 022706
+I250721 05:59:45.726206 96 3@pebble/event.go:1215 ⋮ [T1,n?,s?,pebble] 41 [JOB 1] MANIFEST deleted 010176
+I250721 05:59:45.791350 65 3@pebble/event.go:1211 ⋮ [T1,n?,s?,pebble] 42 [JOB 1] MANIFEST created 000001
+I250721 05:59:45.791574 65 3@pebble/open.go:382 ⋮ [T1,n?,s?,pebble] 43 Found 0 WALs
+I250721 05:59:45.798787 65 3@pebble/event.go:1239 ⋮ [T1,n?,s?,pebble] 44 [JOB 1] WAL created 000002
+I250721 05:59:45.804250 103 3@pebble/event.go:1219 ⋮ [T1,n?,s?,pebble] 45 [JOB 9] compacting: sstable created 022720
+I250721 05:59:45.808413 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 46 upgraded to format version: 014
+I250721 05:59:45.812656 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 47 upgraded to format version: 015
+I250721 05:59:45.816657 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 48 upgraded to format version: 016
+I250721 05:59:45.820851 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 49 upgraded to format version: 017
+I250721 05:59:45.825384 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 50 upgraded to format version: 018
+I250721 05:59:45.829707 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 51 upgraded to format version: 019
+I250721 05:59:45.835030 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 52 upgraded to format version: 020
+I250721 05:59:45.839926 65 3@pebble/event.go:1207 ⋮ [T1,n?,s?,pebble] 53 upgraded to format version: 021
+I250721 05:59:45.848918 193 3@pebble/event.go:1231 ⋮ [T1,n?,s?,pebble] 54 [JOB 2] all initial table stats loaded
+I250721 05:59:45.889034 103 3@pebble/event.go:1219 ⋮ [T1,n1,s1,pebble] 55 [JOB 9] compacting: sstable created 022721
+I250721 05:59:45.898669 103 3@pebble/event.go:1183 ⋮ [T1,n1,s1,pebble] 56 [JOB 9] compacted(default) L0 [022707] (151KB) Score=2.53 + L5 [022699 022700 022701] (5.7MB) Score=0.00 -> L5 [022719 022720 022721] (5.8MB), in 0.2s (0.2s total), output rate 33MB/s
+I250721 05:59:45.898798 416 3@pebble/event.go:1179 ⋮ [T1,n1,s1,pebble] 57 [JOB 10] compacting(tombstone-density) L5 [022711] (88KB) Score=0.00 + L6 [022702] (243KB) Score=0.00; OverlappingRatio: Single 0.00, Multi 0.00
+I250721 05:59:45.899787 96 3@pebble/event.go:1223 ⋮ [T1,n1,s1,pebble] 58 [JOB 9] sstable deleted 022699
+I250721 05:59:45.899848 416 3@pebble/event.go:1219 ⋮ [T1,n1,s1,pebble] 59 [JOB 10] compacting: sstable created 022722
+I250721 05:59:45.900194 96 3@pebble/event.go:1223 ⋮ [T1,n1,s1,pebble] 60 [JOB 9] sstable deleted 022700
+I250721 05:59:45.900424 96 3@pebble/event.go:1223 ⋮ [T1,n1,s1,pebble] 61 [JOB 9] sstable deleted 022701
+I250721 05:59:45.900519 96 3@pebble/event.go:1223 ⋮ [T1,n1,s1,pebble] 62 [JOB 9] sstable deleted 022707
+I250721 05:59:45.912872 416 3@pebble/event.go:1183 ⋮ [T1,n1,s1,pebble] 63 [JOB 10] compacted(tombstone-density) L5 [022711] (88KB) Score=0.00 + L6 [022702] (243KB) Score=0.00 -> L6 [022722] (207KB), in 0.0s (0.0s total), output rate 22MB/s
+I250721 05:59:45.913082 96 3@pebble/event.go:1223 ⋮ [T1,n1,s1,pebble] 64 [JOB 10] sstable deleted 022702
+I250721 05:59:45.913230 96 3@pebble/event.go:1223 ⋮ [T1,n1,s1,pebble] 65 [JOB 10] sstable deleted 022711
+I250721 06:00:06.423500 47 3@kv/kvserver/store.go:3799 ⋮ [T1,Vsystem,n1,s1] 66 Pebble metrics:
+      |                             |                |       |   ingested   |     moved    |    written   |       |    amp
+level | tables  size val-bl vtables | score  ff  cff |   in  | tables  size | tables  size | tables  size |  read |   r   w
+------+-----------------------------+----------------+-------+--------------+--------------+--------------+-------+---------
+    0 |     0     0B     0B       0 |    -    0    0 |  40MB |     0     0B |     0     0B |     4  461KB |    0B |   0 0.01
+    1 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    2 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    3 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    4 |     0     0B     0B       0 |    -    0    0 |    0B |     0     0B |     0     0B |     0     0B |    0B |   0    0
+    5 |    12   25MB  245KB       0 |    - 0.40 0.95 | 461KB |     0     0B |     0     0B |    11   25MB |  26MB |   1 56.4
+    6 |    39  217MB  186KB       0 |    - 1.00 1.00 |  88KB |     0     0B |     0     0B |     1  207KB | 331KB |   1 2.36
+total |    51  242MB  431KB       0 |    -    -    - |  42MB |     0     0B |     0     0B |    16   68MB |  26MB |   2 1.62
+----------------------------------------------------------------------------------------------------------------------------
+WAL: 1 files (2.3MB)  in: 2.3MB  written: 42MB (1739% overhead)
+Flushes: 1
+Compactions: 4  estimated debt: 0B  in progress: 0 (0B)  canceled: 0 (0B)  failed: 0  problem spans: 0
+             default: 3  delete: 0  elision: 0  move: 0  read: 0  tombstone-density: 1  rewrite: 0  copy: 0  multi-level: 0
+MemTables: 1 (64MB)  zombie: 1 (32MB)
+Zombie tables: 0 (0B, local: 0B)
+Backing tables: 0 (0B)
+Virtual tables: 0 (0B)
+Local tables size: 242MB
+Compression types: unknown: 51
+Garbage: point-deletions 35MB range-deletions 0B
+Table stats: all loaded
+Block cache: 2.1K entries (32MB)  hit rate: 35.9%
+File cache: 44 tables, 0 blobfiles (21KB)  hit rate: 97.1%
+Range key sets: 12  Tombstones: 133K  Total missized tombstones encountered: 0
+Snapshots: 0  earliest seq num: 0
+Table iters: 0
+Filter utility: 80.0%
+Ingestions: 0  as flushable: 0 (0B in 0 tables)
+Cgo memory usage: 129MB  block cache: 32MB (data: 32MB, maps: 144KB, entries: 168KB)  memtables: 96MB

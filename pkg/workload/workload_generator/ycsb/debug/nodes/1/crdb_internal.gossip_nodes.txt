@@ -1,0 +1,2 @@
+node_id	network	address	advertise_address	sql_network	sql_address	advertise_sql_address	attrs	locality	cluster_name	server_version	build_tag	started_at	is_live	ranges	leases
+1	tcp	crlMBP-V4DP7D3KT0NDMx.local:26257	crlMBP-V4DP7D3KT0NDMx.local:26257	tcp	crlMBP-V4DP7D3KT0NDMx.local:26257	crlMBP-V4DP7D3KT0NDMx.local:26257	[]			1000025.2-upgrading-to-1000025.3-step-006	v25.3.0-alpha.4-dev	2025-07-21 06:05:29.895975	t	64	64

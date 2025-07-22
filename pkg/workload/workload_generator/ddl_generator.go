@@ -128,6 +128,7 @@ func hasConstrainingPrefix(up string) bool {
 		"FOREIGN KEY",
 		"CHECK",
 		"INDEX",
+		"FAMILY",
 	}
 	for _, p := range prefixes {
 		if strings.HasPrefix(up, p) {

@@ -1,0 +1,29 @@
+{
+  "node_id": 1,
+  "address": {
+    "network_field": "tcp",
+    "address_field": "crlMBP-V4DP7D3KT0NDMx.local:26257"
+  },
+  "build_info": {
+    "go_version": "go1.23.7 X:nocoverageredesign",
+    "tag": "v25.3.0-alpha.4-dev",
+    "time": "",
+    "revision": "",
+    "cgo_compiler": "Apple LLVM 17.0.0 (clang-1700.0.13.3)",
+    "cgo_target_triple": "",
+    "platform": "darwin arm64",
+    "distribution": "CCL",
+    "type": "",
+    "channel": "unknown",
+    "env_channel": "unknown",
+    "enabled_assertions": false
+  },
+  "system_info": {
+    "system_info": "Darwin crlMBP-V4DP7D3KT0NDMx.local 24.5.0 Darwin Kernel Version 24.5.0: Tue Apr 22 19:54:49 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T6000 arm64",
+    "kernel_info": "24.5.0"
+  },
+  "sql_address": {
+    "network_field": "tcp",
+    "address_field": "crlMBP-V4DP7D3KT0NDMx.local:26257"
+  }
+}

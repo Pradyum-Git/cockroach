@@ -4,7 +4,6 @@ go_library(
     name = "workload_generator",
     srcs = [
         "constants.go",
-        "db_workload.go",
         "ddl_generator.go",
         "generate_sql.go",
         "generator_schema_builder.go",
@@ -15,6 +14,7 @@ go_library(
         "schema_designs.go",
         "sqlConvert.go",
         "sql_utils.go",
+        "workload.go",
     ],
     importpath = "github.com/cockroachdb/cockroach/pkg/workload/workload_generator",
     visibility = ["//visibility:public"],

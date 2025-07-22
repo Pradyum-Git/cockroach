@@ -1,0 +1,11 @@
+{
+  "node_id": 1,
+  "address": {
+    "network_field": "tcp",
+    "address_field": "crlMBP-V4DP7D3KT0NDMx.local:26257"
+  },
+  "sql_address": {
+    "network_field": "tcp",
+    "address_field": "crlMBP-V4DP7D3KT0NDMx.local:26257"
+  }
+}

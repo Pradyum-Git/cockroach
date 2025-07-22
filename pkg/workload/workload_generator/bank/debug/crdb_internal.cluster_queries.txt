@@ -1,0 +1,2 @@
+query_id	txn_id	node_id	session_id	user_name	start	query	client_address	application_name	distributed	phase	full_scan	plan_gist	database
+18547b232c7fcb500000000000000001	84886070-23d4-415f-a06a-5fd02558590a	1	18547b231254ca000000000000000001	root	2025-07-22 05:19:05.9546+00	TABLE crdb_internal.cluster_queries	[::1]:58637	$ internal cockroach zip	f	executing	f	AgHa////PwAA/v8BAAAABhw=	system

@@ -1,0 +1,1653 @@
+goroutine profile: total 484
+82 @ 0x100a3c768 0x100a3e524 0x100a3e505 0x100a50e4c 0x1044979ac 0x104497140 0x100a45fa4
+#	0x100a3e504	sync.runtime_notifyListWait+0x134							GOROOT/src/runtime/sema.go:587
+#	0x100a50e4b	sync.(*Cond).Wait+0xcb									GOROOT/src/sync/cond.go:71
+#	0x1044979ab	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*raftSchedulerShard).worker+0x31b	pkg/kv/kvserver/scheduler.go:368
+#	0x10449713f	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*raftScheduler).Start.func2+0xdf	pkg/kv/kvserver/scheduler.go:302
+
+42 @ 0x100a3c768 0x100a3e524 0x100a3e505 0x100a50e4c 0x1042d2dc0 0x1042d15b4 0x10187c578 0x100a45fa4
+#	0x100a3e504	sync.runtime_notifyListWait+0x134									GOROOT/src/runtime/sema.go:587
+#	0x100a50e4b	sync.(*Cond).Wait+0xcb											GOROOT/src/sync/cond.go:71
+#	0x1042d2dbf	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*schedulerShard).processEvents+0x55f	pkg/kv/kvserver/rangefeed/scheduler.go:476
+#	0x1042d15b3	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*Scheduler).Start.func1+0xf3		pkg/kv/kvserver/rangefeed/scheduler.go:249
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+40 @ 0x100a3c768 0x100a17b5c 0x103fe6540 0x10187c578 0x100a45fa4
+#	0x103fe653f	github.com/cockroachdb/cockroach/pkg/sql.(*runnerCoordinator).init.func1+0xaf		pkg/sql/distsql_running.go:164
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+20 @ 0x100a3c768 0x1009ceba4 0x1009ce774 0x10169575c 0x100a45fa4
+#	0x10169575b	github.com/cockroachdb/pebble/internal/genericcache.(*shard[...]).releaseLoop+0x6b	external/com_github_cockroachdb_pebble/internal/genericcache/shard.go:61
+
+13 @ 0x100a3c768 0x100a17b5c 0x1012df9a0 0x100a45fa4
+#	0x1012df99f	github.com/cockroachdb/cockroach/pkg/util/log.(*fileSink).gcDaemon+0x6f	pkg/util/log/file_log_gc.go:20
+
+13 @ 0x100a3c768 0x100a17b5c 0x1042c2ed4 0x1042c3368 0x1042ce494 0x10187c578 0x100a45fa4
+#	0x1042c2ed3	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*bufferedRegistration).outputLoop+0x273	pkg/kv/kvserver/rangefeed/buffered_registration.go:238
+#	0x1042c3367	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*bufferedRegistration).runOutputLoop+0x1e7	pkg/kv/kvserver/rangefeed/buffered_registration.go:272
+#	0x1042ce493	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*ScheduledProcessor).Register.func1.1+0x43	pkg/kv/kvserver/rangefeed/scheduled_processor.go:384
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+8 @ 0x100a3c768 0x100a17b5c 0x102647840 0x10187c578 0x100a45fa4
+#	0x10264783f	github.com/cockroachdb/cockroach/pkg/gossip.(*infoStore).launchCallbackWorker.func1+0x8f	pkg/gossip/infostore.go:273
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+6 @ 0x100a3c768 0x100a17b5c 0x10202a8bc 0x100a45fa4
+#	0x10202a8bb	github.com/cockroachdb/cockroach/pkg/util/admission.initWorkQueue.func2+0x7b	pkg/util/admission/work_queue.go:402
+
+6 @ 0x100a3c768 0x100a17b5c 0x10202ad90 0x100a45fa4
+#	0x10202ad8f	github.com/cockroachdb/cockroach/pkg/util/admission.(*WorkQueue).startClosingEpochs.func1+0x13f	pkg/util/admission/work_queue.go:479
+
+4 @ 0x100a3c768 0x100a17b5c 0x10110a0cc 0x10110a934 0x10111f268 0x100a45fa4
+#	0x10110a0cb	google.golang.org/grpc/internal/transport.(*controlBuffer).get+0x14b	external/org_golang_google_grpc/internal/transport/controlbuf.go:418
+#	0x10110a933	google.golang.org/grpc/internal/transport.(*loopyWriter).run+0x73	external/org_golang_google_grpc/internal/transport/controlbuf.go:552
+#	0x10111f267	google.golang.org/grpc/internal/transport.NewServerTransport.func2+0xd7	external/org_golang_google_grpc/internal/transport/http2_server.go:336
+
+4 @ 0x100a3c768 0x100a17b5c 0x1011259ac 0x100a45fa4
+#	0x1011259ab	google.golang.org/grpc/internal/transport.(*http2Server).keepalive+0x16b	external/org_golang_google_grpc/internal/transport/http2_server.go:1150
+
+4 @ 0x100a3c768 0x100a17b5c 0x103fe6744 0x10187c578 0x100a45fa4
+#	0x103fe6743	github.com/cockroachdb/cockroach/pkg/sql.(*DistSQLPlanner).initCancelingWorkers.func1+0x93	pkg/sql/distsql_running.go:249
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+3 @ 0x100a3c768 0x1009fd3f8 0x100a3ba10 0x100ac1688 0x100ac29ac 0x100ac299d 0x100b780c8 0x100b87c94 0x101f78d44 0x100bc9778 0x100bc9f3c 0x103359bf0 0x1053a9a7c 0x1053a96f0 0x1053a7d30 0x10568f030 0x10568e678 0x10569c12c 0x101f7b99c 0x100a45fa4
+#	0x100a3ba0f	internal/poll.runtime_pollWait+0x9f								GOROOT/src/runtime/netpoll.go:351
+#	0x100ac1687	internal/poll.(*pollDesc).wait+0x27								GOROOT/src/internal/poll/fd_poll_runtime.go:84
+#	0x100ac29ab	internal/poll.(*pollDesc).waitRead+0x1fb							GOROOT/src/internal/poll/fd_poll_runtime.go:89
+#	0x100ac299c	internal/poll.(*FD).Read+0x1ec									GOROOT/src/internal/poll/fd_unix.go:165
+#	0x100b780c7	net.(*netFD).Read+0x27										GOROOT/src/net/fd_posix.go:55
+#	0x100b87c93	net.(*conn).Read+0x33										GOROOT/src/net/net.go:189
+#	0x101f78d43	github.com/cockroachdb/cmux.(*MuxConn).Read+0x173						external/com_github_cockroachdb_cmux/cmux.go:241
+#	0x100bc9777	bufio.(*Reader).fill+0xf7									GOROOT/src/bufio/bufio.go:110
+#	0x100bc9f3b	bufio.(*Reader).ReadByte+0x2b									GOROOT/src/bufio/bufio.go:269
+#	0x103359bef	github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgwirebase.(*ReadBuffer).ReadTypedMsg+0x2f	pkg/sql/pgwire/pgwirebase/encoding.go:210
+#	0x1053a9a7b	github.com/cockroachdb/cockroach/pkg/sql/pgwire.(*Server).serveImpl.func5+0x6b			pkg/sql/pgwire/server.go:1251
+#	0x1053a96ef	github.com/cockroachdb/cockroach/pkg/sql/pgwire.(*Server).serveImpl+0x6cf			pkg/sql/pgwire/server.go:1420
+#	0x1053a7d2f	github.com/cockroachdb/cockroach/pkg/sql/pgwire.(*Server).ServeConn+0x80f			pkg/sql/pgwire/server.go:970
+#	0x10568f02f	github.com/cockroachdb/cockroach/pkg/server.(*systemServerWrapper).serveConn+0xbf		server_controller_sql.go:169
+#	0x10568e677	github.com/cockroachdb/cockroach/pkg/server.(*serverController).sqlMux+0x207			server_controller_sql.go:90
+#	0x10569c12b	github.com/cockroachdb/cockroach/pkg/server.startServeSQL.func1.1+0x20b				server_sql.go:1993
+#	0x101f7b99b	github.com/cockroachdb/cockroach/pkg/util/netutil.(*TCPServer).ServeWith.func1+0x11b		pkg/util/netutil/net.go:197
+
+3 @ 0x100a3c768 0x100a17b5c 0x100b8c25c 0x100b8c020 0x100bc9d54 0x100ab6bc0 0x1010d71f8 0x1010d71cd 0x1010d78ec 0x101121e14 0x10114ece4 0x10114e5d4 0x100a45fa4
+#	0x100b8c25b	net.(*pipe).read+0xeb								GOROOT/src/net/pipe.go:159
+#	0x100b8c01f	net.(*pipe).Read+0x1f								GOROOT/src/net/pipe.go:142
+#	0x100bc9d53	bufio.(*Reader).Read+0x1b3							GOROOT/src/bufio/bufio.go:241
+#	0x100ab6bbf	io.ReadAtLeast+0x9f								GOROOT/src/io/io.go:335
+#	0x1010d71f7	io.ReadFull+0x57								GOROOT/src/io/io.go:354
+#	0x1010d71cc	golang.org/x/net/http2.readFrameHeader+0x2c					external/org_golang_x_net/http2/frame.go:242
+#	0x1010d78eb	golang.org/x/net/http2.(*Framer).ReadFrame+0x7b					external/org_golang_x_net/http2/frame.go:506
+#	0x101121e13	google.golang.org/grpc/internal/transport.(*http2Server).HandleStreams+0x113	external/org_golang_google_grpc/internal/transport/http2_server.go:637
+#	0x10114ece3	google.golang.org/grpc.(*Server).serveStreams+0x183				external/org_golang_google_grpc/server.go:963
+#	0x10114e5d3	google.golang.org/grpc.(*Server).handleRawConn.func1+0x43			external/org_golang_google_grpc/server.go:905
+
+3 @ 0x100a3c768 0x100a17b5c 0x10145bb48 0x100a45fa4
+#	0x10145bb47	github.com/cockroachdb/pebble/vfs.(*diskHealthCheckingFile).startTicker.func1+0x97	external/com_github_cockroachdb_pebble/vfs/disk_health.go:254
+
+3 @ 0x100a3c768 0x100a17b5c 0x1026ee7dc 0x1026efee4 0x10187c578 0x100a45fa4
+#	0x1026ee7db	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed/rangefeedcache.(*Watcher[...]).Run+0x7ab	pkg/kv/kvclient/rangefeed/rangefeedcache/watcher.go:343
+#	0x1026efee3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed/rangefeedcache.Start[...].func1+0x1c3	pkg/kv/kvclient/rangefeed/rangefeedcache/watcher.go:202
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+3 @ 0x100a3c768 0x100a17b5c 0x10422fa94 0x10422f988 0x10187c578 0x100a45fa4
+#	0x10422fa93	github.com/cockroachdb/cockroach/pkg/kv/kvserver/logstore.(*SyncWaiterLoop).waitLoop+0xe3	pkg/kv/kvserver/logstore/sync_waiter.go:88
+#	0x10422f987	github.com/cockroachdb/cockroach/pkg/kv/kvserver/logstore.(*SyncWaiterLoop).Start.func1+0x37	pkg/kv/kvserver/logstore/sync_waiter.go:79
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+3 @ 0x100a3c768 0x100a17b5c 0x1042ebb50 0x1042e9ed4 0x100a45fa4
+#	0x1042ebb4f	github.com/cockroachdb/cockroach/pkg/internal/client/requestbatcher.(*RequestBatcher).run+0x2af	pkg/internal/client/requestbatcher/batcher.go:583
+#	0x1042e9ed3	github.com/cockroachdb/cockroach/pkg/internal/client/requestbatcher.New.func1+0x83		pkg/internal/client/requestbatcher/batcher.go:253
+
+3 @ 0x100a3c768 0x100a17b5c 0x1053aa840 0x100a45fa4
+#	0x1053aa83f	github.com/cockroachdb/cockroach/pkg/sql/pgwire.(*Server).serveImpl.func1+0x7f	pkg/sql/pgwire/server.go:1136
+
+3 @ 0x100a3c768 0x100a17b5c 0x1055545f0 0x10187c578 0x100a45fa4
+#	0x1055545ef	github.com/cockroachdb/cockroach/pkg/kv/kvprober.(*Prober).Start.func1.1+0x20f		pkg/kv/kvprober/kvprober.go:327
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+3 @ 0x100a3c768 0x100a3e524 0x100a3e505 0x100a50e4c 0x103f6ad18 0x103f35dac 0x103f359c8 0x103f31550 0x1053987dc 0x1053aa6a8 0x100a45fa4
+#	0x100a3e504	sync.runtime_notifyListWait+0x134						GOROOT/src/runtime/sema.go:587
+#	0x100a50e4b	sync.(*Cond).Wait+0xcb								GOROOT/src/sync/cond.go:71
+#	0x103f6ad17	github.com/cockroachdb/cockroach/pkg/sql.(*StmtBuf).CurCmd+0xb7			pkg/sql/conn_io.go:553
+#	0x103f35dab	github.com/cockroachdb/cockroach/pkg/sql.(*connExecutor).execCmd+0x4b		pkg/sql/conn_executor.go:2298
+#	0x103f359c7	github.com/cockroachdb/cockroach/pkg/sql.(*connExecutor).run+0x167		pkg/sql/conn_executor.go:2272
+#	0x103f3154f	github.com/cockroachdb/cockroach/pkg/sql.(*Server).ServeConn+0x9f		pkg/sql/conn_executor.go:1056
+#	0x1053987db	github.com/cockroachdb/cockroach/pkg/sql/pgwire.(*conn).processCommands+0x33b	pkg/sql/pgwire/conn.go:253
+#	0x1053aa6a7	github.com/cockroachdb/cockroach/pkg/sql/pgwire.(*Server).serveImpl.func4+0xc7	pkg/sql/pgwire/server.go:1209
+
+2 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x101f7af5c 0x10187c578 0x100a45fa4
+#	0x101f7af5b	github.com/cockroachdb/cockroach/pkg/util/netutil.MakeTCPServer.func1+0x4b		pkg/util/netutil/net.go:124
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+2 @ 0x100a3c768 0x1009ceba4 0x1009ce774 0x101666060 0x101665a90 0x1014abcd8 0x101665a4c 0x100a45fa4
+# labels: {"pebble":"gc"}
+#	0x10166605f	github.com/cockroachdb/pebble.(*cleanupManager).mainLoop+0x9f	external/com_github_cockroachdb_pebble/obsolete_files.go:180
+#	0x101665a8f	github.com/cockroachdb/pebble.openCleanupManager.func1.1+0x1f	external/com_github_cockroachdb_pebble/obsolete_files.go:112
+#	0x1014abcd7	runtime/pprof.Do+0x77						GOROOT/src/runtime/pprof/runtime.go:51
+#	0x101665a4b	github.com/cockroachdb/pebble.openCleanupManager.func1+0x5b	external/com_github_cockroachdb_pebble/obsolete_files.go:111
+
+2 @ 0x100a3c768 0x100a17b5c 0x1010c55c4 0x100a45fa4
+#	0x1010c55c3	google.golang.org/grpc/internal/grpcsync.(*CallbackSerializer).run+0xc3	external/org_golang_google_grpc/internal/grpcsync/callback_serializer.go:83
+
+2 @ 0x100a3c768 0x100a17b5c 0x1010c55c4 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=default,rpc"}
+#	0x1010c55c3	google.golang.org/grpc/internal/grpcsync.(*CallbackSerializer).run+0xc3	external/org_golang_google_grpc/internal/grpcsync/callback_serializer.go:83
+
+2 @ 0x100a3c768 0x100a17b5c 0x1010c55c4 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=system,rpc"}
+#	0x1010c55c3	google.golang.org/grpc/internal/grpcsync.(*CallbackSerializer).run+0xc3	external/org_golang_google_grpc/internal/grpcsync/callback_serializer.go:83
+
+2 @ 0x100a3c768 0x100a17b5c 0x10145d5c8 0x100a45fa4
+#	0x10145d5c7	github.com/cockroachdb/pebble/vfs.(*diskHealthCheckingFS).startTickerLocked.func1+0xb7	external/com_github_cockroachdb_pebble/vfs/disk_health.go:677
+
+2 @ 0x100a3c768 0x100a17b5c 0x10161506c 0x100a45fa4
+#	0x10161506b	github.com/cockroachdb/pebble.(*ConcurrencyLimitScheduler).periodicGranter+0x9b	external/com_github_cockroachdb_pebble/compaction_scheduler.go:407
+
+2 @ 0x100a3c768 0x100a17b5c 0x1044b0398 0x10187c578 0x100a45fa4
+#	0x1044b0397	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*Store).startGossip.func3+0x1e7	pkg/kv/kvserver/store_gossip.go:169
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+2 @ 0x100a3c768 0x100a17b5c 0x1055484cc 0x105549a60 0x10187c578 0x100a45fa4
+#	0x1055484cb	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed/rangefeedcache.(*Watcher[...]).Run+0x7ab	pkg/kv/kvclient/rangefeed/rangefeedcache/watcher.go:343
+#	0x105549a5f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed/rangefeedcache.Start[...].func1+0x21f	pkg/kv/kvclient/rangefeed/rangefeedcache/watcher.go:202
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+2 @ 0x100a3c768 0x100a3e524 0x100a3e505 0x100a50e4c 0x1014ba494 0x1014ba48d 0x1014abcd8 0x1014b9dbc 0x100a45fa4
+# labels: {"pebble":"wal-sync"}
+#	0x100a3e504	sync.runtime_notifyListWait+0x134					GOROOT/src/runtime/sema.go:587
+#	0x100a50e4b	sync.(*Cond).Wait+0xcb							GOROOT/src/sync/cond.go:71
+#	0x1014ba493	github.com/cockroachdb/pebble/record.(*flusherCond).Wait+0x6b3		external/com_github_cockroachdb_pebble/record/log_writer.go:371
+#	0x1014ba48c	github.com/cockroachdb/pebble/record.(*LogWriter).flushLoop+0x6ac	external/com_github_cockroachdb_pebble/record/log_writer.go:673
+#	0x1014abcd7	runtime/pprof.Do+0x77							GOROOT/src/runtime/pprof/runtime.go:51
+#	0x1014b9dbb	github.com/cockroachdb/pebble/record.NewLogWriter.func2+0x5b		external/com_github_cockroachdb_pebble/record/log_writer.go:587
+
+1 @ 0x1009f955c 0x100a3b574 0x1014a3724 0x1014a3540 0x1014a0ad8 0x1056c52a8 0x1056b3a64 0x10287c5d0 0x101fd12c8 0x101150420 0x101fd1568 0x101150420 0x101fde224 0x101150420 0x105654c0c 0x101150420 0x101fd1830 0x10187c05c 0x101fd1770 0x10114cad8 0x10287c418 0x101151024 0x10115518c 0x10114ef6c 0x100a45fa4
+#	0x1014a3723	runtime/pprof.writeRuntimeProfile+0xb3									GOROOT/src/runtime/pprof/pprof.go:793
+#	0x1014a353f	runtime/pprof.writeGoroutine+0x4f									GOROOT/src/runtime/pprof/pprof.go:752
+#	0x1014a0ad7	runtime/pprof.(*Profile).WriteTo+0x147									GOROOT/src/runtime/pprof/pprof.go:374
+#	0x1056c52a7	github.com/cockroachdb/cockroach/pkg/server.stacksLocal+0x67						status_local_file_retrieval.go:113
+#	0x1056b3a63	github.com/cockroachdb/cockroach/pkg/server.(*statusServer).Stacks+0x123				status.go:1585
+#	0x10287c5cf	github.com/cockroachdb/cockroach/pkg/server/serverpb._Status_Stacks_Handler.func1+0xcf			bazel-out/darwin_arm64-fastbuild/bin/pkg/server/serverpb/serverpb_go_proto_/github.com/cockroachdb/cockroach/pkg/server/serverpb/status.pb.go:9839
+#	0x101fd12c7	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.ServerInterceptor.func12+0x2b7			pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:104
+#	0x10115041f	google.golang.org/grpc.getChainUnaryHandler.func1+0x9f							external/org_golang_google_grpc/server.go:1177
+#	0x101fd1567	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func3+0x87						pkg/rpc/context.go:178
+#	0x10115041f	google.golang.org/grpc.getChainUnaryHandler.func1+0x9f							external/org_golang_google_grpc/server.go:1177
+#	0x101fde223	github.com/cockroachdb/cockroach/pkg/rpc.gatewayRequestRecoveryInterceptor+0xf3				pkg/rpc/metrics.go:462
+#	0x10115041f	google.golang.org/grpc.getChainUnaryHandler.func1+0x9f							external/org_golang_google_grpc/server.go:1177
+#	0x105654c0b	github.com/cockroachdb/cockroach/pkg/server.newGRPCServer.NewRequestMetricsInterceptor.func4+0x22b	pkg/rpc/metrics.go:415
+#	0x10115041f	google.golang.org/grpc.getChainUnaryHandler.func1+0x9f							external/org_golang_google_grpc/server.go:1177
+#	0x101fd182f	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func1.1+0x3f					pkg/rpc/context.go:136
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb				pkg/util/stop/stopper.go:349
+#	0x101fd176f	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func1+0x6f						pkg/rpc/context.go:134
+#	0x10114cad7	google.golang.org/grpc.NewServer.chainUnaryServerInterceptors.chainUnaryInterceptors.func1+0x87		external/org_golang_google_grpc/server.go:1168
+#	0x10287c417	github.com/cockroachdb/cockroach/pkg/server/serverpb._Status_Stacks_Handler+0x147			bazel-out/darwin_arm64-fastbuild/bin/pkg/server/serverpb/serverpb_go_proto_/github.com/cockroachdb/cockroach/pkg/server/serverpb/status.pb.go:9841
+#	0x101151023	google.golang.org/grpc.(*Server).processUnaryRPC+0xbb3							external/org_golang_google_grpc/server.go:1358
+#	0x10115518b	google.golang.org/grpc.(*Server).handleStream+0x7ab							external/org_golang_google_grpc/server.go:1735
+#	0x10114ef6b	google.golang.org/grpc.(*Server).serveStreams.func1.1+0xab						external/org_golang_google_grpc/server.go:970
+
+1 @ 0x1009fe550 0x100a3ed0c 0x1012d291c 0x100a45fa4
+#	0x100a3ed0b	os/signal.signal_recv+0x2b	GOROOT/src/runtime/sigqueue.go:149
+#	0x1012d291b	os/signal.loop+0x1b		GOROOT/src/os/signal/signal_unix.go:23
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x101f7aa34 0x10187c578 0x100a45fa4
+#	0x101f7aa33	github.com/cockroachdb/cockroach/pkg/util/netutil.MakeHTTPServer.func2+0x53		pkg/util/netutil/net.go:100
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x102018c08 0x100a45fa4
+#	0x102018c07	github.com/cockroachdb/cockroach/pkg/util/goschedstats.init.0.func1+0x97	pkg/util/goschedstats/runnable_enabled.go:144
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x10264c950 0x10187c578 0x100a45fa4
+#	0x10264c94f	github.com/cockroachdb/cockroach/pkg/gossip.(*server).start.func3+0x4f			pkg/gossip/server.go:404
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x10405acc0 0x102a6605c 0x102a648d8 0x102a44ed8 0x102a43ca0 0x10187c578 0x100a45fa4
+# labels: {"job":"MVCC STATISTICS UPDATE id=104", "n":"1"}
+#	0x10405acbf	github.com/cockroachdb/cockroach/pkg/sql.(*mvccStatisticsUpdateJob).Resume+0x12f		pkg/sql/mvcc_statistics_update_job.go:85
+#	0x102a6605b	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine.func2+0xeb	pkg/jobs/registry.go:1679
+#	0x102a648d7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine+0x887		pkg/jobs/registry.go:1680
+#	0x102a44ed7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).runJob+0x3d7				pkg/jobs/adopt.go:410
+#	0x102a43c9f	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).resumeJob.func1+0xef			pkg/jobs/adopt.go:263
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x1042d1458 0x10187c578 0x100a45fa4
+#	0x1042d1457	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*Scheduler).Start.func2+0x47	pkg/kv/kvserver/rangefeed/scheduler.go:262
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x105654068 0x10187c578 0x100a45fa4
+#	0x105654067	github.com/cockroachdb/cockroach/pkg/server.configureGRPCGateway.func2+0x47		grpc_gateway.go:105
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x105690dc8 0x10187c578 0x100a45fa4
+#	0x105690dc7	github.com/cockroachdb/cockroach/pkg/server.startHTTPService.func1+0x47			server_http.go:294
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x1056a4af4 0x101fda95c 0x1056a6258 0x10187c578 0x100a45fa4
+#	0x1056a4af3	github.com/cockroachdb/cockroach/pkg/server.(*noopListener).Accept+0x23			start_drpc_listener.go:51
+#	0x101fda95b	github.com/cockroachdb/cockroach/pkg/rpc.(*drpcOffServer).Serve+0x2b			pkg/rpc/drpc.go:191
+#	0x1056a6257	github.com/cockroachdb/cockroach/pkg/server.startListenRPCAndSQL.func6.2+0xe7		start_listen.go:212
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce754 0x1056a6460 0x10187c578 0x100a45fa4
+#	0x1056a645f	github.com/cockroachdb/cockroach/pkg/server.startListenRPCAndSQL.func4+0x7f		start_listen.go:167
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce774 0x1012f2ab0 0x100a45fa4
+#	0x1012f2aaf	github.com/cockroachdb/cockroach/pkg/util/log.flushDaemon+0x4f	pkg/util/log/log_flush.go:123
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce774 0x1012f2e04 0x100a45fa4
+#	0x1012f2e03	github.com/cockroachdb/cockroach/pkg/util/log.signalFlusher+0x73	pkg/util/log/log_flush.go:147
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce774 0x101f79344 0x10114dbcc 0x1056a62bc 0x10187c578 0x100a45fa4
+#	0x101f79343	github.com/cockroachdb/cmux.muxListener.Accept+0x33					external/com_github_cockroachdb_cmux/cmux.go:207
+#	0x10114dbcb	google.golang.org/grpc.(*Server).Serve+0x43b						external/org_golang_google_grpc/server.go:837
+#	0x1056a62bb	github.com/cockroachdb/cockroach/pkg/server.startListenRPCAndSQL.func6.1+0x2b		start_listen.go:205
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009ceba4 0x1009ce774 0x101f79344 0x101f7b4bc 0x10569bef0 0x10187c578 0x100a45fa4
+#	0x101f79343	github.com/cockroachdb/cmux.muxListener.Accept+0x33					external/com_github_cockroachdb_cmux/cmux.go:207
+#	0x101f7b4bb	github.com/cockroachdb/cockroach/pkg/util/netutil.(*TCPServer).ServeWith+0x5b		pkg/util/netutil/net.go:164
+#	0x10569beef	github.com/cockroachdb/cockroach/pkg/server.startServeSQL.func1+0xdf			server_sql.go:1980
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009fd3f8 0x100a3ba10 0x100ac1688 0x100ac29ac 0x100ac299d 0x100b780c8 0x100b87c94 0x101f78d44 0x100bc9d54 0x100ab6bc0 0x1010d71f8 0x1010d71cd 0x1010d78ec 0x101121e14 0x10114ece4 0x10114e5d4 0x100a45fa4
+#	0x100a3ba0f	internal/poll.runtime_pollWait+0x9f						GOROOT/src/runtime/netpoll.go:351
+#	0x100ac1687	internal/poll.(*pollDesc).wait+0x27						GOROOT/src/internal/poll/fd_poll_runtime.go:84
+#	0x100ac29ab	internal/poll.(*pollDesc).waitRead+0x1fb					GOROOT/src/internal/poll/fd_poll_runtime.go:89
+#	0x100ac299c	internal/poll.(*FD).Read+0x1ec							GOROOT/src/internal/poll/fd_unix.go:165
+#	0x100b780c7	net.(*netFD).Read+0x27								GOROOT/src/net/fd_posix.go:55
+#	0x100b87c93	net.(*conn).Read+0x33								GOROOT/src/net/net.go:189
+#	0x101f78d43	github.com/cockroachdb/cmux.(*MuxConn).Read+0x173				external/com_github_cockroachdb_cmux/cmux.go:241
+#	0x100bc9d53	bufio.(*Reader).Read+0x1b3							GOROOT/src/bufio/bufio.go:241
+#	0x100ab6bbf	io.ReadAtLeast+0x9f								GOROOT/src/io/io.go:335
+#	0x1010d71f7	io.ReadFull+0x57								GOROOT/src/io/io.go:354
+#	0x1010d71cc	golang.org/x/net/http2.readFrameHeader+0x2c					external/org_golang_x_net/http2/frame.go:242
+#	0x1010d78eb	golang.org/x/net/http2.(*Framer).ReadFrame+0x7b					external/org_golang_x_net/http2/frame.go:506
+#	0x101121e13	google.golang.org/grpc/internal/transport.(*http2Server).HandleStreams+0x113	external/org_golang_google_grpc/internal/transport/http2_server.go:637
+#	0x10114ece3	google.golang.org/grpc.(*Server).serveStreams+0x183				external/org_golang_google_grpc/server.go:963
+#	0x10114e5d3	google.golang.org/grpc.(*Server).handleRawConn.func1+0x43			external/org_golang_google_grpc/server.go:905
+
+1 @ 0x100a3c768 0x1009fd3f8 0x100a3ba10 0x100ac1688 0x100ac614c 0x100ac613d 0x100b79c98 0x100b920b8 0x100b9131c 0x100e23a04 0x105690a3c 0x10187c578 0x100a45fa4
+#	0x100a3ba0f	internal/poll.runtime_pollWait+0x9f							GOROOT/src/runtime/netpoll.go:351
+#	0x100ac1687	internal/poll.(*pollDesc).wait+0x27							GOROOT/src/internal/poll/fd_poll_runtime.go:84
+#	0x100ac614b	internal/poll.(*pollDesc).waitRead+0x24b						GOROOT/src/internal/poll/fd_poll_runtime.go:89
+#	0x100ac613c	internal/poll.(*FD).Accept+0x23c							GOROOT/src/internal/poll/fd_unix.go:620
+#	0x100b79c97	net.(*netFD).accept+0x27								GOROOT/src/net/fd_unix.go:172
+#	0x100b920b7	net.(*TCPListener).accept+0x27								GOROOT/src/net/tcpsock_posix.go:159
+#	0x100b9131b	net.(*TCPListener).Accept+0x2b								GOROOT/src/net/tcpsock.go:372
+#	0x100e23a03	net/http.(*Server).Serve+0x293								GOROOT/src/net/http/server.go:3330
+#	0x105690a3b	github.com/cockroachdb/cockroach/pkg/server.startHTTPService.func4+0x2b			server_http.go:349
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x1009fd3f8 0x100a3ba10 0x100ac1688 0x100ac614c 0x100ac613d 0x100b79c98 0x100b920b8 0x100b9131c 0x101f782dc 0x1056a60e4 0x100a535d8 0x1056a6098 0x1056a6075 0x10187c578 0x100a45fa4
+#	0x100a3ba0f	internal/poll.runtime_pollWait+0x9f							GOROOT/src/runtime/netpoll.go:351
+#	0x100ac1687	internal/poll.(*pollDesc).wait+0x27							GOROOT/src/internal/poll/fd_poll_runtime.go:84
+#	0x100ac614b	internal/poll.(*pollDesc).waitRead+0x24b						GOROOT/src/internal/poll/fd_poll_runtime.go:89
+#	0x100ac613c	internal/poll.(*FD).Accept+0x23c							GOROOT/src/internal/poll/fd_unix.go:620
+#	0x100b79c97	net.(*netFD).accept+0x27								GOROOT/src/net/fd_unix.go:172
+#	0x100b920b7	net.(*TCPListener).accept+0x27								GOROOT/src/net/tcpsock_posix.go:159
+#	0x100b9131b	net.(*TCPListener).Accept+0x2b								GOROOT/src/net/tcpsock.go:372
+#	0x101f782db	github.com/cockroachdb/cmux.(*cMux).Serve+0x7b						external/com_github_cockroachdb_cmux/cmux.go:141
+#	0x1056a60e3	github.com/cockroachdb/cockroach/pkg/server.startListenRPCAndSQL.func6.4.1+0x33		start_listen.go:221
+#	0x100a535d7	sync.(*Once).doSlow+0xf7								GOROOT/src/sync/once.go:76
+#	0x1056a6097	sync.(*Once).Do+0x47									GOROOT/src/sync/once.go:67
+#	0x1056a6074	github.com/cockroachdb/cockroach/pkg/server.startListenRPCAndSQL.func6.4+0x24		start_listen.go:220
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x100b8c25c 0x100b8c020 0x100bc9d54 0x100ab6bc0 0x1010d71f8 0x1010d71cd 0x1010d78ec 0x10111c744 0x100a45fa4
+#	0x100b8c25b	net.(*pipe).read+0xeb							GOROOT/src/net/pipe.go:159
+#	0x100b8c01f	net.(*pipe).Read+0x1f							GOROOT/src/net/pipe.go:142
+#	0x100bc9d53	bufio.(*Reader).Read+0x1b3						GOROOT/src/bufio/bufio.go:241
+#	0x100ab6bbf	io.ReadAtLeast+0x9f							GOROOT/src/io/io.go:335
+#	0x1010d71f7	io.ReadFull+0x57							GOROOT/src/io/io.go:354
+#	0x1010d71cc	golang.org/x/net/http2.readFrameHeader+0x2c				external/org_golang_x_net/http2/frame.go:242
+#	0x1010d78eb	golang.org/x/net/http2.(*Framer).ReadFrame+0x7b				external/org_golang_x_net/http2/frame.go:506
+#	0x10111c743	google.golang.org/grpc/internal/transport.(*http2Client).reader+0x1a3	external/org_golang_google_grpc/internal/transport/http2_client.go:1595
+
+1 @ 0x100a3c768 0x100a17b5c 0x100b8c25c 0x100b8c020 0x100bc9d54 0x100ab6bc0 0x1010d71f8 0x1010d71cd 0x1010d78ec 0x10111c744 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=default,rpc"}
+#	0x100b8c25b	net.(*pipe).read+0xeb							GOROOT/src/net/pipe.go:159
+#	0x100b8c01f	net.(*pipe).Read+0x1f							GOROOT/src/net/pipe.go:142
+#	0x100bc9d53	bufio.(*Reader).Read+0x1b3						GOROOT/src/bufio/bufio.go:241
+#	0x100ab6bbf	io.ReadAtLeast+0x9f							GOROOT/src/io/io.go:335
+#	0x1010d71f7	io.ReadFull+0x57							GOROOT/src/io/io.go:354
+#	0x1010d71cc	golang.org/x/net/http2.readFrameHeader+0x2c				external/org_golang_x_net/http2/frame.go:242
+#	0x1010d78eb	golang.org/x/net/http2.(*Framer).ReadFrame+0x7b				external/org_golang_x_net/http2/frame.go:506
+#	0x10111c743	google.golang.org/grpc/internal/transport.(*http2Client).reader+0x1a3	external/org_golang_google_grpc/internal/transport/http2_client.go:1595
+
+1 @ 0x100a3c768 0x100a17b5c 0x100b8c25c 0x100b8c020 0x100bc9d54 0x100ab6bc0 0x1010d71f8 0x1010d71cd 0x1010d78ec 0x10111c744 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=system,rpc"}
+#	0x100b8c25b	net.(*pipe).read+0xeb							GOROOT/src/net/pipe.go:159
+#	0x100b8c01f	net.(*pipe).Read+0x1f							GOROOT/src/net/pipe.go:142
+#	0x100bc9d53	bufio.(*Reader).Read+0x1b3						GOROOT/src/bufio/bufio.go:241
+#	0x100ab6bbf	io.ReadAtLeast+0x9f							GOROOT/src/io/io.go:335
+#	0x1010d71f7	io.ReadFull+0x57							GOROOT/src/io/io.go:354
+#	0x1010d71cc	golang.org/x/net/http2.readFrameHeader+0x2c				external/org_golang_x_net/http2/frame.go:242
+#	0x1010d78eb	golang.org/x/net/http2.(*Framer).ReadFrame+0x7b				external/org_golang_x_net/http2/frame.go:506
+#	0x10111c743	google.golang.org/grpc/internal/transport.(*http2Client).reader+0x1a3	external/org_golang_google_grpc/internal/transport/http2_client.go:1595
+
+1 @ 0x100a3c768 0x100a17b5c 0x100edb270 0x100a45fa4
+#	0x100edb26f	github.com/cockroachdb/cockroach/pkg/util/timeutil.(*BroadcastTicker).run+0x8f	pkg/util/timeutil/ticker.go:58
+
+1 @ 0x100a3c768 0x100a17b5c 0x10110a0cc 0x10110a934 0x1011132f0 0x100a45fa4
+#	0x10110a0cb	google.golang.org/grpc/internal/transport.(*controlBuffer).get+0x14b	external/org_golang_google_grpc/internal/transport/controlbuf.go:418
+#	0x10110a933	google.golang.org/grpc/internal/transport.(*loopyWriter).run+0x73	external/org_golang_google_grpc/internal/transport/controlbuf.go:552
+#	0x1011132ef	google.golang.org/grpc/internal/transport.newHTTP2Client.func6+0x6f	external/org_golang_google_grpc/internal/transport/http2_client.go:451
+
+1 @ 0x100a3c768 0x100a17b5c 0x10110a0cc 0x10110a934 0x1011132f0 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=default,rpc"}
+#	0x10110a0cb	google.golang.org/grpc/internal/transport.(*controlBuffer).get+0x14b	external/org_golang_google_grpc/internal/transport/controlbuf.go:418
+#	0x10110a933	google.golang.org/grpc/internal/transport.(*loopyWriter).run+0x73	external/org_golang_google_grpc/internal/transport/controlbuf.go:552
+#	0x1011132ef	google.golang.org/grpc/internal/transport.newHTTP2Client.func6+0x6f	external/org_golang_google_grpc/internal/transport/http2_client.go:451
+
+1 @ 0x100a3c768 0x100a17b5c 0x10110a0cc 0x10110a934 0x1011132f0 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=system,rpc"}
+#	0x10110a0cb	google.golang.org/grpc/internal/transport.(*controlBuffer).get+0x14b	external/org_golang_google_grpc/internal/transport/controlbuf.go:418
+#	0x10110a933	google.golang.org/grpc/internal/transport.(*loopyWriter).run+0x73	external/org_golang_google_grpc/internal/transport/controlbuf.go:552
+#	0x1011132ef	google.golang.org/grpc/internal/transport.newHTTP2Client.func6+0x6f	external/org_golang_google_grpc/internal/transport/http2_client.go:451
+
+1 @ 0x100a3c768 0x100a17b5c 0x10113d974 0x101fdb394 0x10187c578 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=default,rpc"}
+#	0x10113d973	google.golang.org/grpc.(*ClientConn).WaitForStateChange+0x93				external/org_golang_google_grpc/clientconn.go:684
+#	0x101fdb393	github.com/cockroachdb/cockroach/pkg/rpc.(*grpcCloseNotifier).CloseNotify.func1+0x83	pkg/rpc/grpc.go:39
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10113d974 0x101fdb394 0x10187c578 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=system,rpc"}
+#	0x10113d973	google.golang.org/grpc.(*ClientConn).WaitForStateChange+0x93				external/org_golang_google_grpc/clientconn.go:684
+#	0x101fdb393	github.com/cockroachdb/cockroach/pkg/rpc.(*grpcCloseNotifier).CloseNotify.func1+0x83	pkg/rpc/grpc.go:39
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1011c25f4 0x1011c24d0 0x105698658 0x10187c578 0x100a45fa4
+#	0x1011c25f3	github.com/cockroachdb/cockroach/pkg/util/tracing.(*Tracer).runPeriodicSnapshotsLoop+0xb3	pkg/util/tracing/tracer_snapshots.go:279
+#	0x1011c24cf	github.com/cockroachdb/cockroach/pkg/util/tracing.(*Tracer).PeriodicSnapshotsLoop+0xaf		pkg/util/tracing/tracer_snapshots.go:245
+#	0x105698657	github.com/cockroachdb/cockroach/pkg/server.newSQLServer.func1+0x47				server_sql.go:552
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1011d0b84 0x100a45fa4
+#	0x1011d0b83	github.com/cockroachdb/cockroach/pkg/util/hlc.(*Clock).StartMonitoringForwardClockJumps.func1+0x103	pkg/util/hlc/hlc.go:298
+
+1 @ 0x100a3c768 0x100a17b5c 0x10145bb48 0x100a45fa4
+# labels: {"output-level":"L0", "pebble":"flush"}
+#	0x10145bb47	github.com/cockroachdb/pebble/vfs.(*diskHealthCheckingFile).startTicker.func1+0x97	external/com_github_cockroachdb_pebble/vfs/disk_health.go:254
+
+1 @ 0x100a3c768 0x100a17b5c 0x101f7a234 0x10114dbcc 0x1056a6150 0x10187c578 0x100a45fa4
+#	0x101f7a233	github.com/cockroachdb/cockroach/pkg/util/netutil.(*LoopbackListener).Accept+0x73	pkg/util/netutil/loopback.go:46
+#	0x10114dbcb	google.golang.org/grpc.(*Server).Serve+0x43b						external/org_golang_google_grpc/server.go:837
+#	0x1056a614f	github.com/cockroachdb/cockroach/pkg/server.startListenRPCAndSQL.func6.3+0x2f		start_listen.go:216
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x101f7a234 0x101f7b4bc 0x10568426c 0x10187c578 0x100a45fa4
+#	0x101f7a233	github.com/cockroachdb/cockroach/pkg/util/netutil.(*LoopbackListener).Accept+0x73		pkg/util/netutil/loopback.go:46
+#	0x101f7b4bb	github.com/cockroachdb/cockroach/pkg/util/netutil.(*TCPServer).ServeWith+0x5b			pkg/util/netutil/net.go:164
+#	0x10568426b	github.com/cockroachdb/cockroach/pkg/server.(*topLevelServer).AcceptInternalClients.func1+0x8b	server.go:2382
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-descriptor-rangefeed"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-protected-ts-records-rangefeed"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-zones-rangefeed"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"lease"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"settings-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"spanconfig-subscriber"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"sql_instances"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"system-config-cache"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"table-stats-cache"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-boundaries-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-entry-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff4038 0x101fd4ca0 0x102688490 0x102687e00 0x102687924 0x1026876d4 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-settings-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97									pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f									pkg/rpc/context.go:1230
+#	0x101ff4037	github.com/cockroachdb/cockroach/pkg/rpc.clientStream.RecvMsg+0x67								pkg/rpc/context.go:1278
+#	0x101fd4c9f	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedClientAdapter.Recv+0x5f							pkg/rpc/context.go:1113
+#	0x10268848f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).receiveEventsFromNode+0x4f				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:458
+#	0x102687dff	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).startNodeMuxRangeFeed+0x4af				pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:418
+#	0x102687923	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.func1+0x43			pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:349
+#	0x1026876d3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*rangefeedMuxer).establishMuxConnection.Group.GoCtx.func2+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53										external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-descriptor-rangefeed"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-protected-ts-records-rangefeed"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-zones-rangefeed"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"lease"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"settings-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"spanconfig-subscriber"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"sql_instances"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"system-config-cache"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"table-stats-cache"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-boundaries-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-entry-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101fd4fb8 0x101fd5130 0x101ff42b8 0x101fd4dc8 0x10566eb44 0x10566e684 0x101fd4ad4 0x101fd0efc 0x101fd3ca0 0x101fd1498 0x101fd3ccc 0x101fd16e4 0x10187c05c 0x101fd1664 0x101fd3ccc 0x101fd3bac 0x101fd4a00 0x101887e34 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-settings-watcher"}
+#	0x101fd4fb7	github.com/cockroachdb/cockroach/pkg/rpc.(*pipe).recv+0x97					pkg/rpc/context.go:1194
+#	0x101fd512f	github.com/cockroachdb/cockroach/pkg/rpc.pipeReader.recv+0x3f					pkg/rpc/context.go:1230
+#	0x101ff42b7	github.com/cockroachdb/cockroach/pkg/rpc.serverStream.RecvMsg+0x67				pkg/rpc/context.go:1308
+#	0x101fd4dc7	github.com/cockroachdb/cockroach/pkg/rpc.muxRangeFeedServerAdapter.Recv+0x57			pkg/rpc/context.go:1131
+#	0x10566eb43	github.com/cockroachdb/cockroach/pkg/server.(*Node).muxRangeFeed+0x433				node.go:2243
+#	0x10566e683	github.com/cockroachdb/cockroach/pkg/server.(*Node).MuxRangeFeed+0x43				node.go:2201
+#	0x101fd4ad3	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3.1+0x63	pkg/rpc/context.go:1046
+#	0x101fd0efb	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.StreamServerInterceptor.func13+0x32b	pkg/util/tracing/grpcinterceptor/grpc_interceptor.go:159
+#	0x101fd3c9f	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x5f		pkg/rpc/context.go:878
+#	0x101fd1497	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func4+0x77					pkg/rpc/context.go:187
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd16e3	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2.1+0x33				pkg/rpc/context.go:145
+#	0x10187c05b	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunTaskWithErr+0xeb			pkg/util/stop/stopper.go:349
+#	0x101fd1663	github.com/cockroachdb/cockroach/pkg/rpc.NewServerEx.func2+0xb3					pkg/rpc/context.go:144
+#	0x101fd3ccb	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run.func1+0x8b		pkg/rpc/context.go:881
+#	0x101fd3bab	github.com/cockroachdb/cockroach/pkg/rpc.serverStreamInterceptorsChain.run+0x10b		pkg/rpc/context.go:883
+#	0x101fd49ff	github.com/cockroachdb/cockroach/pkg/rpc.internalClientAdapter.MuxRangeFeed.func3+0xdf		pkg/rpc/context.go:1051
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x101feb650 0x101feba34 0x101febd40 0x101fec768 0x10187c578 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=default,rpc"}
+#	0x101feb64f	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).runHeartbeatUntilFailure+0x1af	pkg/rpc/peer.go:537
+#	0x101feba33	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).runOnce+0x273			pkg/rpc/peer.go:412
+#	0x101febd3f	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).run+0x17f				pkg/rpc/peer.go:341
+#	0x101fec767	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).launch.func1+0x47			pkg/rpc/peer.go:302
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x101feb650 0x101feba34 0x101febd40 0x101fec768 0x10187c578 0x100a45fa4
+# labels: {"tags":"n1,rnode=1,raddr=crlMBP-V4DP7D3KT0NDMx.local:26257,class=system,rpc"}
+#	0x101feb64f	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).runHeartbeatUntilFailure+0x1af	pkg/rpc/peer.go:537
+#	0x101feba33	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).runOnce+0x273			pkg/rpc/peer.go:412
+#	0x101febd3f	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).run+0x17f				pkg/rpc/peer.go:341
+#	0x101fec767	github.com/cockroachdb/cockroach/pkg/rpc.(*peer[...]).launch.func1+0x47			pkg/rpc/peer.go:302
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1020156b4 0x10187c578 0x100a45fa4
+#	0x1020156b3	github.com/cockroachdb/cockroach/pkg/util/schedulerlatency.StartSampler.func1+0x353	pkg/util/schedulerlatency/sampler.go:129
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102015fac 0x10187c578 0x100a45fa4
+#	0x102015fab	github.com/cockroachdb/cockroach/pkg/util/schedulerlatency.StartSampler.func1.1+0x27b	pkg/util/schedulerlatency/sampler.go:94
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10201d93c 0x100a45fa4
+#	0x10201d93b	github.com/cockroachdb/cockroach/pkg/util/admission.(*StoreGrantCoordinators).SetPebbleMetricsProvider.func1+0xcb	pkg/util/admission/grant_coordinator.go:107
+
+1 @ 0x100a3c768 0x100a17b5c 0x102032c8c 0x100a45fa4
+#	0x102032c8b	github.com/cockroachdb/cockroach/pkg/util/admission.makeStoreWorkQueue.func1+0x7b	pkg/util/admission/work_queue.go:2296
+
+1 @ 0x100a3c768 0x100a17b5c 0x102119694 0x10187c578 0x100a45fa4
+#	0x102119693	github.com/cockroachdb/cockroach/pkg/util/cidr.(*Lookup).Start.func2+0xe3		pkg/util/cidr/cidr.go:125
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102127224 0x100a45fa4
+#	0x102127223	github.com/cockroachdb/cockroach/pkg/storage/disk.(*MonitorManager).monitorDisks+0x133	pkg/storage/disk/monitor.go:155
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026442b4 0x10187c578 0x100a45fa4
+#	0x1026442b3	github.com/cockroachdb/cockroach/pkg/gossip.(*Gossip).bootstrap.func1+0x1e3		pkg/gossip/gossip.go:1334
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102644b94 0x10187c578 0x100a45fa4
+#	0x102644b93	github.com/cockroachdb/cockroach/pkg/gossip.(*Gossip).manage.func1+0x183		pkg/gossip/gossip.go:1365
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026820c0 0x10187c578 0x100a45fa4
+#	0x1026820bf	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSenderCircuitBreakers).probeStallLoop+0x10f	pkg/kv/kvclient/kvcoord/dist_sender_circuit_breaker.go:283
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87				pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10268253c 0x10187c578 0x100a45fa4
+#	0x10268253b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSenderCircuitBreakers).gcLoop+0x1bb	pkg/kv/kvclient/kvcoord/dist_sender_circuit_breaker.go:329
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-descriptor-rangefeed"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-protected-ts-records-rangefeed"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-zones-rangefeed"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"lease"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"settings-watcher"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"spanconfig-subscriber"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"sql_instances"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"system-config-cache"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"table-stats-cache"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"tenant-boundaries-watcher"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"tenant-entry-watcher"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x1026e5338 0x1026e4da4 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"tenant-settings-watcher"}
+#	0x1026e5337	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).processEvents+0x97	pkg/kv/kvclient/rangefeed/rangefeed.go:428
+#	0x1026e4da3	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func3+0xf3		pkg/kv/kvclient/rangefeed/rangefeed.go:385
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83		pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53						external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a17b5c 0x102729d28 0x10187c578 0x100a45fa4
+#	0x102729d27	github.com/cockroachdb/cockroach/pkg/sql/catalog/lease.(*Manager).StartRefreshLeasesTask.func1+0xb7	pkg/sql/catalog/lease/lease.go:1594
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10272bd64 0x10187c578 0x100a45fa4
+#	0x10272bd63	github.com/cockroachdb/cockroach/pkg/sql/catalog/lease.(*Manager).RunBackgroundLeasingTask.func2+0x163	pkg/sql/catalog/lease/lease.go:1877
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102a0eb3c 0x10187c578 0x100a45fa4
+#	0x102a0eb3b	github.com/cockroachdb/cockroach/pkg/sql/stats.(*Refresher).Start.func2+0x1eb		pkg/sql/stats/automatic_stats.go:739
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102a0f044 0x10187c578 0x100a45fa4
+#	0x102a0f043	github.com/cockroachdb/cockroach/pkg/sql/stats.(*Refresher).Start.func1+0x1a3		pkg/sql/stats/automatic_stats.go:559
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102a0f724 0x10187c578 0x100a45fa4
+#	0x102a0f723	github.com/cockroachdb/cockroach/pkg/sql/stats.(*Refresher).Start.func1.1+0x133		pkg/sql/stats/automatic_stats.go:601
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102a4ff88 0x10187c578 0x100a45fa4
+#	0x102a4ff87	github.com/cockroachdb/cockroach/pkg/jobs.(*jobScheduler).runDaemon.func1+0x1d7		pkg/jobs/job_scheduler.go:417
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102a5f3e8 0x10187c578 0x100a45fa4
+#	0x102a5f3e7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).Start.func10+0x1a7		pkg/jobs/registry.go:1111
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102a5f7b8 0x10187c578 0x100a45fa4
+#	0x102a5f7b7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).Start.func9+0x177			pkg/jobs/registry.go:1082
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102a5fbb0 0x10187c578 0x100a45fa4
+#	0x102a5fbaf	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).Start.func8+0x17f			pkg/jobs/registry.go:1042
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x102ad8f10 0x10187c578 0x100a45fa4
+#	0x102ad8f0f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/liveness.(*NodeLiveness).Start.func1+0x2af	pkg/kv/kvserver/liveness/liveness.go:679
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10320dafc 0x10320d8f8 0x10187c578 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1"}
+#	0x10320dafb	github.com/cockroachdb/cockroach/pkg/kv/kvserver/protectedts/ptreconcile.(*Reconciler).run+0x1cb			pkg/kv/kvserver/protectedts/ptreconcile/reconciler.go:98
+#	0x10320d8f7	github.com/cockroachdb/cockroach/pkg/kv/kvserver/protectedts/ptreconcile.(*Reconciler).StartReconciler.func1+0x37	pkg/kv/kvserver/protectedts/ptreconcile/reconciler.go:71
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87					pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1032ec6bc 0x10187c578 0x100a45fa4
+#	0x1032ec6bb	github.com/cockroachdb/cockroach/pkg/sql/sqlstats/sslocal.(*SQLStatsIngester).Start.func2+0x8b	pkg/sql/sqlstats/sslocal/sql_stats_ingestor.go:157
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1032ec788 0x10187c578 0x100a45fa4
+#	0x1032ec787	github.com/cockroachdb/cockroach/pkg/sql/sqlstats/sslocal.(*SQLStatsIngester).Start.func1+0x97	pkg/sql/sqlstats/sslocal/sql_stats_ingestor.go:128
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1032edae0 0x10187c578 0x100a45fa4
+#	0x1032edadf	github.com/cockroachdb/cockroach/pkg/sql/sqlstats/sslocal.(*SQLStats).Start.func1+0x19f	pkg/sql/sqlstats/sslocal/sslocal_provider.go:71
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1032f7004 0x10187c578 0x100a45fa4
+#	0x1032f7003	github.com/cockroachdb/cockroach/pkg/sql/sqlstats/persistedsqlstats.(*PersistedSQLStats).startSQLStatsFlushLoop.func1+0x1d3	pkg/sql/sqlstats/persistedsqlstats/provider.go:162
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87						pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1032f7fbc 0x10187c578 0x100a45fa4
+#	0x1032f7fbb	github.com/cockroachdb/cockroach/pkg/sql/sqlstats/persistedsqlstats.(*jobMonitor).start.func1+0x1db	pkg/sql/sqlstats/persistedsqlstats/scheduled_job_monitor.go:97
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1032ff530 0x10187c578 0x100a45fa4
+#	0x1032ff52f	github.com/cockroachdb/cockroach/pkg/sql/catalog/schematelemetry/schematelemetrycontroller.(*Controller).Start.func2+0xff	pkg/sql/catalog/schematelemetry/schematelemetrycontroller/controller.go:104
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87						pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1033017a0 0x10187c578 0x100a45fa4
+#	0x10330179f	github.com/cockroachdb/cockroach/pkg/sql/contention/txnidcache.(*Cache).Start.func1+0x8f	pkg/sql/contention/txnidcache/txn_id_cache.go:140
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1033183e8 0x10187c578 0x100a45fa4
+#	0x1033183e7	github.com/cockroachdb/cockroach/pkg/sql/stmtdiagnostics.(*Registry).poll+0x177		pkg/sql/stmtdiagnostics/statement_diagnostics.go:200
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x103323690 0x10187c578 0x100a45fa4
+#	0x10332368f	github.com/cockroachdb/cockroach/pkg/sql/contention.(*eventStore).startEventIntake.func3+0x9f	pkg/sql/contention/event_store.go:183
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x103323adc 0x10187c578 0x100a45fa4
+#	0x103323adb	github.com/cockroachdb/cockroach/pkg/sql/contention.(*eventStore).startResolver.func2+0xeb	pkg/sql/contention/event_store.go:215
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x103cc90d4 0x10187c578 0x100a45fa4
+#	0x103cc90d3	github.com/cockroachdb/cockroach/pkg/sql/gcjob/gcjobnotifier.(*Notifier).run+0xb3	pkg/sql/gcjob/gcjobnotifier/notifier.go:140
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x103cceebc 0x10187c578 0x100a45fa4
+#	0x103cceebb	github.com/cockroachdb/cockroach/pkg/sql/scheduledlogging.(*CaptureIndexUsageStatsLoggingScheduler).start.func1+0xeb	pkg/sql/scheduledlogging/captured_index_usage_stats.go:133
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87					pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x103fe6174 0x10187c578 0x100a45fa4
+#	0x103fe6173	github.com/cockroachdb/cockroach/pkg/sql.(*runnerCoordinator).init.func4+0xc3		pkg/sql/distsql_running.go:206
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x104116934 0x102a6605c 0x102a648d8 0x102a44ed8 0x102a43ca0 0x10187c578 0x100a45fa4
+# labels: {"job":"AUTO UPDATE SQL ACTIVITY id=103", "n":"1"}
+#	0x104116933	github.com/cockroachdb/cockroach/pkg/sql.(*sqlActivityUpdateJob).Resume+0x223			pkg/sql/sql_activity_update_job.go:108
+#	0x102a6605b	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine.func2+0xeb	pkg/jobs/registry.go:1679
+#	0x102a648d7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine+0x887		pkg/jobs/registry.go:1680
+#	0x102a44ed7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).runJob+0x3d7				pkg/jobs/adopt.go:410
+#	0x102a43c9f	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).resumeJob.func1+0xef			pkg/jobs/adopt.go:263
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x104127b08 0x10187c578 0x100a45fa4
+#	0x104127b07	github.com/cockroachdb/cockroach/pkg/sql.(*TemporaryObjectCleaner).Start.func1+0x197	pkg/sql/temporary_schema.go:627
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x104261d00 0x104261878 0x10187c578 0x100a45fa4
+#	0x104261cff	github.com/cockroachdb/cockroach/pkg/kv/kvserver/kvflowcontrol/replica_rac2.(*streamCloseScheduler).run+0x16f		pkg/kv/kvserver/kvflowcontrol/replica_rac2/close_scheduler.go:103
+#	0x104261877	github.com/cockroachdb/cockroach/pkg/kv/kvserver/kvflowcontrol/replica_rac2.(*streamCloseScheduler).Start.func1+0x37	pkg/kv/kvserver/kvflowcontrol/replica_rac2/close_scheduler.go:53
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87					pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-descriptor-rangefeed"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-protected-ts-records-rangefeed"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "mux_n":"1", "n":"1", "rangefeed":"sql-watcher-zones-rangefeed"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"lease"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"settings-watcher"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"spanconfig-subscriber"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"sql_instances"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"system-config-cache"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"table-stats-cache"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-boundaries-watcher"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-entry-watcher"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042d8030 0x1042d4a30 0x10187c578 0x100a45fa4
+# labels: {"gen":"2", "mux_n":"1", "n":"1", "rangefeed":"tenant-settings-watcher"}
+#	0x1042d802f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*UnbufferedSender).run+0x9f		pkg/kv/kvserver/rangefeed/unbuffered_sender.go:144
+#	0x1042d4a2f	github.com/cockroachdb/cockroach/pkg/kv/kvserver/rangefeed.(*StreamManager).Start.func1+0xbf	pkg/kv/kvserver/rangefeed/stream_manager.go:172
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1042f8b98 0x100a45fa4
+#	0x1042f8b97	github.com/cockroachdb/cockroach/pkg/kv/kvserver/kvadmission.(*controllerImpl).SetTenantWeightProvider.func1+0xa7	pkg/kv/kvserver/kvadmission/kvadmission.go:507
+
+1 @ 0x100a3c768 0x100a17b5c 0x1043733cc 0x104373134 0x10187c578 0x100a45fa4
+#	0x1043733cb	github.com/cockroachdb/cockroach/pkg/kv/kvserver/closedts/policyrefresher.(*PolicyRefresher).run+0x26b		pkg/kv/kvserver/closedts/policyrefresher/policy_refresher.go:209
+#	0x104373133	github.com/cockroachdb/cockroach/pkg/kv/kvserver/closedts/policyrefresher.(*PolicyRefresher).Run.func1+0x33	pkg/kv/kvserver/closedts/policyrefresher/policy_refresher.go:163
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87				pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10437794c 0x10187c578 0x100a45fa4
+#	0x10437794b	github.com/cockroachdb/cockroach/pkg/kv/kvserver/closedts/sidetransport.(*Sender).Run.func2+0x11b	pkg/kv/kvserver/closedts/sidetransport/sender.go:259
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x104393dc0 0x10187c578 0x100a45fa4
+# labels: {"job":"IMPORT id=1091199232733937665", "n":"1"}
+#	0x104393dbf	github.com/cockroachdb/cockroach/pkg/kv/kvserver/idalloc.(*Allocator).start.func1+0x55f	pkg/kv/kvserver/idalloc/id_alloc.go:146
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10439a2a8 0x104399b74 0x100a45fa4
+#	0x10439a2a7	github.com/cockroachdb/cockroach/pkg/kv/kvserver/storeliveness.(*SupportManager).startLoop+0x247	pkg/kv/kvserver/storeliveness/support_manager.go:262
+#	0x104399b73	github.com/cockroachdb/cockroach/pkg/kv/kvserver/storeliveness.(*SupportManager).Start.func1+0x83	pkg/kv/kvserver/storeliveness/support_manager.go:189
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"consistencyChecker":"", "n":"1"}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"lease":"", "n":"1"}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"merge":"", "n":"1"}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"mvccGC":"", "n":"1"}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"n":"1", "raftlog":""}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"n":"1", "raftsnapshot":""}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"n":"1", "replicaGC":""}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"n":"1", "replicate":""}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"n":"1", "split":""}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044024ec 0x10187c578 0x100a45fa4
+# labels: {"n":"1", "timeSeriesMaintenance":""}
+#	0x1044024eb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*baseQueue).processLoop.func2+0xbb	pkg/kv/kvserver/queue.go:852
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x104411400 0x100a45fa4
+#	0x1044113ff	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*RaftTransport).startDroppingFlowTokensForDisconnectedNodes.func1+0x1ff	pkg/kv/kvserver/raft_transport.go:969
+
+1 @ 0x100a3c768 0x100a17b5c 0x104495390 0x104495c68 0x10449d4cc 0x1044958d8 0x10187c578 0x100a45fa4
+#	0x10449538f	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*replicaScanner).waitAndProcess+0x15f		pkg/kv/kvserver/scanner.go:219
+#	0x104495c67	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*replicaScanner).scanLoop.func1.1+0x57	pkg/kv/kvserver/scanner.go:280
+#	0x10449d4cb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*storeReplicaVisitor).Visit+0x16b		pkg/kv/kvserver/store.go:570
+#	0x1044958d7	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*replicaScanner).scanLoop.func1+0x167		pkg/kv/kvserver/scanner.go:278
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044a49fc 0x10187c578 0x100a45fa4
+#	0x1044a49fb	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*Store).Start.func2+0xab		pkg/kv/kvserver/store.go:2369
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044a5488 0x1044a5060 0x10187c578 0x100a45fa4
+#	0x1044a5487	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*Store).startRangefeedUpdater.func1.2+0xf7	pkg/kv/kvserver/store.go:2524
+#	0x1044a505f	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*Store).startRangefeedUpdater.func1+0x20f	pkg/kv/kvserver/store.go:2601
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044a5954 0x10187c578 0x100a45fa4
+#	0x1044a5953	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*Store).startRangefeedTxnPushNotifier.func1+0xd3	pkg/kv/kvserver/store.go:2658
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044b9798 0x10187c578 0x100a45fa4
+#	0x1044b9797	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*Store).raftTickLoop+0x117		pkg/kv/kvserver/store_raft.go:942
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044ba230 0x10187c578 0x100a45fa4
+#	0x1044ba22f	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*Store).coalescedHeartbeatsLoop+0xbf	pkg/kv/kvserver/store_raft.go:1050
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1044bbd5c 0x10187c578 0x100a45fa4
+#	0x1044bbd5b	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*StoreRebalancer).Start.func1+0x12b	pkg/kv/kvserver/store_rebalancer.go:315
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x104a4b2f8 0x100a45fa4
+#	0x104a4b2f7	go.opencensus.io/stats/view.(*worker).start+0x87	external/io_opencensus_go/stats/view/worker.go:292
+
+1 @ 0x100a3c768 0x100a17b5c 0x1053ce7f8 0x102a6605c 0x102a648d8 0x102a44ed8 0x102a43ca0 0x10187c578 0x100a45fa4
+# labels: {"job":"UPDATE TABLE METADATA CACHE id=105", "n":"1"}
+#	0x1053ce7f7	github.com/cockroachdb/cockroach/pkg/sql/tablemetadatacache.(*tableMetadataUpdateJobResumer).Resume+0x4b7	pkg/sql/tablemetadatacache/update_table_metadata_cache_job.go:99
+#	0x102a6605b	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine.func2+0xeb			pkg/jobs/registry.go:1679
+#	0x102a648d7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine+0x887				pkg/jobs/registry.go:1680
+#	0x102a44ed7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).runJob+0x3d7						pkg/jobs/adopt.go:410
+#	0x102a43c9f	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).resumeJob.func1+0xef					pkg/jobs/adopt.go:263
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87				pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1053d0a28 0x100a45fa4
+#	0x1053d0a27	github.com/cockroachdb/cockroach/pkg/ts.(*poller).start.func1+0x117	pkg/ts/db.go:158
+
+1 @ 0x100a3c768 0x100a17b5c 0x105558f44 0x10187c578 0x100a45fa4
+#	0x105558f43	github.com/cockroachdb/cockroach/pkg/kv/kvserver/protectedts/ptcache.(*Cache).periodicallyRefreshProtectedtsCache+0x153	pkg/kv/kvserver/protectedts/ptcache/cache.go:174
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87					pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1055670b0 0x10187c578 0x100a45fa4
+#	0x1055670af	github.com/cockroachdb/cockroach/pkg/kv/kvserver/reports.(*Reporter).Start.func2+0x20f	pkg/kv/kvserver/reports/reporter.go:163
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10557237c 0x10187c578 0x100a45fa4
+#	0x10557237b	github.com/cockroachdb/cockroach/pkg/server/diagnostics.(*Reporter).PeriodicallyReportDiagnostics.func1+0x1fb	pkg/server/diagnostics/reporter.go:203
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87				pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x105575914 0x10187c578 0x100a45fa4
+#	0x105575913	github.com/cockroachdb/cockroach/pkg/server/diagnostics.(*UpdateChecker).PeriodicallyCheckForUpdates.func1+0x1b3	pkg/server/diagnostics/update_checker.go:88
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87					pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x105577488 0x105577318 0x10187c578 0x100a45fa4
+#	0x105577487	github.com/cockroachdb/cockroach/pkg/server/structlogging.(*hotRangesLoggingScheduler).start+0xd7		pkg/server/structlogging/hot_ranges_log.go:143
+#	0x105577317	github.com/cockroachdb/cockroach/pkg/server/structlogging.(*hotRangesLoggingScheduler).startTask.func1+0x37	pkg/server/structlogging/hot_ranges_log.go:122
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87				pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10557fca0 0x10187c578 0x100a45fa4
+#	0x10557fc9f	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigkvsubscriber.(*KVSubscriber).Start.func1+0x18f	pkg/spanconfig/spanconfigkvsubscriber/kvsubscriber.go:271
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87				pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1055d56cc 0x1055d53b4 0x10187c578 0x100a45fa4
+#	0x1055d56cb	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigmanager.(*Manager).run+0x2eb		pkg/spanconfig/spanconfigmanager/manager.go:147
+#	0x1055d53b3	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigmanager.(*Manager).Start.func1+0x33	pkg/spanconfig/spanconfigmanager/manager.go:89
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1055e148c 0x1055e1024 0x1055da868 0x1055da7a5 0x10557a04c 0x102a6605c 0x102a648d8 0x102a44ed8 0x102a43ca0 0x10187c578 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1"}
+#	0x1055e148b	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigsqlwatcher.(*SQLWatcher).watch+0x41b			pkg/spanconfig/spanconfigsqlwatcher/sqlwatcher.go:156
+#	0x1055e1023	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigsqlwatcher.(*SQLWatcher).WatchForSQLUpdates+0x23	pkg/spanconfig/spanconfigsqlwatcher/sqlwatcher.go:86
+#	0x1055da867	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigreconciler.(*incrementalReconciler).reconcile+0x317	pkg/spanconfig/spanconfigreconciler/reconciler.go:500
+#	0x1055da7a4	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigreconciler.(*Reconciler).Reconcile+0x254		pkg/spanconfig/spanconfigreconciler/reconciler.go:183
+#	0x10557a04b	github.com/cockroachdb/cockroach/pkg/spanconfig/spanconfigjob.(*resumer).Resume+0x83b				pkg/spanconfig/spanconfigjob/job.go:140
+#	0x102a6605b	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine.func2+0xeb			pkg/jobs/registry.go:1679
+#	0x102a648d7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine+0x887				pkg/jobs/registry.go:1680
+#	0x102a44ed7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).runJob+0x3d7						pkg/jobs/adopt.go:410
+#	0x102a43c9f	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).resumeJob.func1+0xef					pkg/jobs/adopt.go:263
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87				pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1055e8928 0x10187c578 0x100a45fa4
+#	0x1055e8927	github.com/cockroachdb/cockroach/pkg/sql/sqlliveness/slstorage.(*Storage).deleteSessionsLoop+0x117	pkg/sql/sqlliveness/slstorage/slstorage.go:402
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1055f1368 0x10187c578 0x100a45fa4
+#	0x1055f1367	github.com/cockroachdb/cockroach/pkg/sql/sqlinstance/instancestorage.(*Storage).RunInstanceIDReclaimLoop.func2+0x197	pkg/sql/sqlinstance/instancestorage/instancestorage.go:570
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87					pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1055f832c 0x1055f7f44 0x1055f8e44 0x10187c578 0x100a45fa4
+#	0x1055f832b	github.com/cockroachdb/cockroach/pkg/sql/sqlliveness/slinstance.(*Instance).heartbeatLoopInner+0x11b	pkg/sql/sqlliveness/slinstance/slinstance.go:342
+#	0x1055f7f43	github.com/cockroachdb/cockroach/pkg/sql/sqlliveness/slinstance.(*Instance).heartbeatLoop+0x33		pkg/sql/sqlliveness/slinstance/slinstance.go:302
+#	0x1055f8e43	github.com/cockroachdb/cockroach/pkg/sql/sqlliveness/slinstance.(*Instance).Start.func1+0x63		pkg/sql/sqlliveness/slinstance/slinstance.go:441
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10560167c 0x102a6605c 0x102a648d8 0x102a44ed8 0x102a43ca0 0x10187c578 0x100a45fa4
+# labels: {"job":"POLL JOBS STATS id=101", "n":"1"}
+#	0x10560167b	github.com/cockroachdb/cockroach/pkg/jobs/metricspoller.(*metricsPoller).Resume+0x1bb		pkg/jobs/metricspoller/poller.go:68
+#	0x102a6605b	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine.func2+0xeb	pkg/jobs/registry.go:1679
+#	0x102a648d7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine+0x887		pkg/jobs/registry.go:1680
+#	0x102a44ed7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).runJob+0x3d7				pkg/jobs/adopt.go:410
+#	0x102a43c9f	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).resumeJob.func1+0xef			pkg/jobs/adopt.go:263
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x105602084 0x102a6605c 0x102a648d8 0x102a44ed8 0x102a43ca0 0x10187c578 0x100a45fa4
+# labels: {"job":"KEY VISUALIZER id=100", "n":"1"}
+#	0x105602083	github.com/cockroachdb/cockroach/pkg/keyvisualizer/keyvisjob.(*resumer).Resume+0x1b3		pkg/keyvisualizer/keyvisjob/job.go:59
+#	0x102a6605b	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine.func2+0xeb	pkg/jobs/registry.go:1679
+#	0x102a648d7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).stepThroughStateMachine+0x887		pkg/jobs/registry.go:1680
+#	0x102a44ed7	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).runJob+0x3d7				pkg/jobs/adopt.go:410
+#	0x102a43c9f	github.com/cockroachdb/cockroach/pkg/jobs.(*Registry).resumeJob.func1+0xef			pkg/jobs/adopt.go:263
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10564013c 0x10564073c 0x10187c578 0x100a45fa4
+#	0x10564013b	github.com/cockroachdb/cockroach/pkg/server.periodicallyPersistHLCUpperBound+0xdb			clock_monotonicity.go:188
+#	0x10564073b	github.com/cockroachdb/cockroach/pkg/server.(*topLevelServer).startPersistingHLCUpperBound.func3+0x4b	clock_monotonicity.go:272
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87			pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1056511f0 0x10187c578 0x100a45fa4
+#	0x1056511ef	github.com/cockroachdb/cockroach/pkg/server.startSampleEnvironment.func1+0xef		env_sampler.go:166
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1056681a0 0x10187c578 0x100a45fa4
+#	0x10566819f	github.com/cockroachdb/cockroach/pkg/server.(*Node).startGossiping.func1+0x13f		node.go:1069
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x1056686f4 0x10187c578 0x100a45fa4
+#	0x1056686f3	github.com/cockroachdb/cockroach/pkg/server.(*Node).startComputePeriodicMetrics.func2+0x103	node.go:1106
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x105668ba0 0x10187c578 0x100a45fa4
+#	0x105668b9f	github.com/cockroachdb/cockroach/pkg/server.(*Node).startPeriodicLivenessCompaction.func2+0x16f	node.go:1155
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10566ab94 0x10187c578 0x100a45fa4
+#	0x10566ab93	github.com/cockroachdb/cockroach/pkg/server.(*Node).startWriteNodeStatus.func2+0xb3	node.go:1479
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x105684f50 0x10187c578 0x100a45fa4
+#	0x105684f4f	github.com/cockroachdb/cockroach/pkg/server.(*serverController).start.func1+0x17f	server_controller.go:210
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x10569d8d8 0x10187c578 0x100a45fa4
+#	0x10569d8d7	github.com/cockroachdb/cockroach/pkg/server.startSystemLogsGC.func1+0x1b7		server_systemlog_gc.go:259
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a17b5c 0x105a3c1e8 0x100a45fa4
+#	0x105a3c1e7	github.com/cockroachdb/cockroach/pkg/cli.debugSignalSetup.func2+0x77	cli.go:355
+
+1 @ 0x100a3c768 0x100a17b5c 0x105a3c65c 0x100a45fa4
+#	0x105a3c65b	github.com/cockroachdb/cockroach/pkg/cli.debugSignalSetup.func1+0x8b	cli.go:333
+
+1 @ 0x100a3c768 0x100a17b5c 0x105a85ad8 0x100a45fa4
+#	0x105a85ad7	github.com/cockroachdb/cockroach/pkg/cli.createAndStartServerAsync.func1.3+0x97	start.go:879
+
+1 @ 0x100a3c768 0x100a17b5c 0x105a8691c 0x105a84a5c 0x105a84370 0x105a84264 0x105a03f54 0x105a03ed8 0x104d37fa8 0x104d38710 0x105a3b628 0x105a3b61d 0x105a3b5b5 0x105a3b324 0x105bc2c4c 0x100a042b8 0x100a45fa4
+#	0x105a8691b	github.com/cockroachdb/cockroach/pkg/cli.waitForShutdown+0x10b			start.go:979
+#	0x105a84a5b	github.com/cockroachdb/cockroach/pkg/cli.runStartInternal+0x6ab			start.go:665
+#	0x105a8436f	github.com/cockroachdb/cockroach/pkg/cli.runStart+0x4f				start.go:378
+#	0x105a84263	github.com/cockroachdb/cockroach/pkg/cli.runStartSingleNode+0x133		start.go:342
+#	0x105a03f53	github.com/cockroachdb/cockroach/pkg/cli.init.MaybeDecorateError.func136+0x33	pkg/cli/clierrorplus/decorate_error.go:67
+#	0x105a03ed7	github.com/cockroachdb/cockroach/pkg/cli.init.MaybeShoutError.func137+0x27	pkg/cli/clierrorplus/shout.go:19
+#	0x104d37fa7	github.com/spf13/cobra.(*Command).execute+0x647					external/com_github_spf13_cobra/command.go:916
+#	0x104d3870f	github.com/spf13/cobra.(*Command).ExecuteC+0x31f				external/com_github_spf13_cobra/command.go:1044
+#	0x105a3b627	github.com/spf13/cobra.(*Command).Execute+0x197					external/com_github_spf13_cobra/command.go:968
+#	0x105a3b61c	github.com/cockroachdb/cockroach/pkg/cli.Run+0x18c				cli.go:301
+#	0x105a3b5b4	github.com/cockroachdb/cockroach/pkg/cli.doMain+0x124				cli.go:140
+#	0x105a3b323	github.com/cockroachdb/cockroach/pkg/cli.Main+0x123				cli.go:65
+#	0x105bc2c4b	main.main+0x1b									pkg/cmd/cockroach/main.go:21
+#	0x100a042b7	runtime.main+0x287								GOROOT/src/runtime/proc.go:272
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-descriptor-rangefeed"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-protected-ts-records-rangefeed"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-zones-rangefeed"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"lease"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"settings-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"spanconfig-subscriber"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"sql_instances"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"system-config-cache"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"table-stats-cache"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"tenant-boundaries-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"tenant-entry-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x101888fcc 0x1026e4854 0x1026e3b10 0x10187c578 0x100a45fa4
+# labels: {"rangefeed":"tenant-settings-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b									GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73									GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b							external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63				pkg/util/ctxgroup/ctxgroup.go:147
+#	0x101888fcb	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait+0x10b				pkg/util/ctxgroup/ctxgroup.go:223
+#	0x1026e4853	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run+0x993		pkg/kv/kvclient/rangefeed/rangefeed.go:388
+#	0x1026e3b0f	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).start.func1+0x39f	pkg/kv/kvclient/rangefeed/rangefeed.go:254
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87		pkg/util/stop/stopper.go:438
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-descriptor-rangefeed"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-protected-ts-records-rangefeed"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"job":"AUTO SPAN CONFIG RECONCILIATION id=1084131516357246977", "n":"1", "rangefeed":"sql-watcher-zones-rangefeed"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"lease"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"settings-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"spanconfig-subscriber"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"sql_instances"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"system-config-cache"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"table-stats-cache"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"tenant-boundaries-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"tenant-entry-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x101887ccc 0x1018883c4 0x102685c5c 0x102689df0 0x1026e0c4c 0x1026e510c 0x101889094 0x101887e34 0x100a45fa4
+# labels: {"rangefeed":"tenant-settings-watcher"}
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x101887ccb	golang.org/x/sync/errgroup.(*Group).Wait+0x2b						external/org_golang_x_sync/errgroup/errgroup.go:56
+#	0x1018883c3	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.Group.Wait+0x63			pkg/util/ctxgroup/ctxgroup.go:147
+#	0x102685c5b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.muxRangeFeed+0x3fb		pkg/kv/kvclient/kvcoord/dist_sender_mux_rangefeed.go:93
+#	0x102689def	github.com/cockroachdb/cockroach/pkg/kv/kvclient/kvcoord.(*DistSender).RangeFeed+0x2af	pkg/kv/kvclient/kvcoord/dist_sender_rangefeed.go:200
+#	0x1026e0c4b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*dbAdapter).RangeFeed+0x1cb	pkg/kv/kvclient/rangefeed/db_adapter.go:82
+#	0x1026e510b	github.com/cockroachdb/cockroach/pkg/kv/kvclient/rangefeed.(*RangeFeed).run.func1+0x12b	pkg/kv/kvclient/rangefeed/rangefeed.go:362
+#	0x101889093	github.com/cockroachdb/cockroach/pkg/util/ctxgroup.GoAndWait.Group.GoCtx.func1+0x83	pkg/util/ctxgroup/ctxgroup.go:199
+#	0x101887e33	golang.org/x/sync/errgroup.(*Group).Go.func1+0x53					external/org_golang_x_sync/errgroup/errgroup.go:78
+
+1 @ 0x100a3c768 0x100a189f8 0x100a189d5 0x100a3e15c 0x100a54ec4 0x104539990 0x10187c578 0x100a45fa4
+#	0x100a3e15b	sync.runtime_Semacquire+0x2b								GOROOT/src/runtime/sema.go:71
+#	0x100a54ec3	sync.(*WaitGroup).Wait+0x73								GOROOT/src/sync/waitgroup.go:118
+#	0x10453998f	github.com/cockroachdb/cockroach/pkg/kv/kvserver.(*raftScheduler).Wait+0x2f		pkg/kv/kvserver/scheduler.go:322
+#	0x10187c577	github.com/cockroachdb/cockroach/pkg/util/stop.(*Stopper).RunAsyncTaskEx.func1+0x87	pkg/util/stop/stopper.go:438
+

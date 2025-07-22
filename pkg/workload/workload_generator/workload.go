@@ -456,7 +456,7 @@ func (w *workloadGeneratorStruct) Ops(
 }
 
 // setDbName registers the database name in the main workload struct.
-// It uses the name provided using the --db flag, otherwise falls back to "workload_generator"
+// It uses the name provided using the --db flag, otherwise falls back to "workload_generator".
 func (w *workloadGeneratorStruct) setDbName() {
 	dbName := w.Meta().Name
 	if w.connFlags.DBOverride != "" {
@@ -534,7 +534,7 @@ func (t *txnWorker) run(ctx context.Context) error {
 			allPksAreFK := checkIfAllPkAreFk(sqlQuery, d)
 			// Pick a single fkIdx for ALL FK placeholders (or -1 if none).
 			// This ensures that for all column in a composite fk, the same row index from the parent column cache is chosen.
-			fkIndex := t.pickFkIndex(sqlQuery, d)
+			fkIndex := t.pickForeignKeyIndex(sqlQuery, d)
 			// Build per-placeholder indexes.
 			indexes := t.setCacheIndex(sqlQuery, d, fkIndex)
 			for i, placeholder := range sqlQuery.Placeholders {
@@ -564,13 +564,13 @@ func (t *txnWorker) run(ctx context.Context) error {
 	return err
 }
 
-// chooseTransaction returns a random transaction of type read or write absed on the readPct flag
+// chooseTransaction returns a random transaction of type read or write based on the readPct flag.
 func (t *txnWorker) chooseTransaction() Transaction {
 	var txn Transaction
 	reads := t.readTransactions
 	writes := t.writeTransactions
 
-	// If neither set has any transactions, just return the zero-Txn
+	// If neither set has any transactions, just return the zero-Txn.
 	if len(reads) == 0 && len(writes) == 0 {
 		return txn
 	}
@@ -583,7 +583,7 @@ func (t *txnWorker) chooseTransaction() Transaction {
 		return reads[t.rng.IntN(len(reads))]
 	}
 
-	// Both non-empty: choose based on readPct
+	// If both are non-empty then choose based on readPct.
 	if t.rng.IntN(100) < t.d.readPct {
 		return reads[t.rng.IntN(len(reads))]
 	}
@@ -597,7 +597,7 @@ func setColumnValue(raw string, placeholder Placeholder, args []interface{}, i i
 	if raw == "" && placeholder.IsNullable {
 		arg = setNullType(placeholder, arg)
 	} else {
-		// Otherwise parse the raw string into the right Go/sql type
+		// Otherwise parse the raw string into the right Go/sql type.
 		typedValue, err := setNotNullType(placeholder, raw, arg)
 		if err != nil {
 			return err
@@ -657,7 +657,7 @@ func setNullType(placeholder Placeholder, arg interface{}) interface{} {
 }
 
 // getTableName checks if the name field of placeholder is a column in the TableName column in the allSchema map inside d.
-// If yes, then returns that table name. otherwise looks for a table with that column and returns that
+// If yes, then returns that table name. otherwise looks for a table with that column and returns that.
 func getTableName(p Placeholder, d *workloadGeneratorStruct) string {
 	for _, block := range d.workloadSchema[p.TableName] {
 		for colName, _ := range block.Columns {
@@ -689,7 +689,7 @@ func getColumnValue(allPksAreFK bool, p Placeholder, d *workloadGeneratorStruct,
 			raw = vals[0].(string)         // use the first value from the inserted map
 			inserted[parentCol] = vals[1:] // remove the first value
 		} else {
-			//fallback that shouldn't really happen
+			//Fallback that shouldn't really happen.
 			raw = d.getRegularColumnValue(p, indexes[i])
 		}
 	} else {
@@ -715,8 +715,8 @@ func (t *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *workloadGeneratorStruct,
 	return indexes
 }
 
-// pickFkIndex picks a random index from the cache of a foreign key column.
-func (t *txnWorker) pickFkIndex(sqlQuery SQLQuery, d *workloadGeneratorStruct) int {
+// pickForeignKeyIndex picks a random index from the cache of a foreign key column.
+func (t *txnWorker) pickForeignKeyIndex(sqlQuery SQLQuery, d *workloadGeneratorStruct) int {
 	fkIdx := -1
 	for _, p := range sqlQuery.Placeholders {
 		tableName := getTableName(p, d)

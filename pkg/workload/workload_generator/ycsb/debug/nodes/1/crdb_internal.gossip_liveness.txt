@@ -1,0 +1,2 @@
+node_id	epoch	expiration	draining	decommissioning	membership	updated_at
+1	5	1753164301.794895000,0	f	f	active	2025-07-22 06:04:55.809949

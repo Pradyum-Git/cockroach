@@ -1,0 +1,14 @@
+tenant_id	capability_name	capability_value
+1	can_admin_relocate_range	true
+1	can_admin_scatter	true
+1	can_admin_split	true
+1	can_admin_unsplit	true
+1	can_check_consistency	true
+1	can_debug_process	true
+1	can_prepare_txns	true
+1	can_use_nodelocal_storage	true
+1	can_view_all_metrics	true
+1	can_view_node_info	true
+1	can_view_tsdb_metrics	true
+1	exempt_from_rate_limiting	true
+1	span_config_bounds	{}

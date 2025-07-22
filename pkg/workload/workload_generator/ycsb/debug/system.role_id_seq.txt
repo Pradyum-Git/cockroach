@@ -1,0 +1,2 @@
+last_value	log_cnt	is_called
+100	0	t

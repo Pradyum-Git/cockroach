@@ -1,0 +1,1 @@
+singleton	version	num_records	num_spans	total_bytes

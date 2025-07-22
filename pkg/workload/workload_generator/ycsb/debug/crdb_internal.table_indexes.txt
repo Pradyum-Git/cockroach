@@ -1,0 +1,134 @@
+descriptor_id	descriptor_name	index_id	index_name	index_type	is_unique	is_inverted	is_sharded	is_visible	visibility	shard_bucket_count	created_at	create_statement
+3	descriptor	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.descriptor (id ASC)"
+4	users	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.users (username ASC)"
+4	users	2	users_user_id_idx	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX users_user_id_idx ON public.users (user_id ASC)
+5	zones	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.zones (id ASC)"
+6	settings	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.settings (name ASC)"
+7	descriptor_id_seq	1	primary	primary	f	f	f	t	1	NULL	NULL	"CREATE INDEX ""primary"" ON public.descriptor_id_seq (value ASC)"
+8	tenants	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.tenants (id ASC)"
+8	tenants	2	tenants_name_idx	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX tenants_name_idx ON public.tenants (name ASC)
+8	tenants	3	tenants_service_mode_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX tenants_service_mode_idx ON public.tenants (service_mode ASC)
+9	region_liveness	1	region_liveness_pkey	primary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX region_liveness_pkey ON public.region_liveness (crdb_region ASC)
+11	lease	3	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.lease (crdb_region ASC, desc_id ASC, version ASC, session_id ASC)"
+12	eventlog	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.eventlog (""timestamp"" ASC, ""uniqueID"" ASC)"
+12	eventlog	2	event_type_idx	secondary	f	f	f	t	1	NULL	NULL	"CREATE INDEX event_type_idx ON public.eventlog (""eventType"" ASC, ""timestamp"" DESC)"
+13	rangelog	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.rangelog (""timestamp"" ASC, ""uniqueID"" ASC)"
+14	ui	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.ui (key ASC)"
+15	jobs	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.jobs (id ASC)"
+15	jobs	2	jobs_status_created_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX jobs_status_created_idx ON public.jobs (status ASC, created ASC)
+15	jobs	3	jobs_created_by_type_created_by_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX jobs_created_by_type_created_by_id_idx ON public.jobs (created_by_type ASC, created_by_id ASC) STORING (status)
+15	jobs	4	jobs_run_stats_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX jobs_run_stats_idx ON public.jobs (claim_session_id ASC, status ASC, created ASC) STORING (last_run, num_runs, claim_instance_id) WHERE status IN ('running':::STRING, 'reverting':::STRING, 'pending':::STRING, 'pause-requested':::STRING, 'cancel-requested':::STRING)
+15	jobs	5	jobs_job_type_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX jobs_job_type_idx ON public.jobs (job_type ASC)
+19	web_sessions	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.web_sessions (id ASC)"
+19	web_sessions	2	web_sessions_expiresAt_idx	secondary	f	f	f	t	1	NULL	NULL	"CREATE INDEX ""web_sessions_expiresAt_idx"" ON public.web_sessions (""expiresAt"" ASC)"
+19	web_sessions	3	web_sessions_createdAt_idx	secondary	f	f	f	t	1	NULL	NULL	"CREATE INDEX ""web_sessions_createdAt_idx"" ON public.web_sessions (""createdAt"" ASC)"
+19	web_sessions	4	web_sessions_revokedAt_idx	secondary	f	f	f	t	1	NULL	NULL	"CREATE INDEX ""web_sessions_revokedAt_idx"" ON public.web_sessions (""revokedAt"" ASC)"
+19	web_sessions	5	web_sessions_lastUsedAt_idx	secondary	f	f	f	t	1	NULL	NULL	"CREATE INDEX ""web_sessions_lastUsedAt_idx"" ON public.web_sessions (""lastUsedAt"" ASC)"
+20	table_statistics	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.table_statistics (""tableID"" ASC, ""statisticID"" ASC)"
+21	locations	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.locations (""localityKey"" ASC, ""localityValue"" ASC)"
+23	role_members	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.role_members (""role"" ASC, member ASC)"
+23	role_members	2	role_members_role_idx	secondary	f	f	f	t	1	NULL	NULL	"CREATE INDEX role_members_role_idx ON public.role_members (""role"" ASC)"
+23	role_members	3	role_members_member_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX role_members_member_idx ON public.role_members (member ASC)
+23	role_members	4	role_members_role_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX role_members_role_id_idx ON public.role_members (role_id ASC)
+23	role_members	5	role_members_member_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX role_members_member_id_idx ON public.role_members (member_id ASC)
+23	role_members	6	role_members_role_id_member_id_key	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX role_members_role_id_member_id_key ON public.role_members (role_id ASC, member_id ASC)
+24	comments	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.comments (type ASC, object_id ASC, sub_id ASC)"
+25	replication_constraint_stats	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.replication_constraint_stats (zone_id ASC, subzone_id ASC, type ASC, config ASC)"
+26	replication_critical_localities	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.replication_critical_localities (zone_id ASC, subzone_id ASC, locality ASC)"
+27	replication_stats	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.replication_stats (zone_id ASC, subzone_id ASC)"
+28	reports_meta	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.reports_meta (id ASC)"
+30	namespace	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.namespace (""parentID"" ASC, ""parentSchemaID"" ASC, name ASC)"
+31	protected_ts_meta	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.protected_ts_meta (singleton ASC)"
+32	protected_ts_records	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.protected_ts_records (id ASC)"
+33	role_options	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.role_options (username ASC, option ASC)"
+33	role_options	2	users_user_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX users_user_id_idx ON public.role_options (user_id ASC)
+34	statement_bundle_chunks	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.statement_bundle_chunks (id ASC)"
+35	statement_diagnostics_requests	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.statement_diagnostics_requests (id ASC)"
+35	statement_diagnostics_requests	2	completed_idx_v2	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX completed_idx_v2 ON public.statement_diagnostics_requests (completed ASC, id ASC) STORING (statement_fingerprint, min_execution_latency, expires_at, sampling_probability, plan_gist, anti_plan_gist, redacted, username)
+36	statement_diagnostics	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.statement_diagnostics (id ASC)"
+37	scheduled_jobs	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.scheduled_jobs (schedule_id ASC)"
+37	scheduled_jobs	2	next_run_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX next_run_idx ON public.scheduled_jobs (next_run ASC)
+39	sqlliveness	2	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.sqlliveness (crdb_region ASC, session_id ASC)"
+40	migrations	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.migrations (major ASC, minor ASC, patch ASC, internal ASC)"
+41	join_tokens	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.join_tokens (id ASC)"
+42	statement_statistics	1	primary	primary	t	f	t	t	1	8	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.statement_statistics (aggregated_ts ASC, fingerprint_id ASC, transaction_fingerprint_id ASC, plan_hash ASC, app_name ASC, node_id ASC) USING HASH WITH (bucket_count=8)"
+42	statement_statistics	2	fingerprint_stats_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX fingerprint_stats_idx ON public.statement_statistics (fingerprint_id ASC, transaction_fingerprint_id ASC)
+42	statement_statistics	3	indexes_usage_idx	secondary	f	t	f	t	1	NULL	NULL	CREATE INVERTED INDEX indexes_usage_idx ON public.statement_statistics (indexes_usage)
+42	statement_statistics	4	execution_count_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX execution_count_idx ON public.statement_statistics (aggregated_ts ASC, app_name ASC, execution_count DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+42	statement_statistics	5	service_latency_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX service_latency_idx ON public.statement_statistics (aggregated_ts ASC, app_name ASC, service_latency DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+42	statement_statistics	6	cpu_sql_nanos_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX cpu_sql_nanos_idx ON public.statement_statistics (aggregated_ts ASC, app_name ASC, cpu_sql_nanos DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+42	statement_statistics	7	contention_time_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX contention_time_idx ON public.statement_statistics (aggregated_ts ASC, app_name ASC, contention_time DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+42	statement_statistics	8	total_estimated_execution_time_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX total_estimated_execution_time_idx ON public.statement_statistics (aggregated_ts ASC, app_name ASC, total_estimated_execution_time DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+42	statement_statistics	9	p99_latency_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX p99_latency_idx ON public.statement_statistics (aggregated_ts ASC, app_name ASC, p99_latency DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+43	transaction_statistics	1	primary	primary	t	f	t	t	1	8	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.transaction_statistics (aggregated_ts ASC, fingerprint_id ASC, app_name ASC, node_id ASC) USING HASH WITH (bucket_count=8)"
+43	transaction_statistics	2	fingerprint_stats_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX fingerprint_stats_idx ON public.transaction_statistics (fingerprint_id ASC)
+43	transaction_statistics	3	execution_count_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX execution_count_idx ON public.transaction_statistics (aggregated_ts ASC, app_name ASC, execution_count DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+43	transaction_statistics	4	service_latency_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX service_latency_idx ON public.transaction_statistics (aggregated_ts ASC, app_name ASC, service_latency DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+43	transaction_statistics	5	cpu_sql_nanos_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX cpu_sql_nanos_idx ON public.transaction_statistics (aggregated_ts ASC, app_name ASC, cpu_sql_nanos DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+43	transaction_statistics	6	contention_time_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX contention_time_idx ON public.transaction_statistics (aggregated_ts ASC, app_name ASC, contention_time DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+43	transaction_statistics	7	total_estimated_execution_time_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX total_estimated_execution_time_idx ON public.transaction_statistics (aggregated_ts ASC, app_name ASC, total_estimated_execution_time DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+43	transaction_statistics	8	p99_latency_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX p99_latency_idx ON public.transaction_statistics (aggregated_ts ASC, app_name ASC, p99_latency DESC) WHERE app_name NOT LIKE '$ internal%':::STRING
+44	database_role_settings	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.database_role_settings (database_id ASC, role_name ASC)"
+44	database_role_settings	2	database_role_settings_database_id_role_id_key	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX database_role_settings_database_id_role_id_key ON public.database_role_settings (database_id ASC, role_id ASC) STORING (settings)
+45	tenant_usage	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.tenant_usage (tenant_id ASC, instance_id ASC)"
+46	sql_instances	2	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.sql_instances (crdb_region ASC, id ASC)"
+47	span_configurations	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.span_configurations (start_key ASC)"
+48	role_id_seq	1	primary	primary	f	f	f	t	1	NULL	NULL	"CREATE INDEX ""primary"" ON public.role_id_seq (value ASC)"
+50	tenant_settings	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.tenant_settings (tenant_id ASC, name ASC)"
+51	span_count	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.span_count (singleton ASC)"
+52	privileges	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.privileges (username ASC, path ASC)"
+52	privileges	2	privileges_path_user_id_key	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX privileges_path_user_id_key ON public.privileges (path ASC, user_id ASC) STORING (privileges, grant_options)
+52	privileges	3	privileges_path_username_key	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX privileges_path_username_key ON public.privileges (path ASC, username ASC) STORING (privileges, grant_options)
+53	external_connections	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.external_connections (connection_name ASC)"
+54	job_info	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.job_info (job_id ASC, info_key ASC, written DESC)"
+55	span_stats_unique_keys	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.span_stats_unique_keys (id ASC)"
+55	span_stats_unique_keys	2	unique_keys_key_bytes_idx	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX unique_keys_key_bytes_idx ON public.span_stats_unique_keys (key_bytes ASC)
+56	span_stats_buckets	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.span_stats_buckets (id ASC)"
+56	span_stats_buckets	2	buckets_sample_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX buckets_sample_id_idx ON public.span_stats_buckets (sample_id ASC)
+57	span_stats_samples	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.span_stats_samples (id ASC)"
+57	span_stats_samples	2	samples_sample_time_idx	secondary	t	f	f	t	1	NULL	NULL	CREATE UNIQUE INDEX samples_sample_time_idx ON public.span_stats_samples (sample_time ASC)
+58	span_stats_tenant_boundaries	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.span_stats_tenant_boundaries (tenant_id ASC)"
+59	task_payloads	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.task_payloads (id ASC)"
+60	tenant_tasks	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.tenant_tasks (tenant_id ASC, issuer ASC, task_id ASC)"
+61	statement_activity	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.statement_activity (aggregated_ts ASC, fingerprint_id ASC, transaction_fingerprint_id ASC, plan_hash ASC, app_name ASC)"
+61	statement_activity	2	fingerprint_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX fingerprint_id_idx ON public.statement_activity (fingerprint_id ASC, transaction_fingerprint_id ASC)
+61	statement_activity	3	execution_count_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX execution_count_idx ON public.statement_activity (aggregated_ts ASC, execution_count DESC)
+61	statement_activity	4	execution_total_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX execution_total_seconds_idx ON public.statement_activity (aggregated_ts ASC, execution_total_seconds DESC)
+61	statement_activity	5	contention_time_avg_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX contention_time_avg_seconds_idx ON public.statement_activity (aggregated_ts ASC, contention_time_avg_seconds DESC)
+61	statement_activity	6	cpu_sql_avg_nanos_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX cpu_sql_avg_nanos_idx ON public.statement_activity (aggregated_ts ASC, cpu_sql_avg_nanos DESC)
+61	statement_activity	7	service_latency_avg_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX service_latency_avg_seconds_idx ON public.statement_activity (aggregated_ts ASC, service_latency_avg_seconds DESC)
+61	statement_activity	8	service_latency_p99_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX service_latency_p99_seconds_idx ON public.statement_activity (aggregated_ts ASC, service_latency_p99_seconds DESC)
+62	transaction_activity	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.transaction_activity (aggregated_ts ASC, fingerprint_id ASC, app_name ASC)"
+62	transaction_activity	2	fingerprint_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX fingerprint_id_idx ON public.transaction_activity (fingerprint_id ASC)
+62	transaction_activity	3	execution_count_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX execution_count_idx ON public.transaction_activity (aggregated_ts ASC, execution_count DESC)
+62	transaction_activity	4	execution_total_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX execution_total_seconds_idx ON public.transaction_activity (aggregated_ts ASC, execution_total_seconds DESC)
+62	transaction_activity	5	contention_time_avg_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX contention_time_avg_seconds_idx ON public.transaction_activity (aggregated_ts ASC, contention_time_avg_seconds DESC)
+62	transaction_activity	6	cpu_sql_avg_nanos_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX cpu_sql_avg_nanos_idx ON public.transaction_activity (aggregated_ts ASC, cpu_sql_avg_nanos DESC)
+62	transaction_activity	7	service_latency_avg_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX service_latency_avg_seconds_idx ON public.transaction_activity (aggregated_ts ASC, service_latency_avg_seconds DESC)
+62	transaction_activity	8	service_latency_p99_seconds_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX service_latency_p99_seconds_idx ON public.transaction_activity (aggregated_ts ASC, service_latency_p99_seconds DESC)
+63	tenant_id_seq	1	primary	primary	f	f	f	t	1	NULL	NULL	"CREATE INDEX ""primary"" ON public.tenant_id_seq (value ASC)"
+64	mvcc_statistics	1	mvcc_statistics_pkey	primary	t	f	t	t	1	16	NULL	CREATE UNIQUE INDEX mvcc_statistics_pkey ON public.mvcc_statistics (created_at ASC, database_id ASC, table_id ASC, index_id ASC) USING HASH WITH (bucket_count=16)
+65	transaction_execution_insights	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.transaction_execution_insights (transaction_id ASC)"
+65	transaction_execution_insights	2	transaction_fingerprint_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX transaction_fingerprint_id_idx ON public.transaction_execution_insights (transaction_fingerprint_id ASC)
+65	transaction_execution_insights	3	time_range_idx	secondary	f	f	t	t	1	16	NULL	CREATE INDEX time_range_idx ON public.transaction_execution_insights (start_time DESC, end_time DESC) USING HASH WITH (bucket_count=16)
+66	statement_execution_insights	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.statement_execution_insights (statement_id ASC, transaction_id ASC)"
+66	statement_execution_insights	2	transaction_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX transaction_id_idx ON public.statement_execution_insights (transaction_id ASC)
+66	statement_execution_insights	3	transaction_fingerprint_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX transaction_fingerprint_id_idx ON public.statement_execution_insights (transaction_fingerprint_id ASC, start_time DESC, end_time DESC)
+66	statement_execution_insights	4	statement_fingerprint_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX statement_fingerprint_id_idx ON public.statement_execution_insights (statement_fingerprint_id ASC, start_time DESC, end_time DESC)
+66	statement_execution_insights	5	time_range_idx	secondary	f	f	t	t	1	16	NULL	CREATE INDEX time_range_idx ON public.statement_execution_insights (start_time DESC, end_time DESC) USING HASH WITH (bucket_count=16)
+67	table_metadata	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.table_metadata (db_id ASC, table_id ASC)"
+67	table_metadata	2	replication_size_bytes_table_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX replication_size_bytes_table_id_idx ON public.table_metadata (replication_size_bytes DESC, table_id ASC)
+67	table_metadata	3	total_ranges_table_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX total_ranges_table_id_idx ON public.table_metadata (total_ranges DESC, table_id ASC)
+67	table_metadata	4	total_columns_table_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX total_columns_table_id_idx ON public.table_metadata (total_columns DESC, table_id ASC)
+67	table_metadata	5	total_indexes_table_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX total_indexes_table_id_idx ON public.table_metadata (total_indexes DESC, table_id ASC)
+67	table_metadata	6	perc_live_data_id_idx	secondary	f	f	f	t	1	NULL	NULL	CREATE INDEX perc_live_data_id_idx ON public.table_metadata (perc_live_data DESC, table_id ASC)
+67	table_metadata	7	last_updated_idx	secondary	f	f	t	t	1	16	NULL	CREATE INDEX last_updated_idx ON public.table_metadata (last_updated DESC, table_id ASC) USING HASH WITH (bucket_count=16)
+67	table_metadata	8	db_name_gin	secondary	f	t	f	t	1	NULL	NULL	CREATE INVERTED INDEX db_name_gin ON public.table_metadata (db_name gin_trgm_ops)
+67	table_metadata	9	table_name_gin	secondary	f	t	f	t	1	NULL	NULL	CREATE INVERTED INDEX table_name_gin ON public.table_metadata (table_name gin_trgm_ops)
+67	table_metadata	10	schema_name_gin	secondary	f	t	f	t	1	NULL	NULL	CREATE INVERTED INDEX schema_name_gin ON public.table_metadata (schema_name gin_trgm_ops)
+67	table_metadata	11	store_ids_gin	secondary	f	t	f	t	1	NULL	NULL	CREATE INVERTED INDEX store_ids_gin ON public.table_metadata (store_ids)
+68	job_progress	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.job_progress (job_id ASC, written DESC)"
+69	job_progress_history	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.job_progress_history (job_id ASC, written DESC)"
+70	job_status	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.job_status (job_id ASC, written DESC)"
+71	job_message	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.job_message (job_id ASC, written DESC, kind ASC)"
+72	prepared_transactions	1	primary	primary	t	f	f	t	1	NULL	NULL	"CREATE UNIQUE INDEX ""primary"" ON public.prepared_transactions (global_id ASC)"

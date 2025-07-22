@@ -1,0 +1,159 @@
+feature_name	usage_count
+sql.plan.ops.bin.decimal / decimal	2
+sql.query.count	5266529
+sql.misc.count.internal	80
+sql.plan.ops.cmp.string = string	1141
+sql.txn.begin.started.count.internal	80
+sql.plan.opt.node.join.type.anti	64
+sql.plan.ops.cast.string::int	2
+sql.plan.hints.index	1
+sql.plan.builtins.decode(text: string, format: string) -> bytes	4
+sql.plan.window_function.lag	3
+sql.crud_query.count	4626861
+sql.ddl.started.count	12
+sql.plan.ops.cast.string::decimal	2
+sql.misc.count	11
+sql.plan.opt.node.join.algo.hash	67
+sql.schema.drop_database	3
+import.duration-sec.succeeded.0	1
+sql.plan.builtins.random() -> float	25
+sql.plan.opt.node.ensure-upsert-distinct-on	42
+sql.plan.opt.node.join.type.left-outer	303
+sql.txn.rollback.started.count	1
+job.auto_create_partial_stats.successful	7
+sql.plan.ops.cast.timestamp::timestamptz	3
+sql.restart_savepoint.release.started.count	159909
+sql.plan.ops.cmp.string < string	2
+sql.query.count.internal	4395
+sql.plan.hints.index.select	1
+sql.txn.rollback.count	1
+sql.plan.opt.node.join.type.inner	228235
+sql.plan.ops.bin.string || string	2
+sql.plan.builtins.now() -> timestamptz	278
+sql.plan.ops.bin.jsonb ->> string	34
+sql.plan.ops.bin.decimal - int	2
+sql.txn.rollback.count.internal	79
+sql.plan.ops.cmp.bytes = bytes	23
+job.import.successful	1
+sql.schema.new_column_type.string	30
+sql.plan.builtins.mod(x: int, y: int) -> int	25
+sql.restart_savepoint.release.count	159909
+sql.plan.builtins.crdb_internal.session_pending_jobs() -> tuple{int AS job_id, string AS job_type, string AS description, string AS user_name}	3
+sql.plan.ops.cmp.bool = bool	153
+job.new_schema_change.successful	3
+sql.plan.builtins.date_trunc(element: string, input: interval) -> interval	2
+sql.schema.create_database	4
+sql.plan.opt.node.join.algo.lookup	228282
+sql.plan.builtins.now() -> timestamp	39
+sql.plan.subquery	20
+sql.crud_query.started.count	4626864
+sql.plan.builtins.crdb_internal.pb_to_json(pbname: string, data: bytes) -> jsonb	2
+sql.plan.ops.bin.jsonb -> string	257
+sql.plan.opt.partial-index.scan	422
+sql.select.started.count.internal	2319
+sql.plan.builtins.uuid_v4() -> bytes	3
+pgwire.command.execute	4626844
+sql.crud_query.count.internal	4142
+sql.query.started.count	5266532
+sql.plan.builtins.gen_random_uuid() -> uuid	12
+sql.plan.opt.node.distinct-on	11
+sql.update.started.count.internal	424
+sql.update.count	230902
+sql.plan.builtins.min(arg1: int) -> anyelement	42
+sql.plan.opt.node.group-by	68
+sql.plan.opt.node.sort	44
+sql.ddl.count.internal	14
+sql.plan.builtins.count_rows() -> int	42
+sql.plan.ops.cast.jsonb::int	13
+sql.restart_savepoint.count	159915
+sql.plan.ops.cmp.string IN tuple	67
+import.into	1
+sql.plan.builtins.cluster_logical_timestamp() -> decimal	2
+import.csv.started	1
+sql.plan.builtins.merge_statement_stats(arg1: jsonb) -> jsonb	2
+sql.txn.begin.count.internal	80
+sql.ddl.started.count.internal	14
+import.size-mb.10	1
+sql.plan.builtins.follower_read_timestamp() -> timestamptz	70
+sql.misc.started.count	11
+sql.plan.ops.cmp.bytes IN tuple	5
+sql.txn.begin.started.count	159917
+sql.plan.opt.node.project-set	55
+sql.select.started.count	4395956
+sql.uds.schema_used_by_object	4
+sql.select.count	4395956
+sql.select.count.internal	2318
+sql.plan.ops.bin.string || jsonb	2
+sql.plan.builtins.fnv32(bytes...) -> int	13
+import.speed-mbps.over10mb.0	1
+sql.plan.ops.cast.string::float	26
+sql.plan.ops.cmp.string LIKE string	96
+sql.insert.started.count.internal	793
+sql.plan.cte	15
+sql.schema.create_table	4
+sql.plan.builtins.crdb_internal.merge_statement_stats(input: jsonb[]) -> jsonb	1
+sql.plan.lateral-join	3
+job.auto_create_stats.successful	7
+sql.plan.opt.node.scalar-group-by	134
+sql.delete.started.count.internal	607
+sql.plan.ops.bin.timestamptz - interval	1
+import.csv.attempted	1
+sql.schema.new_column_type.varchar_255_	3
+sql.insert.started.count	3
+sql.insert.count.internal	793
+import.csv.succeeded	1
+sql.plan.builtins.max(arg1: timestamptz) -> anyelement	2
+sql.txn.rollback.started.count.internal	79
+import.files.1	1
+sql.plan.builtins.unique_rowid() -> int	36
+sql.plan.builtins.jsonb_array_elements(input: jsonb) -> jsonb	2
+sql.plan.ops.cmp.timestamp < timestamp	1
+sql.query.started.count.internal	4396
+sql.crud_query.started.count.internal	4143
+sql.plan.ops.cmp.oid = int	6
+sql.plan.opt.order-by-nulls-standard	77
+sql.schema.schema_changer_mode.legacy	4
+kv.split.load	4
+sql.plan.type.auto-custom	5197
+sql.plan.type.auto-generic	4625518
+sql.txn.commit.started.count	159903
+sql.plan.ops.cast.jsonb::float	52
+sql.plan.builtins.fnv32(string...) -> int	12
+sql.insert.count	3
+sql.update.count.internal	424
+sql.schema.schema_changer_mode.declarative	7
+sql.plan.ops.cmp.bytes < bytes	3
+sql.plan.ops.cmp.int IN tuple	9
+sql.exec.query.is-vectorized	4631130
+sql.plan.builtins.greatest(anyelement...) -> anyelement	3
+sql.misc.started.count.internal	80
+import.speed-mbps.0	1
+sql.plan.ops.bin.float * float	13
+sql.schema.create_stats	14
+sql.delete.count.internal	607
+pgwire.command.bind	4626844
+sql.plan.builtins.crdb_internal.datums_to_bytes(any...) -> bytes	25
+import.rows.10000	1
+pgwire.command.parse	485
+sql.plan.builtins.crdb_internal.sql_liveness_is_alive(session_id: bytes) -> bool	33
+pgwire.command.describe	4627325
+sql.schema.transaction.mixed_ddl_dml.success	3
+sql.ddl.count	12
+sql.plan.ops.cmp.timestamptz IN tuple	18
+sql.plan.builtins.merge_stats_metadata(arg1: jsonb) -> jsonb	2
+job.auto_sql_stats_compaction.successful	1
+sql.restart_savepoint.started.count	159915
+sql.plan.builtins.md5(bytes...) -> string	12
+sql.plan.ops.cmp.int = int	225
+sql.update.started.count	230905
+sql.plan.builtins.count(arg1: anyelement) -> int	84
+sql.plan.opt.node.join.algo.merge	253
+sql.plan.ops.array.cons	1
+sql.txn.begin.count	159917
+sql.plan.ops.cmp.timestamptz < timestamptz	180
+sql.plan.ops.cmp.string <= string	3
+sql.plan.builtins.crdb_internal.pretty_key(raw_key: bytes, skip_fields: int) -> string	4
+sql.plan.ops.cast.decimal::interval	2
+sql.plan.builtins.current_timestamp() -> timestamptz	26
+sql.txn.commit.count	159903
+sql.plan.ops.cmp.int < int	6

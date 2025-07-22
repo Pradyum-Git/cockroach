@@ -1,0 +1,2 @@
+database_id	database_name	schema_name	descriptor_id	create_statement
+1402	bank	public	1403	CREATE SCHEMA public

@@ -1,0 +1,1 @@
+connection_name	created	updated	connection_type	connection_details	owner	owner_id
