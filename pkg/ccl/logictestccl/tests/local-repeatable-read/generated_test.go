@@ -1063,6 +1063,13 @@ func TestRepeatableReadLogic_insert(
 	runLogicTest(t, "insert")
 }
 
+func TestRepeatableReadLogic_inspect(
+	t *testing.T,
+) {
+	defer leaktest.AfterTest(t)()
+	runLogicTest(t, "inspect")
+}
+
 func TestRepeatableReadLogic_int_size(
 	t *testing.T,
 ) {
@@ -2839,6 +2846,13 @@ func TestRepeatableReadLogicCCL_procedure_plpgsql(
 ) {
 	defer leaktest.AfterTest(t)()
 	runCCLLogicTest(t, "procedure_plpgsql")
+}
+
+func TestRepeatableReadLogicCCL_provisioning(
+	t *testing.T,
+) {
+	defer leaktest.AfterTest(t)()
+	runCCLLogicTest(t, "provisioning")
 }
 
 func TestRepeatableReadLogicCCL_read_committed(

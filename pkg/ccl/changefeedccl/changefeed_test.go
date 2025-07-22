@@ -1362,19 +1362,22 @@ func TestChangefeedRandomExpressions(t *testing.T) {
 				// error, we unfortunately don't have the pgcode and have to
 				// rely on known strings.
 				validPgErrs := []string{
+					"argument is not an object",
 					"cannot subtract infinite dates",
-					"regexp compilation failed",
-					"invalid regular expression",
-					"invalid escape string",
-					"error parsing GeoJSON",
+					"dwithin distance cannot be less than zero",
 					"error parsing EWKB",
 					"error parsing EWKT",
-					"geometry type is unsupported",
-					"should be of length",
-					"dwithin distance cannot be less than zero",
-					"parameter has to be of type Point",
+					"error parsing GeoJSON",
 					"expected LineString",
+					"geometry type is unsupported",
+					"invalid escape string",
+					"invalid regular expression",
 					"no locations to init GEOS",
+					"parameter has to be of type Point",
+					"regexp compilation failed",
+					"result out of range",
+					"should be of length",
+					"unknown DateStyle parameter",
 				}
 				containsKnownPgErr := func(e error) (interface{}, bool) {
 					for _, v := range validPgErrs {
@@ -6708,7 +6711,7 @@ func TestChangefeedErrors(t *testing.T) {
 		`CREATE CHANGEFEED FOR foo INTO $1`, `experimental-sql://d/?confluent_schema_registry=foo&weird=bar`,
 	)
 
-	badHostErrRE := "client has run out of available brokers"
+	badHostErrRE := "(no such host|connection refused|network is unreachable)"
 	if KafkaV2Enabled.Get(&s.ClusterSettings().SV) {
 		badHostErrRE = "(unable to dial|unable to open connection to broker|lookup .* on .*: server misbehaving|connection refused)"
 	}
@@ -6716,7 +6719,7 @@ func TestChangefeedErrors(t *testing.T) {
 	// Check unavailable kafka - bad dns.
 	longTimeoutSQLDB.ExpectErrWithTimeout(
 		t, badHostErrRE,
-		`CREATE CHANGEFEED FOR foo INTO 'kafka://nope'`,
+		`CREATE CHANGEFEED FOR foo INTO 'kafka://nope:9999'`,
 	)
 
 	// Check unavailable kafka - not running.
@@ -6728,7 +6731,7 @@ func TestChangefeedErrors(t *testing.T) {
 	// Test that a well-formed URI gets as far as unavailable kafka error.
 	longTimeoutSQLDB.ExpectErrWithTimeout(
 		t, badHostErrRE,
-		`CREATE CHANGEFEED FOR foo INTO 'kafka://nope/?tls_enabled=true&insecure_tls_skip_verify=true&topic_name=foo'`,
+		`CREATE CHANGEFEED FOR foo INTO 'kafka://nope:9999/?tls_enabled=true&insecure_tls_skip_verify=true&topic_name=foo'`,
 	)
 
 	// kafka_topic_prefix was referenced by an old version of the RFC, it's
@@ -6843,12 +6846,12 @@ func TestChangefeedErrors(t *testing.T) {
 	)
 	sqlDB.ExpectErrWithTimeout(
 		t, badHostErrRE,
-		`CREATE CHANGEFEED FOR foo INTO 'kafka://nope/' WITH kafka_sink_config='{"Flush": {"Messages": 100, "Frequency": "1s"}}'`,
+		`CREATE CHANGEFEED FOR foo INTO 'kafka://nope:9999/' WITH kafka_sink_config='{"Flush": {"Messages": 100, "Frequency": "1s"}}'`,
 	)
 	sqlDB.ExpectErrWithTimeout(
 		t, `this sink is incompatible with option webhook_client_timeout`,
 		`CREATE CHANGEFEED FOR foo INTO $1 WITH webhook_client_timeout='1s'`,
-		`kafka://nope/`,
+		`kafka://nope:9999/`,
 	)
 	// The avro format doesn't support key_in_value or topic_in_value yet.
 	sqlDB.ExpectErrWithTimeout(
@@ -7274,6 +7277,21 @@ func TestChangefeedDescription(t *testing.T) {
 			require.Equal(t, tc.descr, description)
 		})
 	}
+}
+
+func TestChangefeedKafkaV1ConnectionError(t *testing.T) {
+	defer leaktest.AfterTest(t)()
+	defer log.Scope(t).Close(t)
+
+	testFn := func(t *testing.T, s TestServer, f cdctest.TestFeedFactory) {
+		KafkaV2Enabled.Override(context.Background(), &s.Server.ClusterSettings().SV, false)
+		sqlDB := sqlutils.MakeSQLRunner(s.DB)
+		sqlDB.Exec(t, `CREATE TABLE foo(id int primary key, s string)`)
+		sqlDB.Exec(t, `INSERT INTO foo(id, s) VALUES (0, 'hello'), (1, null)`)
+		_, err := f.Feed(`CREATE CHANGEFEED FOR foo`)
+		require.ErrorContains(t, err, "client has run out of available brokers")
+	}
+	cdcTest(t, testFn, feedTestForceSink("kafka"), feedTestForceKafkaV1ConnectionCheck)
 }
 
 func TestChangefeedPanicRecovery(t *testing.T) {
@@ -11497,14 +11515,28 @@ func TestChangefeedProtectedTimestampUpdate(t *testing.T) {
 
 		sqlDB.Exec(t, `CREATE TABLE foo (id INT)`)
 
+		registry := s.Server.JobRegistry().(*jobs.Registry)
+		metrics := registry.MetricsStruct().Changefeed.(*Metrics)
+		createPtsCount, _ := metrics.AggMetrics.Timers.PTSCreate.WindowedSnapshot().Total()
+		managePtsCount, _ := metrics.AggMetrics.Timers.PTSManage.WindowedSnapshot().Total()
+		managePTSErrorCount, _ := metrics.AggMetrics.Timers.PTSManageError.WindowedSnapshot().Total()
+		require.Equal(t, int64(0), createPtsCount)
+		require.Equal(t, int64(0), managePtsCount)
+		require.Equal(t, int64(0), managePTSErrorCount)
+
 		createStmt := `CREATE CHANGEFEED FOR foo WITH resolved='10ms', no_initial_scan`
 		testFeed := feed(t, f, createStmt)
 		defer closeFeed(t, testFeed)
 
+		createPtsCount, _ = metrics.AggMetrics.Timers.PTSCreate.WindowedSnapshot().Total()
+		managePtsCount, _ = metrics.AggMetrics.Timers.PTSManage.WindowedSnapshot().Total()
+		require.Equal(t, int64(1), createPtsCount)
+		require.Equal(t, int64(0), managePtsCount)
+
 		eFeed, ok := testFeed.(cdctest.EnterpriseTestFeed)
 		require.True(t, ok)
 
-		// Wait for the changefeed to checkpoint.
+		// Wait for the changefeed to checkpoint and update PTS at least once.
 		var lastHWM hlc.Timestamp
 		checkHWM := func() error {
 			hwm, err := eFeed.HighWaterMark()
@@ -11549,6 +11581,11 @@ func TestChangefeedProtectedTimestampUpdate(t *testing.T) {
 		sqlDB.QueryRow(t, ptsQry).Scan(&ts2)
 		require.NoError(t, err)
 		require.Less(t, ts, ts2)
+
+		managePtsCount, _ = metrics.AggMetrics.Timers.PTSManage.WindowedSnapshot().Total()
+		managePTSErrorCount, _ = metrics.AggMetrics.Timers.PTSManageError.WindowedSnapshot().Total()
+		require.GreaterOrEqual(t, managePtsCount, int64(2))
+		require.Equal(t, int64(0), managePTSErrorCount)
 	}
 
 	withTxnRetries := withArgsFn(func(args *base.TestServerArgs) {
@@ -11560,6 +11597,66 @@ func TestChangefeedProtectedTimestampUpdate(t *testing.T) {
 	})
 
 	cdcTest(t, testFn, feedTestForceSink("kafka"), withTxnRetries)
+}
+
+func TestChangefeedProtectedTimestampUpdateError(t *testing.T) {
+	defer leaktest.AfterTest(t)()
+	defer log.Scope(t).Close(t)
+
+	testFn := func(t *testing.T, s TestServer, f cdctest.TestFeedFactory) {
+		sqlDB := sqlutils.MakeSQLRunner(s.DB)
+		// Checkpoint and trigger potential protected timestamp updates frequently.
+		// Make the protected timestamp lag long enough that it shouldn't be
+		// immediately updated after a restart.
+		changefeedbase.SpanCheckpointInterval.Override(
+			context.Background(), &s.Server.ClusterSettings().SV, 10*time.Millisecond)
+		changefeedbase.ProtectTimestampInterval.Override(
+			context.Background(), &s.Server.ClusterSettings().SV, 10*time.Millisecond)
+		changefeedbase.ProtectTimestampLag.Override(
+			context.Background(), &s.Server.ClusterSettings().SV, 10*time.Hour)
+
+		sqlDB.Exec(t, `CREATE TABLE foo (id INT)`)
+
+		registry := s.Server.JobRegistry().(*jobs.Registry)
+		metrics := registry.MetricsStruct().Changefeed.(*Metrics)
+		createPtsCount, _ := metrics.AggMetrics.Timers.PTSCreate.WindowedSnapshot().Total()
+		managePtsCount, _ := metrics.AggMetrics.Timers.PTSManage.WindowedSnapshot().Total()
+		managePTSErrorCount, _ := metrics.AggMetrics.Timers.PTSManageError.WindowedSnapshot().Total()
+		require.Equal(t, int64(0), createPtsCount)
+		require.Equal(t, int64(0), managePtsCount)
+		require.Equal(t, int64(0), managePTSErrorCount)
+
+		knobs := s.TestingKnobs.
+			DistSQL.(*execinfra.TestingKnobs).
+			Changefeed.(*TestingKnobs)
+
+		knobs.ManagePTSError = func() error {
+			return errors.New("test error")
+		}
+
+		createStmt := `CREATE CHANGEFEED FOR foo WITH resolved='10ms', no_initial_scan`
+		testFeed := feed(t, f, createStmt)
+		defer closeFeed(t, testFeed)
+
+		createPtsCount, _ = metrics.AggMetrics.Timers.PTSCreate.WindowedSnapshot().Total()
+		require.Equal(t, int64(1), createPtsCount)
+		managePTSErrorCount, _ = metrics.AggMetrics.Timers.PTSManageError.WindowedSnapshot().Total()
+		require.Equal(t, int64(0), managePTSErrorCount)
+
+		// Lower the PTS lag to trigger a PTS update.
+		changefeedbase.ProtectTimestampLag.Override(
+			context.Background(), &s.Server.ClusterSettings().SV, 10*time.Millisecond)
+
+		testutils.SucceedsSoon(t, func() error {
+			managePTSErrorCount, _ = metrics.AggMetrics.Timers.PTSManageError.WindowedSnapshot().Total()
+			if managePTSErrorCount > 0 {
+				fmt.Println("manage protected timestamps test: manage pts error count", managePTSErrorCount)
+				return nil
+			}
+			return errors.New("waiting for manage pts error")
+		})
+	}
+	cdcTest(t, testFn, feedTestForceSink("kafka"))
 }
 
 func TestCDCQuerySelectSingleRow(t *testing.T) {
@@ -11725,84 +11822,4 @@ func TestCloudstorageParallelCompression(t *testing.T) {
 			time.Sleep(checkStatusInterval)
 		}
 	})
-}
-
-// TestChangefeedResumeWithBothLegacyAndCurrentCheckpoint is a regression
-// test for #148620, which was a bug where the legacy checkpoint was not
-// being cleared after the cluster was upgraded to 25.2 and subsequently
-// causing an assertion error when resuming.
-func TestChangefeedResumeWithBothLegacyAndCurrentCheckpoint(t *testing.T) {
-	defer leaktest.AfterTest(t)()
-	defer log.Scope(t).Close(t)
-
-	testFn := func(t *testing.T, s TestServer, f cdctest.TestFeedFactory) {
-		ctx := context.Background()
-		sqlDB := sqlutils.MakeSQLRunner(s.DB)
-
-		// Create a table with 11 ranges.
-		const numRows = 10
-		const numRanges = numRows + 1
-		sqlDB.ExecMultiple(t,
-			`CREATE TABLE foo (a INT PRIMARY KEY)`,
-			fmt.Sprintf(`INSERT INTO foo SELECT * FROM generate_series(1, %d)`, numRows),
-			fmt.Sprintf(`ALTER TABLE foo SPLIT AT (SELECT * FROM generate_series(1, %d))`, numRows),
-		)
-		fooSpan := desctestutils.
-			TestingGetPublicTableDescriptor(s.Server.DB(), s.Codec, "d", "foo").
-			PrimaryIndexSpan(s.Codec)
-		ranges, _, err := s.Server.
-			DistSenderI().(*kvcoord.DistSender).
-			AllRangeSpans(ctx, []roachpb.Span{fooSpan})
-		require.NoError(t, err)
-		require.Len(t, ranges, numRanges)
-
-		cf := feed(t, f, `CREATE CHANGEFEED FOR foo WITH no_initial_scan`)
-		defer closeFeed(t, cf)
-
-		jobFeed, ok := cf.(cdctest.EnterpriseTestFeed)
-		require.True(t, ok)
-
-		sqlDB.Exec(t, `PAUSE JOB $1`, jobFeed.JobID())
-		waitForJobState(sqlDB, t, jobFeed.JobID(), jobs.StatePaused)
-		hw, err := jobFeed.HighWaterMark()
-		require.NoError(t, err)
-
-		registry := s.Server.JobRegistry().(*jobs.Registry)
-
-		// Manually insert both a legacy and current checkpoint containing
-		// a random range from the table.
-		rnd, _ := randutil.NewTestRand()
-		randomRange := ranges[rnd.Intn(len(ranges))]
-		err = registry.UpdateJobWithTxn(ctx, jobFeed.JobID(), nil,
-			func(txn isql.Txn, md jobs.JobMetadata, ju *jobs.JobUpdater) error {
-				checkpointTS := hw.Add(int64(time.Nanosecond), 0)
-				progress := md.Progress
-				progress.Details = jobspb.WrapProgressDetails(jobspb.ChangefeedProgress{
-					//lint:ignore SA1019 deprecated usage
-					Checkpoint: &jobspb.ChangefeedProgress_Checkpoint{
-						Spans:     []roachpb.Span{randomRange},
-						Timestamp: checkpointTS,
-					},
-					SpanLevelCheckpoint: jobspb.NewTimestampSpansMap(
-						map[hlc.Timestamp]roachpb.Spans{
-							checkpointTS: []roachpb.Span{randomRange},
-						},
-					),
-				})
-				ju.UpdateProgress(progress)
-				return nil
-			})
-		require.NoError(t, err)
-
-		sqlDB.Exec(t, `RESUME JOB $1`, jobFeed.JobID())
-		waitForJobState(sqlDB, t, jobFeed.JobID(), jobs.StateRunning)
-
-		// Wait for highwater to advance past the current time.
-		var tsStr string
-		sqlDB.QueryRow(t, `SELECT cluster_logical_timestamp()`).Scan(&tsStr)
-		ts := parseTimeToHLC(t, tsStr)
-		require.NoError(t, jobFeed.WaitForHighWaterMark(ts))
-	}
-
-	cdcTest(t, testFn, feedTestEnterpriseSinks)
 }

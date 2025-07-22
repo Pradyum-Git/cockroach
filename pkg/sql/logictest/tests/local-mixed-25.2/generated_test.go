@@ -1032,6 +1032,13 @@ func TestLogic_insert(
 	runLogicTest(t, "insert")
 }
 
+func TestLogic_inspect(
+	t *testing.T,
+) {
+	defer leaktest.AfterTest(t)()
+	runLogicTest(t, "inspect")
+}
+
 func TestLogic_int_size(
 	t *testing.T,
 ) {
@@ -2549,6 +2556,13 @@ func TestLogic_upsert_non_metamorphic(
 ) {
 	defer leaktest.AfterTest(t)()
 	runLogicTest(t, "upsert_non_metamorphic")
+}
+
+func TestLogic_user(
+	t *testing.T,
+) {
+	defer leaktest.AfterTest(t)()
+	runLogicTest(t, "user")
 }
 
 func TestLogic_uuid(

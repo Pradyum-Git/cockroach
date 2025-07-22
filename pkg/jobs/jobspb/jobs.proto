@@ -1196,33 +1196,7 @@ message TimestampSpansMap {
 }
 
 message ChangefeedProgress {
-  reserved 1;
-
-  // Checkpoint describes a list of spans that the changefeed has progressed to
-  // at or above the specified timestamp.  This is used for situations where
-  // some spans are significantly behind the rest, such as during backfills or
-  // if specific spans are having issues progressing.  On restart, the
-  // changefeed will forward the specified spans to the specified timestamp.
-  // TODO(#139734): Delete this nested message type.
-  message Checkpoint {
-    option deprecated = true;
-    repeated roachpb.Span spans = 1 [(gogoproto.nullable) = false];
-    util.hlc.Timestamp timestamp = 2 [(gogoproto.nullable) = false];
-
-    // NOTE: When adding fields to this message, make sure to also update IsEmpty.
-  }
-
-  reserved 2;
-  // Checkpoint is the deprecated span-level checkpoint for a
-  // changefeed. It consists of a list of spans and a single timestamp
-  // representing the minimum resolved timestamp of the spans.
-  // It is now deprecated in favor of SpanLevelCheckpoint.
-  //
-  // Invariant: At most one of Checkpoint and SpanLevelCheckpoint should be
-  // non-nil at any time.
-  //
-  // TODO(#139734): Delete this field and mark field number as reserved.
-  Checkpoint checkpoint = 4 [deprecated=true];
+  reserved 1, 2, 4;
 
   // ProtectedTimestampRecord is the ID of the protected timestamp record
   // corresponding to this job. While the job ought to clean up the record
@@ -1430,6 +1404,10 @@ message HotRangesLoggerDetails {
 
 }
 
+message InspectDetails {
+
+}
+
 message UpdateTableMetadataCacheDetails {}
 message UpdateTableMetadataCacheProgress {
   enum Status {
@@ -1469,6 +1447,10 @@ message SqlActivityFlushProgress {
 }
 
 message HotRangesLoggerProgress {
+
+}
+
+message InspectProgress {
 
 }
 
@@ -1544,6 +1526,7 @@ message Payload {
     StandbyReadTSPollerDetails standby_read_ts_poller_details = 50;
     SqlActivityFlushDetails sql_activity_flush_details = 51;
     HotRangesLoggerDetails hot_ranges_logger_details = 52;
+    InspectDetails inspect_details = 53;
   }
   reserved 26;
   // PauseReason is used to describe the reason that the job is currently paused
@@ -1568,7 +1551,7 @@ message Payload {
   // specifies how old such record could get before this job is canceled.
   int64 maximum_pts_age = 40 [(gogoproto.casttype) = "time.Duration",  (gogoproto.customname) = "MaximumPTSAge"];
 
-  // NEXT ID: 51
+  // NEXT ID: 54
 }
 
 message Progress {
@@ -1626,9 +1609,12 @@ message Progress {
     StandbyReadTSPollerProgress standby_read_ts_poller = 38;
     SqlActivityFlushProgress sql_activity_flush = 39;
     HotRangesLoggerProgress hot_ranges_logger = 40;
+    InspectProgress inspect = 41;
   }
 
   uint64 trace_id = 21 [(gogoproto.nullable) = false, (gogoproto.customname) = "TraceID", (gogoproto.customtype) = "github.com/cockroachdb/cockroach/pkg/util/tracing/tracingpb.TraceID"];
+
+  // NEXT ID: 42
 }
 
 enum Type {
@@ -1670,6 +1656,7 @@ enum Type {
   STANDBY_READ_TS_POLLER = 30 [(gogoproto.enumvalue_customname) = "TypeStandbyReadTSPoller"];
   SQL_ACTIVITY_FLUSH = 31 [(gogoproto.enumvalue_customname) = "TypeSQLActivityFlush"];
   HOT_RANGES_LOGGER = 32 [(gogoproto.enumvalue_customname) = "TypeHotRangesLogger"];
+  INSPECT = 33 [(gogoproto.enumvalue_customname) = "TypeInspect"];
 }
 
 message Job {

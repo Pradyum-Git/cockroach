@@ -507,6 +507,13 @@ func TestLogic_create_index(
 	runLogicTest(t, "create_index")
 }
 
+func TestLogic_create_statements(
+	t *testing.T,
+) {
+	defer leaktest.AfterTest(t)()
+	runLogicTest(t, "create_statements")
+}
+
 func TestLogic_create_table(
 	t *testing.T,
 ) {
@@ -1142,6 +1149,13 @@ func TestLogic_insert(
 ) {
 	defer leaktest.AfterTest(t)()
 	runLogicTest(t, "insert")
+}
+
+func TestLogic_inspect(
+	t *testing.T,
+) {
+	defer leaktest.AfterTest(t)()
+	runLogicTest(t, "inspect")
 }
 
 func TestLogic_int_size(

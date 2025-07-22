@@ -3747,9 +3747,9 @@ service TenantSpanConfig {
   rpc SpanConfigConformance(SpanConfigConformanceRequest) returns (SpanConfigConformanceResponse) {}
 }
 
-// Cluster service offers RPCs for inter-node communication essential for
+// Node service offers RPCs for inter-node communication essential for
 // cluster bootstrapping and operation.
-service Cluster {
+service Node {
   // Join a bootstrapped cluster. If the target node is itself not part of a
   // bootstrapped cluster, an appropriate error is returned.
   rpc Join (JoinNodeRequest) returns (JoinNodeResponse) {}
@@ -3758,6 +3758,12 @@ service Cluster {
 // RangeFeed service implemented by nodes for KV API requests.
 service RangeFeed {
   rpc MuxRangeFeed (stream RangeFeedRequest) returns (stream MuxRangeFeedEvent) {}
+}
+
+// QuorumRecovery offers RPC to reset the quorum for the given range on the target
+// node.
+service QuorumRecovery {
+  rpc ResetQuorum (ResetQuorumRequest) returns (ResetQuorumResponse) {}
 }
 
 // Batch and RangeFeed service implemented by nodes for KV API requests.

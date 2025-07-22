@@ -57,6 +57,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/testutils/skip"
 	"github.com/cockroachdb/cockroach/pkg/testutils/sqlutils"
 	"github.com/cockroachdb/cockroach/pkg/testutils/testcluster"
+	"github.com/cockroachdb/cockroach/pkg/upgrade/upgradebase"
 	"github.com/cockroachdb/cockroach/pkg/util"
 	"github.com/cockroachdb/cockroach/pkg/util/ctxgroup"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
@@ -4157,6 +4158,9 @@ func TestIndexBackfillAfterGC(t *testing.T) {
 		},
 		// Decrease the adopt loop interval so that retries happen quickly.
 		JobsTestingKnobs: jobs.NewTestingKnobsWithShortIntervals(),
+		UpgradeManager: &upgradebase.TestingKnobs{
+			SkipHotRangesLoggerJobBootstrap: true,
+		},
 	}
 
 	tc = serverutils.StartCluster(t, 1, base.TestClusterArgs{ServerArgs: params})
@@ -7951,4 +7955,32 @@ func TestLeaseGenerationBumpWithSchemaChange(t *testing.T) {
 	descIDToDelay = tableDesc.GetID()
 	runner.Exec(t, "ALTER TABLE t1 ALTER PRIMARY KEY USING COLUMNS(n, j)")
 	require.NoError(t, grp.Wait())
+}
+
+// TestCreateTableAsValidationFailure simulates a synthetic validation
+// failure for CREATE TABLE AS.
+func TestCreateTableAsValidationFailure(t *testing.T) {
+	defer leaktest.AfterTest(t)()
+	defer log.Scope(t).Close(t)
+
+	s, sqlDB, _ := serverutils.StartServer(t, base.TestServerArgs{
+		Knobs: base.TestingKnobs{
+			SQLSchemaChanger: &sql.SchemaChangerTestingKnobs{
+				RunDuringQueryBackfillValidation: func(expectedCount int64, currentCount int64) (newCurrentCount int64, err error) {
+					return 0, nil
+				},
+			},
+		},
+	})
+
+	defer s.Stopper().Stop(context.Background())
+	runner := sqlutils.MakeSQLRunner(sqlDB)
+	// Create table table and populate it.
+	runner.Exec(t, "CREATE TABLE t1(n int PRIMARY KEY)")
+	runner.Exec(t, "INSERT INTO t1 VALUES (1)")
+	runner.Exec(t, "INSERT INTO t1 VALUES (2)")
+	runner.Exec(t, "INSERT INTO t1 VALUES (3)")
+	// Execute a CTAS and CREATE MATERIALIZED VIEW statements that should fail.
+	runner.ExpectErr(t, "backfill query did not populate index \"t2_pkey\" with expected number of rows", "CREATE TABLE t2 AS (SELECT * FROM t1)")
+	runner.ExpectErr(t, "backfill query did not populate index \"t2_pkey\" with expected number of rows", "CREATE MATERIALIZED VIEW t2 AS (SELECT n FROM t1)")
 }

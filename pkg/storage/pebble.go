@@ -74,16 +74,6 @@ var IngestSplitEnabled = settings.RegisterBoolSetting(
 	settings.WithPublic,
 )
 
-// ColumnarBlocksEnabled controls whether columnar-blocks are enabled in Pebble.
-var ColumnarBlocksEnabled = settings.RegisterBoolSetting(
-	settings.SystemVisible,
-	"storage.columnar_blocks.enabled",
-	"set to true to enable columnar-blocks to store KVs in a columnar format",
-	metamorphic.ConstantWithTestBool(
-		"storage.columnar_blocks.enabled", true /* defaultValue */),
-	settings.WithPublic,
-)
-
 // deleteCompactionsCanExcise controls whether delete compactions can
 // apply rangedels/rangekeydels on sstables they partially apply to, through
 // an excise operation, instead of just applying the rangedels/rangekeydels
@@ -423,10 +413,9 @@ var (
 	valueSeparationEnabled = settings.RegisterBoolSetting(
 		settings.SystemVisible,
 		"storage.value_separation.enabled",
-		"(experimental) whether or not values may be separated into blob files; "+
-			"requires columnar blocks to be enabled",
+		"whether or not values may be separated into blob files",
 		metamorphic.ConstantWithTestBool(
-			"storage.value_separation.enabled", false), /* defaultValue */
+			"storage.value_separation.enabled", true /* defaultValue */),
 	)
 	valueSeparationMinimumSize = settings.RegisterIntSetting(
 		settings.SystemVisible,
@@ -448,7 +437,7 @@ var (
 		settings.SystemVisible,
 		"storage.value_separation.rewrite_minimum_age",
 		"the minimum age of a blob file before it is eligible for a rewrite compaction",
-		5*time.Minute, // 5 minutes
+		5*time.Minute,
 		settings.DurationWithMinimum(0),
 	)
 	valueSeparationCompactionGarbageThreshold = settings.RegisterIntSetting(
@@ -456,7 +445,9 @@ var (
 		"storage.value_separation.compaction_garbage_threshold",
 		"the max garbage threshold configures the percentage of unreferenced value "+
 			"bytes that trigger blob-file rewrite compactions; 100 disables these compactions",
-		100, /* default; disables blob-file rewrites */
+		int64(metamorphic.ConstantWithTestRange("storage.value_separation.compaction_garbage_threshold",
+			10, /* default */
+			1 /* min */, 80 /* max */)),
 		settings.IntInRange(1, 100),
 	)
 )
@@ -917,9 +908,7 @@ func newPebble(ctx context.Context, cfg engineConfig) (p *Pebble, err error) {
 	cfg.opts.Experimental.IngestSplit = func() bool {
 		return IngestSplitEnabled.Get(&cfg.settings.SV)
 	}
-	cfg.opts.Experimental.EnableColumnarBlocks = func() bool {
-		return ColumnarBlocksEnabled.Get(&cfg.settings.SV)
-	}
+	cfg.opts.Experimental.EnableColumnarBlocks = func() bool { return true }
 	cfg.opts.Experimental.EnableDeleteOnlyCompactionExcises = func() bool {
 		return deleteCompactionsCanExcise.Get(&cfg.settings.SV)
 	}
