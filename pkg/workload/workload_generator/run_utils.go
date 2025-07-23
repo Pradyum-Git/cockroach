@@ -1,3 +1,8 @@
+// Copyright 2025 The Cockroach Authors.
+//
+// Use of this software is governed by the CockroachDB Software License
+// included in the /LICENSE file.
+
 package workload_generator
 
 import (
@@ -37,11 +42,11 @@ func (w *workloadGeneratorStruct) loadYamlData() (error, bool) {
 // setColumnValue sets the value for a placeholder in the args slice.
 func setColumnValue(raw string, placeholder Placeholder, args []interface{}, i int) error {
 	var arg interface{}
-	// If we got an empty string and this column is nullable, emit a SQL NULL.
+	// If we got an empty string and this column is nullable, emitting a SQL NULL.
 	if raw == "" && placeholder.IsNullable {
 		arg = setNullType(placeholder, arg)
 	} else {
-		// Otherwise parse the raw string into the right Go/sql type.
+		// Otherwise the raw string is parsed into the right Go/sql type.
 		typedValue, err := setNotNullType(placeholder, raw, arg)
 		if err != nil {
 			return err
@@ -56,30 +61,27 @@ func setColumnValue(raw string, placeholder Placeholder, args []interface{}, i i
 // setNotNullType converts the raw string value to the appropriate SQL type based on the placeholder's column type.
 func setNotNullType(placeholder Placeholder, raw string, arg interface{}) (interface{}, error) {
 	switch t := strings.ToUpper(placeholder.ColType); {
-	// integer types
-	case strings.HasPrefix(t, "INT"):
+	case strings.HasPrefix(t, "INT"): // integer types
 		iv, err := strconv.ParseInt(raw, 10, 64)
 		if err != nil {
 			return nil, err
 		}
 		arg = sql.NullInt64{Int64: iv, Valid: true}
-	// floating point types
-	case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
+	case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"): // floating point types
 		fv, err := strconv.ParseFloat(raw, 64)
 		if err != nil {
 			return nil, err
 		}
 		arg = sql.NullFloat64{Float64: fv, Valid: true}
-	// boolean types
-	case t == "BOOL", t == "BOOLEAN":
+	case t == "BOOL", t == "BOOLEAN": // boolean types
 		bv, err := strconv.ParseBool(raw)
 		if err != nil {
 			return nil, err
 		}
 		arg = sql.NullBool{Bool: bv, Valid: true}
-	// remaining types are parsed as raw strings
+	// The remaining types are parsed as raw strings.
 	default:
-		// treat everything else as text/varchar/etc.
+		// Everything else is treated as text/varchar/etc.
 		arg = sql.NullString{String: raw, Valid: raw != ""}
 	}
 	return arg, nil
@@ -128,10 +130,10 @@ func getColumnValue(allPksAreFK bool, p Placeholder, d *workloadGeneratorStruct,
 		key := fmt.Sprintf("%s.%s", tableName, p.Name)
 		fk := d.columnGens[key].columnMeta.FK
 		parts := strings.Split(fk, ".")
-		parentCol := parts[len(parts)-1] // last part is the column name
+		parentCol := parts[len(parts)-1] // The last part is the column name.
 		if vals, ok := inserted[parentCol]; ok && len(vals) > 0 {
-			raw = vals[0].(string)         // use the first value from the inserted map
-			inserted[parentCol] = vals[1:] // remove the first value
+			raw = vals[0].(string)         // Using the first value from the inserted map.
+			inserted[parentCol] = vals[1:] // Remove the first value from the map.
 		} else {
 			//Fallback that shouldn't really happen.
 			raw = d.getRegularColumnValue(p, indexes[i])
@@ -196,21 +198,21 @@ func (t *txnWorker) chooseTransaction() Transaction {
 	reads := t.readTransactions
 	writes := t.writeTransactions
 
-	// If neither set has any transactions, just return the zero-Txn.
+	// If neither set has any transactions, just the zero-Txn is returned.
 	if len(reads) == 0 && len(writes) == 0 {
 		return txn
 	}
-	// If there are no read txns, always pick a write transaction.
+	// If there are no read txns, a write transaction is always picked.
 	if len(reads) == 0 {
 		return writes[t.rng.IntN(len(writes))]
 	}
-	// If there are no write txns, always pick a read transaction.
+	// If there are no write txns, a read transaction is always picked.
 	if len(writes) == 0 {
 		return reads[t.rng.IntN(len(reads))]
 	}
 
-	// If both are non-empty then choose based on readPct.
-	if t.rng.IntN(100) < t.d.readPct {
+	// If both are non-empty then txn is chosen based on readPct.
+	if t.rng.IntN(100) < t.w.readPct {
 		return reads[t.rng.IntN(len(reads))]
 	}
 	return writes[t.rng.IntN(len(writes))]
@@ -234,13 +236,13 @@ func (w *workloadGeneratorStruct) getRegularColumnValue(p Placeholder, idx int) 
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
 
-	// for filling in data for where clause or columns with foreign key constraints, we use the cache.
+	// For filling in data for where clause or columns with foreign key constraints, we use the cache.
 	if p.Clause == "WHERE" || (rc.columnMeta.HasForeignKey == true) {
 		if len(rc.cache) > 0 {
 			return rc.cache[idx]
 		}
 	}
-	// for insert or update clauses, we use the generator to get a new value.
+	// For insert or update clauses, we use the generator to get a new value.
 	v := rc.gen.Next()
 	if len(rc.cache) < maxCacheSize {
 		rc.cache = append(rc.cache, v)
@@ -253,9 +255,9 @@ func (w *workloadGeneratorStruct) getRegularColumnValue(p Placeholder, idx int) 
 // initGenerators seeds d.columnGens with both fresh generators and a cache
 // of real values pulled from the live database.
 func (w *workloadGeneratorStruct) initGenerators(db *sql.DB) error {
-	// need globalNumBatches to seed the generators.
+	// globalNumBatches is needed to seed the generators.
 	// 0-globalNumBatches-1 was used during initial bulk insertions.
-	// So, globalNumBatches can be the batch index for run time generators
+	// So, globalNumBatches can be the batch index for run time generators.
 	maxRows := 0
 	for _, tblBlocks := range w.workloadSchema {
 		if tblBlocks[0].Count > maxRows {
@@ -264,11 +266,11 @@ func (w *workloadGeneratorStruct) initGenerators(db *sql.DB) error {
 	}
 	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
 
-	// 1) Build the generator + empty cache for every table.col
+	// 1) The generator + empty cache for every table.col is built.
 	w.buildRuntimeGenerators(globalNumBatches)
 
-	// 2) Prime each cache by selecting up to maxInitialCacheSize existing rows.
-	//    We do this column-by-column to keep it simple.
+	// 2) Each cache is primed by selecting up to maxInitialCacheSize existing rows.
+	// We do this column-by-column to keep it simple.
 	err := w.setCacheValues(db)
 	if err != nil {
 		return err
@@ -284,7 +286,7 @@ func (w *workloadGeneratorStruct) setCacheValues(db *gosql.DB) error {
 			key := fmt.Sprintf("%s.%s", tableName, colName)
 			rc := w.columnGens[key]
 
-			// build a query like: SELECT colName FROM tableName LIMIT maxInitialCacheSize
+			// Building a query like: SELECT colName FROM tableName LIMIT maxInitialCacheSize
 			q := fmt.Sprintf(`SELECT %s FROM %s LIMIT %d`,
 				pq.QuoteIdentifier(colName), pq.QuoteIdentifier(tableName), maxCacheSize)
 			rows, err := db.QueryContext(context.Background(), q)
@@ -311,6 +313,7 @@ func (w *workloadGeneratorStruct) setCacheValues(db *gosql.DB) error {
 	return nil
 }
 
+// buildRuntimeGenerators initializes the runtime generators for each column in the workload schema.
 func (w *workloadGeneratorStruct) buildRuntimeGenerators(globalNumBatches int) {
 	w.columnGens = make(map[string]*runtimeColumn)
 	for tableNmae, blocks := range w.workloadSchema {

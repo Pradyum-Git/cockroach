@@ -44,7 +44,7 @@ type txnWorker struct {
 	writeTransactions []Transaction
 	rng               *rand.Rand
 	hists             *histogram.Histograms
-	d                 *workloadGeneratorStruct // reference to the workloadGeneratorStruct for generators
+	w                 *workloadGeneratorStruct // reference to the workloadGeneratorStruct for generators
 }
 
 const (
@@ -170,7 +170,7 @@ func (w *workloadGeneratorStruct) Hooks() workload.Hooks {
 
 // Tables implements workload.Generator.Tables
 func (w *workloadGeneratorStruct) Tables() []workload.Table {
-	//if we are in yaml output mode, emit no tables
+	// If we are in yaml output mode, emit no tables
 	if w.schemaOnly {
 		return []workload.Table{}
 	}
@@ -261,7 +261,7 @@ func generateBatch(
 	block TableBlock,
 	fullSchema Schema,
 	batchSize int,
-	d *workloadGeneratorStruct,
+	w *workloadGeneratorStruct,
 ) func(batchIdx int, cb coldata.Batch, _ *bufalloc.ByteAllocator) {
 	// determine the Cockroach columnar types and a stable column order
 	colOrder := block.ColumnOrder
@@ -339,14 +339,14 @@ func generateBatch(
 func (w *workloadGeneratorStruct) Ops(
 	ctx context.Context, urls []string, reg *histogram.Registry,
 ) (workload.QueryLoad, error) {
-	//Set database name in the main workload struct.
+	// Database name is set in the main workload struct.
 	w.setDbName()
-	//Load the schema information into memory from the yaml. This information is used for the runtime data generation.
+	// The schema information is loaded into memory from the yaml. This information is used for the runtime data generation.
 	errYaml, done := w.loadYamlData()
 	if done {
 		return workload.QueryLoad{}, errYaml
 	}
-	// Parse transactions from the sql file.
+	// Transactions from the sql file are parsed.
 	readPath := filepath.Join(w.outputDir, fmt.Sprintf("%s_read.sql", w.dbName))
 	writePath := filepath.Join(w.outputDir, fmt.Sprintf("%s_write.sql", w.dbName))
 	readTransactions, errRead := readSQL(readPath)
@@ -365,7 +365,7 @@ func (w *workloadGeneratorStruct) Ops(
 	db.SetMaxOpenConns(w.connFlags.Concurrency + 1)
 	db.SetMaxIdleConns(w.connFlags.Concurrency + 1)
 
-	//initialise the generators and column old data caches
+	// The generators and column old data caches are initialised.
 	if err := w.initGenerators(db); err != nil {
 		return workload.QueryLoad{}, err
 	}
@@ -378,7 +378,7 @@ func (w *workloadGeneratorStruct) Ops(
 			writeTransactions: writeTransactions,
 			rng:               rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), uint64(i))),
 			hists:             reg.GetHandle(),
-			d:                 w, // reference to the workloadGeneratorStruct for generators
+			w:                 w, // reference to the workloadGeneratorStruct for generators
 		}
 		ql.WorkerFns = append(ql.WorkerFns, worker.run)
 	}
@@ -390,8 +390,8 @@ func (w *workloadGeneratorStruct) Ops(
 func (t *txnWorker) run(ctx context.Context) error {
 	txn := t.chooseTransaction()
 	// Reference to the workloadGeneratorStruct for generators.
-	d := t.d
-	// Start time for the metrics.
+	w := t.w
+	// Time for the metrics is started.
 	start := timeutil.Now()
 	// Inserted maintains a map of column names to the values that were inserted in this transaction.
 	inserted := make(map[string][]interface{})
@@ -399,34 +399,34 @@ func (t *txnWorker) run(ctx context.Context) error {
 		for _, sqlQuery := range txn.Queries {
 			args := make([]interface{}, len(sqlQuery.Placeholders))
 			// Checking if we have a situation where all the primary keys in the query have foreign key dependency.
-			allPksAreFK := checkIfAllPkAreFk(sqlQuery, d)
-			// Pick a single fkIdx for ALL FK placeholders (or -1 if none).
+			allPksAreFK := checkIfAllPkAreFk(sqlQuery, w)
+			// Picking a single fkIdx for ALL FK placeholders (or -1 if none).
 			// This ensures that for all column in a composite fk, the same row index from the parent column cache is chosen.
-			fkIndex := t.pickForeignKeyIndex(sqlQuery, d)
-			// Build per-placeholder indexes.
-			indexes := t.setCacheIndex(sqlQuery, d, fkIndex)
+			fkIndex := t.pickForeignKeyIndex(sqlQuery, w)
+			// Building per-placeholder indexes.
+			indexes := t.setCacheIndex(sqlQuery, w, fkIndex)
 			for i, placeholder := range sqlQuery.Placeholders {
 				var raw string
 				// Getting the value to be inserted for the placeholder
-				raw = getColumnValue(allPksAreFK, placeholder, d, inserted, raw, indexes, i)
-				// If the data was generated to be written, we need to insert it into the inserted map
+				raw = getColumnValue(allPksAreFK, placeholder, w, inserted, raw, indexes, i)
+				// If the data was generated to be written, we need to insert it into the inserted map.
 				if placeholder.Clause == insert || placeholder.Clause == update {
 					inserted[placeholder.Name] = append(inserted[placeholder.Name], raw)
 				}
-				// Set the value for the placeholder in the args slice based on the column type
+				// The value for the placeholder is set in the args slice based on the column type.
 				err := setColumnValue(raw, placeholder, args, i)
 				if err != nil {
 					return err
 				}
 			}
-			// Run the SQL query with the args
+			// The SQL query is ran with the args
 			if _, err := tx.ExecContext(ctx, sqlQuery.SQL, args...); err != nil {
 				return err
 			}
 		}
 		return nil
 	})
-	// Calculate the elapsed time for the transaction metrics
+	// The elapsed time is calculated for the transaction metrics.
 	elapsed := timeutil.Since(start)
 	t.hists.Get(fmt.Sprintf("typ_%v", txn.typ)).Record(elapsed)
 	return err
