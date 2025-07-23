@@ -1,1 +1,328 @@
 package workload_generator
+
+import (
+	"context"
+	"database/sql"
+	gosql "database/sql"
+	"fmt"
+	"github.com/lib/pq"
+	"gopkg.in/yaml.v2"
+	"math/rand/v2"
+	"os"
+	"strconv"
+	"strings"
+
+	"github.com/cockroachdb/errors"
+)
+
+// loadYamlData first checks whether the input yaml flag is set or not.
+// Accordingly, it loads the schema information into memory from the correct location.
+func (w *workloadGeneratorStruct) loadYamlData() (error, bool) {
+	var path string
+	if w.inputYAML != "" {
+		path = w.inputYAML
+	} else {
+		path = fmt.Sprintf("schema_%s.yaml", w.dbName)
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return errors.Wrapf(err, "could not read schema YAML from %s", path), true
+	}
+	if err := yaml.UnmarshalStrict(raw, &w.workloadSchema); err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal schema YAML"), true
+	}
+	return nil, false
+}
+
+// setColumnValue sets the value for a placeholder in the args slice.
+func setColumnValue(raw string, placeholder Placeholder, args []interface{}, i int) error {
+	var arg interface{}
+	// If we got an empty string and this column is nullable, emit a SQL NULL.
+	if raw == "" && placeholder.IsNullable {
+		arg = setNullType(placeholder, arg)
+	} else {
+		// Otherwise parse the raw string into the right Go/sql type.
+		typedValue, err := setNotNullType(placeholder, raw, arg)
+		if err != nil {
+			return err
+		}
+		arg = typedValue
+	}
+
+	args[i] = arg
+	return nil
+}
+
+// setNotNullType converts the raw string value to the appropriate SQL type based on the placeholder's column type.
+func setNotNullType(placeholder Placeholder, raw string, arg interface{}) (interface{}, error) {
+	switch t := strings.ToUpper(placeholder.ColType); {
+	// integer types
+	case strings.HasPrefix(t, "INT"):
+		iv, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		arg = sql.NullInt64{Int64: iv, Valid: true}
+	// floating point types
+	case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
+		fv, err := strconv.ParseFloat(raw, 64)
+		if err != nil {
+			return nil, err
+		}
+		arg = sql.NullFloat64{Float64: fv, Valid: true}
+	// boolean types
+	case t == "BOOL", t == "BOOLEAN":
+		bv, err := strconv.ParseBool(raw)
+		if err != nil {
+			return nil, err
+		}
+		arg = sql.NullBool{Bool: bv, Valid: true}
+	// remaining types are parsed as raw strings
+	default:
+		// treat everything else as text/varchar/etc.
+		arg = sql.NullString{String: raw, Valid: raw != ""}
+	}
+	return arg, nil
+}
+
+// setNullType sets the argument to a SQL NULL value based on the column type of the placeholder.
+func setNullType(placeholder Placeholder, arg interface{}) interface{} {
+	switch t := strings.ToUpper(placeholder.ColType); {
+	case strings.HasPrefix(t, "INT"):
+		arg = sql.NullInt64{Valid: false}
+	case strings.HasPrefix(t, "FLOAT"), strings.HasPrefix(t, "DECIMAL"), strings.HasPrefix(t, "NUMERIC"), strings.HasPrefix(t, "DOUBLE"):
+		arg = sql.NullFloat64{Valid: false}
+	case t == "BOOL", t == "BOOLEAN":
+		arg = sql.NullBool{Valid: false}
+	default:
+		arg = sql.NullString{Valid: false}
+	}
+	return arg
+}
+
+// getTableName checks if the name field of placeholder is a column in the TableName column in the allSchema map inside d.
+// If yes, then returns that table name. otherwise looks for a table with that column and returns that.
+func getTableName(p Placeholder, d *workloadGeneratorStruct) string {
+	for _, block := range d.workloadSchema[p.TableName] {
+		for colName, _ := range block.Columns {
+			if colName == p.Name {
+				return p.TableName
+			}
+		}
+	}
+	for tableName, blocks := range d.workloadSchema {
+		block := blocks[0]
+		for colName, _ := range block.Columns {
+			if colName == p.Name {
+				return tableName
+			}
+		}
+	}
+	return p.TableName
+}
+
+// getColumnValue retrieves the value for a placeholder based on its clause and whether it has a foreign key dependency.
+func getColumnValue(allPksAreFK bool, p Placeholder, d *workloadGeneratorStruct, inserted map[string][]interface{}, raw string, indexes []int, i int) string {
+	if allPksAreFK && (p.Clause == insert || p.Clause == update) {
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		fk := d.columnGens[key].columnMeta.FK
+		parts := strings.Split(fk, ".")
+		parentCol := parts[len(parts)-1] // last part is the column name
+		if vals, ok := inserted[parentCol]; ok && len(vals) > 0 {
+			raw = vals[0].(string)         // use the first value from the inserted map
+			inserted[parentCol] = vals[1:] // remove the first value
+		} else {
+			//Fallback that shouldn't really happen.
+			raw = d.getRegularColumnValue(p, indexes[i])
+		}
+	} else {
+		raw = d.getRegularColumnValue(p, indexes[i])
+	}
+	return raw
+}
+
+// setCacheIndex sets the indexes for each placeholder in the SQL query.
+// If the placeholder is a foreign key, it uses the fkIdx; otherwise, it picks a random index from the cache.
+func (t *txnWorker) setCacheIndex(sqlQuery SQLQuery, d *workloadGeneratorStruct, fkIdx int) []int {
+	indexes := make([]int, len(sqlQuery.Placeholders))
+	for i, p := range sqlQuery.Placeholders {
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		if d.columnGens[key].columnMeta.HasForeignKey {
+			indexes[i] = fkIdx
+		} else {
+			cacheLen := len(d.columnGens[key].cache)
+			indexes[i] = t.rng.IntN(cacheLen)
+		}
+	}
+	return indexes
+}
+
+// pickForeignKeyIndex picks a random index from the cache of a foreign key column.
+func (t *txnWorker) pickForeignKeyIndex(sqlQuery SQLQuery, d *workloadGeneratorStruct) int {
+	fkIdx := -1
+	for _, p := range sqlQuery.Placeholders {
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		if d.columnGens[key].columnMeta.HasForeignKey {
+			cacheLen := len(d.columnGens[key].cache)
+			if cacheLen > 0 {
+				fkIdx = t.rng.IntN(cacheLen)
+			}
+			break
+		}
+	}
+	return fkIdx
+}
+
+// checkIfAllPkAreFk checks if all primary keys in the SQL query are foreign keys.
+func checkIfAllPkAreFk(sqlQuery SQLQuery, d *workloadGeneratorStruct) bool {
+	allPksAreFK := true
+	for _, p := range sqlQuery.Placeholders {
+		tableName := getTableName(p, d)
+		key := fmt.Sprintf("%s.%s", tableName, p.Name)
+		if p.IsPrimaryKey && !d.columnGens[key].columnMeta.HasForeignKey {
+			allPksAreFK = false
+			break
+		}
+	}
+	return allPksAreFK
+}
+
+// chooseTransaction returns a random transaction of type read or write based on the readPct flag.
+func (t *txnWorker) chooseTransaction() Transaction {
+	var txn Transaction
+	reads := t.readTransactions
+	writes := t.writeTransactions
+
+	// If neither set has any transactions, just return the zero-Txn.
+	if len(reads) == 0 && len(writes) == 0 {
+		return txn
+	}
+	// If there are no read txns, always pick a write transaction.
+	if len(reads) == 0 {
+		return writes[t.rng.IntN(len(writes))]
+	}
+	// If there are no write txns, always pick a read transaction.
+	if len(writes) == 0 {
+		return reads[t.rng.IntN(len(reads))]
+	}
+
+	// If both are non-empty then choose based on readPct.
+	if t.rng.IntN(100) < t.d.readPct {
+		return reads[t.rng.IntN(len(reads))]
+	}
+	return writes[t.rng.IntN(len(writes))]
+}
+
+// setDbName registers the database name in the main workload struct.
+// It uses the name provided using the --db flag, otherwise falls back to "workload_generator".
+func (w *workloadGeneratorStruct) setDbName() {
+	dbName := w.Meta().Name
+	if w.connFlags.DBOverride != "" {
+		dbName = w.connFlags.DBOverride
+	}
+	w.dbName = dbName
+}
+
+// getRegularColumnValue picks values from the generator or cache depending on sql clause or whether there is a fk dependency.
+func (w *workloadGeneratorStruct) getRegularColumnValue(p Placeholder, idx int) string {
+	tableName := getTableName(p, w)
+	key := fmt.Sprintf("%s.%s", tableName, p.Name)
+	rc := w.columnGens[key]
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+
+	// for filling in data for where clause or columns with foreign key constraints, we use the cache.
+	if p.Clause == "WHERE" || (rc.columnMeta.HasForeignKey == true) {
+		if len(rc.cache) > 0 {
+			return rc.cache[idx]
+		}
+	}
+	// for insert or update clauses, we use the generator to get a new value.
+	v := rc.gen.Next()
+	if len(rc.cache) < maxCacheSize {
+		rc.cache = append(rc.cache, v)
+	} else {
+		rc.cache[rand.IntN(len(rc.cache))] = v
+	}
+	return v
+}
+
+// initGenerators seeds d.columnGens with both fresh generators and a cache
+// of real values pulled from the live database.
+func (w *workloadGeneratorStruct) initGenerators(db *sql.DB) error {
+	// need globalNumBatches to seed the generators.
+	// 0-globalNumBatches-1 was used during initial bulk insertions.
+	// So, globalNumBatches can be the batch index for run time generators
+	maxRows := 0
+	for _, tblBlocks := range w.workloadSchema {
+		if tblBlocks[0].Count > maxRows {
+			maxRows = tblBlocks[0].Count
+		}
+	}
+	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
+
+	// 1) Build the generator + empty cache for every table.col
+	w.buildRuntimeGenerators(globalNumBatches)
+
+	// 2) Prime each cache by selecting up to maxInitialCacheSize existing rows.
+	//    We do this column-by-column to keep it simple.
+	err := w.setCacheValues(db)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// setCacheValues fills into the runtimeColumn structs the cache data consisting of values generated during the initial bulk insert.
+func (w *workloadGeneratorStruct) setCacheValues(db *gosql.DB) error {
+	for tableName, blocks := range w.workloadSchema {
+		block := blocks[0]
+		for _, colName := range block.ColumnOrder {
+			key := fmt.Sprintf("%s.%s", tableName, colName)
+			rc := w.columnGens[key]
+
+			// build a query like: SELECT colName FROM tableName LIMIT maxInitialCacheSize
+			q := fmt.Sprintf(`SELECT %s FROM %s LIMIT %d`,
+				pq.QuoteIdentifier(colName), pq.QuoteIdentifier(tableName), maxCacheSize)
+			rows, err := db.QueryContext(context.Background(), q)
+			if err != nil {
+				return fmt.Errorf("priming cache for %s: %w", key, err)
+			}
+
+			for rows.Next() {
+				var raw sql.NullString
+				if err := rows.Scan(&raw); err != nil {
+					rows.Close()
+					return fmt.Errorf("scanning cache row for %s: %w", key, err)
+				}
+				if raw.Valid {
+					rc.cache = append(rc.cache, raw.String)
+				}
+				if len(rc.cache) >= maxCacheSize {
+					break
+				}
+			}
+			rows.Close()
+		}
+	}
+	return nil
+}
+
+func (w *workloadGeneratorStruct) buildRuntimeGenerators(globalNumBatches int) {
+	w.columnGens = make(map[string]*runtimeColumn)
+	for tableNmae, blocks := range w.workloadSchema {
+		block := blocks[0]
+		for colName, meta := range block.Columns {
+			key := fmt.Sprintf("%s.%s", tableNmae, colName)
+			gen := makeGenerator(meta, globalNumBatches, baseBatchSize, w.workloadSchema)
+			w.columnGens[key] = &runtimeColumn{
+				gen:        gen,
+				cache:      make([]string, 0, maxCacheSize),
+				columnMeta: meta,
+			}
+		}
+	}
+}
