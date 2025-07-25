@@ -156,7 +156,7 @@ func (w *workloadGeneratorStruct) Hooks() workload.Hooks {
 			}
 
 			// 3b) Always generate the SQL file (even in schema-only mode).
-			if err := GenerateWorkload(w.debugLogsLocation, w.allSchema, w.dbName, w.outputDir); err != nil {
+			if err := generateWorkload(w.debugLogsLocation, w.allSchema, w.dbName, w.outputDir); err != nil {
 				return errors.Wrapf(err,
 					"failed to generate SQL workload to %s_read.sql and %s_write.sql",
 					w.dbName, w.dbName,
@@ -349,8 +349,8 @@ func (w *workloadGeneratorStruct) Ops(
 	// Transactions from the sql file are parsed.
 	readPath := filepath.Join(w.outputDir, fmt.Sprintf("%s_read.sql", w.dbName))
 	writePath := filepath.Join(w.outputDir, fmt.Sprintf("%s_write.sql", w.dbName))
-	readTransactions, errRead := readSQL(readPath)
-	writeTransactions, errWrite := readSQL(writePath)
+	readTransactions, errRead := readSQL(readPath, "read")
+	writeTransactions, errWrite := readSQL(writePath, "write")
 	if errRead != nil {
 		return workload.QueryLoad{}, errRead
 	}
@@ -395,7 +395,13 @@ func (t *txnWorker) run(ctx context.Context) error {
 	start := timeutil.Now()
 	// Inserted maintains a map of column names to the values that were inserted in this transaction.
 	inserted := make(map[string][]interface{})
+	// Each transaction gets its own debug slice
+	type debugEntry struct {
+		Query string
+		Args  []interface{}
+	}
 	err := crdb.ExecuteTx(ctx, t.db, nil, func(tx *gosql.Tx) error {
+		var debugEntries []debugEntry
 		for _, sqlQuery := range txn.Queries {
 			args := make([]interface{}, len(sqlQuery.Placeholders))
 			// Checking if we have a situation where all the primary keys in the query have foreign key dependency.
@@ -410,7 +416,7 @@ func (t *txnWorker) run(ctx context.Context) error {
 				// Getting the value to be inserted for the placeholder
 				raw = getColumnValue(allPksAreFK, placeholder, w, inserted, raw, indexes, i)
 				// If the data was generated to be written, we need to insert it into the inserted map.
-				if placeholder.Clause == insert || placeholder.Clause == update {
+				if placeholder.Clause == insert {
 					inserted[placeholder.Name] = append(inserted[placeholder.Name], raw)
 				}
 				// The value for the placeholder is set in the args slice based on the column type.
@@ -419,8 +425,17 @@ func (t *txnWorker) run(ctx context.Context) error {
 					return err
 				}
 			}
+			argCopy := make([]interface{}, len(args))
+			copy(argCopy, args)
+			debugEntries = append(debugEntries, debugEntry{
+				Query: sqlQuery.SQL,
+				Args:  argCopy,
+			})
 			// The SQL query is ran with the args
 			if _, err := tx.ExecContext(ctx, sqlQuery.SQL, args...); err != nil {
+				for _, de := range debugEntries {
+					fmt.Printf("QUERY: %s\nARGS:  %v\n\n", de.Query, de.Args)
+				}
 				return err
 			}
 		}

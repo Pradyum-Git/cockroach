@@ -1,26 +1,32 @@
+// Copyright 2025 The Cockroach Authors.
+//
+// Use of this software is governed by the CockroachDB Software License
+// included in the /LICENSE file.
+
 package workload_generator
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/cockroachdb/cockroach/pkg/sql/parser"
 	"github.com/cockroachdb/cockroach/pkg/sql/parser/statements"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 )
 
 // placeholderRewriter handles both simple comparisons and IN-lists.
+// It is the visitor interface implementation for walking the AST.
 type placeholderRewriter struct {
 	schemas   map[string]*TableSchema
 	tableName string
 }
 
-// GenerateWorkload extracts and organizes SQL workload from CockroachDB debug logs.
+// generateWorkload extracts and organizes SQL workload from CockroachDB debug logs.
 // It scans each node’s statement statistics TSV in the unzipped debug directory, filters
 // statements for the given database, rewrites queries using schema metadata, groups them
 // by transaction fingerprint, and writes out separate read and write workload files.
@@ -28,7 +34,7 @@ type placeholderRewriter struct {
 // Parameters:
 //
 //	debugZip    – path to the unzipped debug-logs directory (contains “nodes/…” subfolders)
-//	allSchemas  – map of table names to *TableSchema objects (as returned by GenerateDDLs)
+//	allSchemas  – map of table names to *TableSchema objects (as returned by generateDDLs)
 //	dbName      – the target database name to filter statements by
 //	sqlLocation – directory in which to create the output SQL files
 //
@@ -54,24 +60,22 @@ type placeholderRewriter struct {
 // Returns:
 //
 //	error – if any file I/O, scanner error, or placeholder-replacement error occurs.
-func GenerateWorkload(
-	debugZip string,
-	allSchemas map[string]*TableSchema,
-	dbName, sqlLocation string,
+func generateWorkload(
+	debugLogs string, allSchemas map[string]*TableSchema, dbName, sqlLocation string,
 ) error {
-	// 1) Prepare grouping structures
+	// 1) Grouping structures are prepared.
 	txnOrder := make([]string, 0)       // first-seen txn IDs
 	txnMap := make(map[string][]string) // txnID → []SQL statements
 
-	// 2) Iterate node directories (nodes/1, nodes/2, …)
-	nodesRoot := filepath.Join(debugZip, "nodes")
+	// 2) Iterating node directories (nodes/1, nodes/2, …).
+	nodesRoot := filepath.Join(debugLogs, "nodes")
 	for node := 1; ; node++ {
 		nodeDir := filepath.Join(nodesRoot, strconv.Itoa(node))
 		if fi, err := os.Stat(nodeDir); err != nil || !fi.IsDir() {
 			break
 		}
 
-		// 3) Open the statistics TSV
+		// 3) The statistics tsv is opened to read the transactions from the debug logs.
 		statsPath := filepath.Join(nodeDir, "crdb_internal.node_statement_statistics.txt")
 		f, err := os.Open(statsPath)
 		if err != nil {
@@ -79,7 +83,7 @@ func GenerateWorkload(
 		}
 		scanner := bufio.NewScanner(f)
 
-		// 4) Read header row and map column→index
+		// 4) Header row and map column→index are read.
 		if !scanner.Scan() {
 			if err := f.Close(); err != nil {
 				return err
@@ -91,43 +95,42 @@ func GenerateWorkload(
 			return err
 		}
 
-		// 5) Scan each data row
+		// 5) Each data row is scanned.
 		for scanner.Scan() {
 			row := strings.Split(scanner.Text(), "\t")
-			// 5a) filter by database_name
-			if row[columnIndex["database_name"]] != dbName {
+			// 5a) Filtering by database_name.
+			if row[columnIndex[databaseName]] != dbName {
 				continue
 			}
-			// 5b) skip internal “job id=” lines
-			app := row[columnIndex["application_name"]]
+			// 5b) Internal “job id=” lines are skipped.
+			app := row[columnIndex[applicationName]]
 			if strings.Contains(app, "job id=") {
 				continue
 			}
-			// 5c) extract txnID and raw SQL
-			txnID := row[columnIndex["txn_fingerprint_id"]]
-			rawSQL := row[columnIndex["key"]]
-			// Unhandled clauses.
-			var skipRE = regexp.MustCompile(`\b(DEALLOCATE|WHEN)\b`)
-			if skipRE.MatchString(rawSQL) {
-				continue // drop any statement containing DEALLOCATE or WHEN
-			}
-			// Un-quote the TSV’s string literal if present:
+			// 5c) txnID and raw SQL are extracted.
+			txnID := row[columnIndex[txnFingerprintID]]
+			rawSQL := row[columnIndex[keyColumnName]]
+
+			//var skipRE = regexp.MustCompile(`\b(DEALLOCATE|WHEN)\b`)
+			//if skipRE.MatchString(rawSQL) {
+			//	continue // drop any statement containing DEALLOCATE or WHEN
+			//}
+
+			// The TSV’s string literal are unquoted if present:
 			if len(rawSQL) >= 2 && rawSQL[0] == '"' && rawSQL[len(rawSQL)-1] == '"' {
-				rawSQL = rawSQL[1 : len(rawSQL)-1]             // Strip outer quotes
-				rawSQL = strings.ReplaceAll(rawSQL, `""`, `"`) // …and turn every "" into "
+				// Outer quotes are stripped and every "" is turned into ".
+				rawSQL = rawSQL[1 : len(rawSQL)-1]
+				rawSQL = strings.ReplaceAll(rawSQL, `""`, `"`)
 			}
 
-			// 5d) placeholder-process
+			// 5d) The sql query is processed to replace _ and __more__ with new placeholders which contain information about the column they refer to.
 			rewritten, err := replacePlaceholders(rawSQL, allSchemas)
 			if err != nil {
-				err := f.Close()
-				if err != nil {
-					return err
-				}
+				f.Close()
 				return errors.Wrapf(err, "rewriting SQL %q", rawSQL)
 			}
 
-			// 5e) group into txnMap, tracking first-seen order
+			// 5e) Grouping into txnMap, tracking first-seen order.
 			if _, seen := txnMap[txnID]; !seen {
 				txnOrder = append(txnOrder, txnID)
 			}
@@ -142,33 +145,17 @@ func GenerateWorkload(
 		}
 	}
 
-	// 6) Write out <sqlLocation><Read/Write>/<dbName>.sql
-	var outPathRead, outPathWrite string
-	if fi, err := os.Stat(sqlLocation); err == nil && fi.IsDir() {
-		outPathRead = filepath.Join(sqlLocation, dbName+"_read.sql")
-		outPathWrite = filepath.Join(sqlLocation, dbName+"_write.sql")
+	// 6) Writing out <sqlLocation><Read/Write>/<dbName>.sql .
+	errTxnWrite := writeTransaction(txnOrder, txnMap, dbName, sqlLocation)
+	if errTxnWrite != nil {
+		return errTxnWrite
 	}
-	outReadFile, errRead := os.Create(outPathRead)
-	if errRead != nil {
-		return errors.Wrapf(errRead, "creating %s", outPathRead)
-	}
-	defer outReadFile.Close()
-	outWriteFile, errWrite := os.Create(outPathWrite)
-	if errWrite != nil {
-		return errors.Wrapf(errWrite, "creating %s", outPathWrite)
-	}
-	defer outWriteFile.Close()
-
-	writeTransaction(txnOrder, txnMap, outReadFile, outWriteFile)
 	return nil
 }
 
 // replacePlaceholders parses the given SQL and locates all the _, __more__ placeholders.
-// The placeholders are then matched to what column's data do they represent and are replaced with information about that column for data generation
-func replacePlaceholders(
-	rawSQL string,
-	allSchemas map[string]*TableSchema,
-) (string, error) {
+// The placeholders are then matched to what column's data do they represent and are replaced with information about that column for data generation.
+func replacePlaceholders(rawSQL string, allSchemas map[string]*TableSchema) (string, error) {
 	stmts, err := parser.Parse(rawSQL)
 	if err != nil {
 		return "", err
@@ -176,13 +163,13 @@ func replacePlaceholders(
 
 	var out []string
 	for _, stmt := range stmts {
-		// statement-level INSERT…VALUES rewrite
+		// INSERT…VALUES (<placeholders>) is rewritten.
 		if ins, ok := stmt.AST.(*tree.Insert); ok {
 			handleInsert(ins, allSchemas)
 		}
-		//update ... set rewrite
+		// UPDATE ... SET is rewritten.
 		if upd, ok := stmt.AST.(*tree.Update); ok {
-			// 1) Rewrite everything in the SET clause.
+			// 1) Everything in the SET clause is rewritten.
 			handleUpdateSet(upd, allSchemas)
 		}
 		// Handling limit _
@@ -194,7 +181,7 @@ func replacePlaceholders(
 		rewriter := buildPlaceholderRewriter(stmt, allSchemas)
 		// Wiring in for the join (col = __) case
 		if sel, ok := stmt.AST.(*tree.Select); ok {
-			// Unbox the SelectClause
+			// The SelectClause is unboxed from the Select statement.
 			if sc, ok := sel.Select.(*tree.SelectClause); ok {
 				for _, tbl := range sc.From.Tables {
 					if j, ok := tbl.(*tree.JoinTableExpr); ok {
@@ -206,20 +193,26 @@ func replacePlaceholders(
 				}
 			}
 		}
-		//This covers all the expr relates nodes. So mostly all the where expressions.
+		// This covers all the expr relates nodes. So mostly all the where expressions.
 		tree.WalkStmt(rewriter, stmt.AST)
 
-		// pretty-print
 		fmtCtx := tree.NewFmtCtx(tree.FmtSimple)
 		stmt.AST.Format(fmtCtx)
-		out = append(out, fmtCtx.CloseAndGetString())
+		// Grabbing the rewritten SQL from the formatter.
+		rewritten := fmtCtx.CloseAndGetString()
+		// force_error cleanup : replacing crdb_internal.force_error(_,_) with fixed code and message
+		rewritten = forceErrorRe.ReplaceAllString(rewritten, fmt.Sprintf("crdb_internal.force_error(%s, %s)", forceErrorCode, forceErrorMessage))
+		out = append(out, rewritten)
 	}
-	// join multiple statements with newline
+	// Multiple statements are joined with newline.
 	return strings.Join(out, "\n"), nil
 }
 
-func buildPlaceholderRewriter(stmt statements.Statement[tree.Statement], allSchemas map[string]*TableSchema) *placeholderRewriter {
-	// in replacePlaceholders, per stmt:
+// buildPlaceholderRewriter creates a placeholderRewriter for the given statement.
+// It extracts the table name from the statement and initializes the rewriter with the schema map.
+func buildPlaceholderRewriter(
+	stmt statements.Statement[tree.Statement], allSchemas map[string]*TableSchema,
+) *placeholderRewriter {
 	var tableName string
 	switch stmt := stmt.AST.(type) {
 	case *tree.Insert:
@@ -230,17 +223,16 @@ func buildPlaceholderRewriter(stmt statements.Statement[tree.Statement], allSche
 	case *tree.Delete:
 		tableName = extractTableName(stmt.Table)
 	case *tree.Select:
-		// pull from the first FROM table (skip joins/withs)
+		// Pulling from the first FROM table (skip joins/withs)
 		if sc, ok := stmt.Select.(*tree.SelectClause); ok {
 			if len(sc.From.Tables) > 0 {
 				tableName = extractTableName(sc.From.Tables[0])
 			}
 		}
 	}
-	// expression-level rewrites (WHERE, IN, BETWEEN, comparisons)
-	rw := &placeholderRewriter{
+	// Expression-level rewrites (WHERE, IN, BETWEEN, comparisons) are handled using this visitor.
+	return &placeholderRewriter{
 		schemas:   allSchemas,
 		tableName: tableName,
 	}
-	return rw
 }

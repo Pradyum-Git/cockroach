@@ -125,7 +125,7 @@ func TestGenerateWorkload_Smoke(t *testing.T) {
 	// for now, pass an empty schema map
 	allSchemas := make(map[string]*TableSchema)
 
-	err := GenerateWorkload(debugZip, allSchemas, dbName, outputDir)
+	err := generateWorkload(debugZip, allSchemas, dbName, outputDir)
 	if err != nil {
 		t.Fatalf("GenerateWorkload failed: %v", err)
 	}

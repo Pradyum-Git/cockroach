@@ -48,7 +48,7 @@ type Transaction struct {
 
 // readSQL reads <dbName><read/write>.sql and returns a slice of Transactions.
 // It will number placeholders $1…$N separately in each SQL statement.
-func readSQL(path string) ([]Transaction, error) {
+func readSQL(path, typ string) ([]Transaction, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open file: %w", err)
@@ -96,6 +96,7 @@ func readSQL(path string) ([]Transaction, error) {
 			}
 		}
 		// Decide whether the transaction is a read type or write type.
+		txn.typ = typ
 		txns = append(txns, txn)
 	}
 
@@ -132,7 +133,7 @@ func makePlaceholderReplacer(placeholders *[]Placeholder, stmtPos *int) func(str
 
 		*stmtPos++
 		*placeholders = append(*placeholders, p)
-		return fmt.Sprintf("$%d", p.Position)
+		return fmt.Sprintf("$%d::%s", p.Position, p.ColType)
 	}
 }
 
