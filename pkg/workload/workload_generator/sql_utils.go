@@ -74,7 +74,7 @@ func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 				ce,
 				reconstructName(key), // e.g. "c_credit"
 				v.schemas,
-				"stock", //return type is unknown
+				v.tableName, //return type is unknown
 			)
 		// ── tuple CASE: CASE (col1,col2) WHEN … THEN …
 		case *tree.Tuple:
@@ -84,7 +84,7 @@ func (v *placeholderRewriter) VisitPre(expr tree.Expr) (bool, tree.Expr) {
 				ce,
 				"", // unused for tuple‐mode
 				v.schemas,
-				"stock", //return type is unknown
+				v.tableName, //return type is unknown
 			)
 		}
 
@@ -578,10 +578,14 @@ func rewriteCaseExpr(
 	}
 
 	// ── scalar‐CASE fallback ─────────────────────────────────────
+	colName := targetCol
+	if un, ok := c.Expr.(*tree.UnresolvedName); ok {
+		colName = reconstructName(un)
+	}
 	for _, arm := range c.Whens {
 		// Handling the WHEN arm.
 		if u, ok := arm.Cond.(*tree.UnresolvedName); ok {
-			populatePlaceholder(u, targetCol, allSchemas, tableName)
+			populatePlaceholder(u, colName, allSchemas, tableName)
 		}
 		// Handling the THEN arm.
 		if u, ok := arm.Val.(*tree.UnresolvedName); ok {
