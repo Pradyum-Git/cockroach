@@ -36,6 +36,7 @@ const (
 	minINRepetitions = 1
 	maxINRepetitions = 4
 
+	// These are used for crdb_internal.force_error(_, _) cleanup
 	forceErrorCode    = "'XX000'"
 	forceErrorMessage = "'simulated error'"
 )

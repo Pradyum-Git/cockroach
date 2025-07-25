@@ -264,6 +264,7 @@ func (w *workloadGeneratorStruct) initGenerators(db *sql.DB) error {
 			maxRows = tblBlocks[0].Count
 		}
 	}
+	// TODO: make teh globalBatchNumber dynamic
 	globalNumBatches := (maxRows + baseBatchSize - 1) / baseBatchSize
 
 	// 1) The generator + empty cache for every table.col is built.

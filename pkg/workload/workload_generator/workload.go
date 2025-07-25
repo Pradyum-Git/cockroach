@@ -393,14 +393,15 @@ func (t *txnWorker) run(ctx context.Context) error {
 	w := t.w
 	// Time for the metrics is started.
 	start := timeutil.Now()
-	// Inserted maintains a map of column names to the values that were inserted in this transaction.
-	inserted := make(map[string][]interface{})
+
 	// Each transaction gets its own debug slice
 	type debugEntry struct {
 		Query string
 		Args  []interface{}
 	}
 	err := crdb.ExecuteTx(ctx, t.db, nil, func(tx *gosql.Tx) error {
+		// Inserted maintains a map of column names to the values that were inserted in this transaction.
+		inserted := make(map[string][]interface{})
 		var debugEntries []debugEntry
 		for _, sqlQuery := range txn.Queries {
 			args := make([]interface{}, len(sqlQuery.Placeholders))
@@ -432,10 +433,13 @@ func (t *txnWorker) run(ctx context.Context) error {
 				Args:  argCopy,
 			})
 			// The SQL query is ran with the args
-			if _, err := tx.ExecContext(ctx, sqlQuery.SQL, args...); err != nil {
+			queryCtz, cancel := context.WithTimeout(ctx, 5*time.Minute)
+			defer cancel()
+			if _, err := tx.ExecContext(queryCtz, sqlQuery.SQL, args...); err != nil {
 				for _, de := range debugEntries {
 					fmt.Printf("QUERY: %s\nARGS:  %v\n\n", de.Query, de.Args)
 				}
+				fmt.Printf("Error executing error : %+v", err)
 				return err
 			}
 		}
