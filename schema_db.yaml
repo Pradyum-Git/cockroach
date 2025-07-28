@@ -1,0 +1,1215 @@
+t1:
+- count: 1000
+  columns:
+    t1_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 96
+        start: 1
+      isPrimaryKey: true
+      isUnique: true
+      hasForeignKey: false
+    t1_c2:
+      type: string
+      args:
+        max: 10
+        min: 1
+        null_pct: 0
+        seed: 96
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t1_c3:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 3
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t1_c4:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 90
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t1_c5:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 57
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t1_c6:
+      type: string
+      args:
+        max: 2
+        min: 2
+        null_pct: 0
+        seed: 91
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t1_c7:
+      type: string
+      args:
+        max: 9
+        min: 9
+        null_pct: 0
+        seed: 73
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t1_c8:
+      type: float
+      args:
+        max: 0.9999
+        min: -0.9999
+        null_pct: 0
+        round: 4
+        seed: 88
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t1_c9:
+      type: float
+      args:
+        max: 9.999999999e+07
+        min: -9.999999999e+07
+        null_pct: 0
+        round: 2
+        seed: 98
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t1_c1
+  sort-by: []
+  original_table: db.public.t1
+  column_order:
+  - t1_c1
+  - t1_c2
+  - t1_c3
+  - t1_c4
+  - t1_c5
+  - t1_c6
+  - t1_c7
+  - t1_c8
+  - t1_c9
+  table_number: 0
+t2:
+- count: 10000
+  columns:
+    t2_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 47
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: false
+    t2_c2:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 18
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t1.t1_c1
+      fk_mode: block
+      parent_seed: 96
+      fanout: 10
+    t2_c3:
+      type: string
+      args:
+        max: 10
+        min: 1
+        null_pct: 0
+        seed: 31
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c4:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 31
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c5:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 94
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c6:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 54
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c7:
+      type: string
+      args:
+        max: 2
+        min: 2
+        null_pct: 0
+        seed: 23
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c8:
+      type: string
+      args:
+        max: 9
+        min: 9
+        null_pct: 0
+        seed: 97
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c9:
+      type: float
+      args:
+        max: 0.9999
+        min: -0.9999
+        null_pct: 0
+        round: 4
+        seed: 38
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c10:
+      type: float
+      args:
+        max: 9.999999999e+07
+        min: -9.999999999e+07
+        null_pct: 0
+        round: 2
+        seed: 55
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t2_c11:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 30
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t2_c2
+  - t2_c1
+  sort-by: []
+  original_table: db.public.t2
+  column_order:
+  - t2_c1
+  - t2_c2
+  - t2_c3
+  - t2_c4
+  - t2_c5
+  - t2_c6
+  - t2_c7
+  - t2_c8
+  - t2_c9
+  - t2_c10
+  - t2_c11
+  table_number: 1
+t3:
+- count: 10000
+  columns:
+    t3_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 79
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: false
+    t3_c2:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 47
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t2.t2_c1
+      fk_mode: block
+      parent_seed: 47
+      fanout: 10
+      composite_id: 616865146
+    t3_c3:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 69
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t2.t2_c2
+      fk_mode: block
+      parent_seed: 18
+      fanout: 10
+      composite_id: 616865146
+    t3_c4:
+      type: string
+      args:
+        max: 16
+        min: 1
+        null_pct: 0
+        seed: 44
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c5:
+      type: string
+      args:
+        max: 2
+        min: 2
+        null_pct: 0
+        seed: 69
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c6:
+      type: string
+      args:
+        max: 16
+        min: 1
+        null_pct: 0
+        seed: 61
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c7:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 60
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c8:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 41
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c9:
+      type: string
+      args:
+        max: 20
+        min: 1
+        null_pct: 0
+        seed: 49
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c10:
+      type: string
+      args:
+        max: 2
+        min: 2
+        null_pct: 0
+        seed: 35
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c11:
+      type: string
+      args:
+        max: 9
+        min: 9
+        null_pct: 0
+        seed: 57
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c12:
+      type: string
+      args:
+        max: 16
+        min: 16
+        null_pct: 0
+        seed: 99
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c13:
+      type: timestamp
+      args:
+        end: "2025-01-01"
+        format: '%Y-%m-%d %H:%M:%S.%f'
+        null_pct: 0
+        seed: 36
+        start: "2000-01-01"
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c14:
+      type: string
+      args:
+        max: 2
+        min: 2
+        null_pct: 0
+        seed: 49
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c15:
+      type: float
+      args:
+        max: 9.999999999e+07
+        min: -9.999999999e+07
+        null_pct: 0
+        round: 2
+        seed: 36
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c16:
+      type: float
+      args:
+        max: 0.9999
+        min: -0.9999
+        null_pct: 0
+        round: 4
+        seed: 36
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c17:
+      type: float
+      args:
+        max: 9.999999999e+07
+        min: -9.999999999e+07
+        null_pct: 0
+        round: 2
+        seed: 21
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c18:
+      type: float
+      args:
+        max: 9.999999999e+07
+        min: -9.999999999e+07
+        null_pct: 0
+        round: 2
+        seed: 37
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c19:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 75
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c20:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 52
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t3_c21:
+      type: string
+      args:
+        max: 500
+        min: 1
+        null_pct: 0
+        seed: 87
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t3_c3
+  - t3_c2
+  - t3_c1
+  sort-by: []
+  original_table: db.public.t3
+  column_order:
+  - t3_c1
+  - t3_c2
+  - t3_c3
+  - t3_c4
+  - t3_c5
+  - t3_c6
+  - t3_c7
+  - t3_c8
+  - t3_c9
+  - t3_c10
+  - t3_c11
+  - t3_c12
+  - t3_c13
+  - t3_c14
+  - t3_c15
+  - t3_c16
+  - t3_c17
+  - t3_c18
+  - t3_c19
+  - t3_c20
+  - t3_c21
+  table_number: 2
+t4:
+- count: 10000
+  columns:
+    t4_c1:
+      type: uuid
+      args:
+        null_pct: 0
+        seed: 84
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: false
+    t4_c2:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 34
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: true
+      fk: t3.t3_c1
+      fk_mode: block
+      parent_seed: 79
+      fanout: 10
+      composite_id: 776782615
+    t4_c3:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 21
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: true
+      fk: t3.t3_c2
+      fk_mode: block
+      parent_seed: 47
+      fanout: 10
+      composite_id: 776782615
+    t4_c4:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 87
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: true
+      fk: t3.t3_c3
+      fk_mode: block
+      parent_seed: 69
+      fanout: 10
+      composite_id: 776782615
+    t4_c5:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 15
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: true
+      fk: t2.t2_c1
+      fk_mode: block
+      parent_seed: 47
+      fanout: 10
+      composite_id: 340063579
+    t4_c6:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 43
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t2.t2_c2
+      fk_mode: block
+      parent_seed: 18
+      fanout: 10
+      composite_id: 340063579
+    t4_c7:
+      type: timestamp
+      args:
+        end: "2025-01-01"
+        format: '%Y-%m-%d %H:%M:%S.%f'
+        null_pct: 0.1
+        seed: 77
+        start: "2000-01-01"
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t4_c8:
+      type: float
+      args:
+        max: 99.99
+        min: -99.99
+        null_pct: 0.1
+        round: 2
+        seed: 93
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t4_c9:
+      type: string
+      args:
+        max: 24
+        min: 1
+        null_pct: 0.1
+        seed: 15
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t4_c6
+  - t4_c1
+  sort-by: []
+  original_table: db.public.t4
+  column_order:
+  - t4_c1
+  - t4_c2
+  - t4_c3
+  - t4_c4
+  - t4_c5
+  - t4_c6
+  - t4_c7
+  - t4_c8
+  - t4_c9
+  table_number: 3
+t5:
+- count: 10000
+  columns:
+    t5_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 98
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: false
+    t5_c2:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 34
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t3.t3_c2
+      fk_mode: block
+      parent_seed: 47
+      fanout: 10
+      composite_id: 180735675
+    t5_c3:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 84
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t3.t3_c3
+      fk_mode: block
+      parent_seed: 69
+      fanout: 10
+      composite_id: 180735675
+    t5_c4:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 71
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: true
+      fk: t3.t3_c1
+      fk_mode: block
+      parent_seed: 79
+      fanout: 10
+      composite_id: 180735675
+    t5_c5:
+      type: timestamp
+      args:
+        end: "2025-01-01"
+        format: '%Y-%m-%d %H:%M:%S.%f'
+        null_pct: 0.1
+        seed: 43
+        start: "2000-01-01"
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t5_c6:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 88
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t5_c7:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 33
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t5_c8:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 18
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t5_c3
+  - t5_c2
+  - t5_c1
+  sort-by: []
+  unique:
+  - - o_w_id
+    - o_d_id
+    - o_c_id
+    - o_id
+  original_table: db.public.t5
+  column_order:
+  - t5_c1
+  - t5_c2
+  - t5_c3
+  - t5_c4
+  - t5_c5
+  - t5_c6
+  - t5_c7
+  - t5_c8
+  table_number: 4
+t6:
+- count: 1000
+  columns:
+    t6_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 23
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t5.t5_c1
+      fk_mode: block
+      parent_seed: 98
+      fanout: 1
+      composite_id: 611431738
+    t6_c2:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 19
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t5.t5_c2
+      fk_mode: block
+      parent_seed: 34
+      fanout: 1
+      composite_id: 611431738
+    t6_c3:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 32
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t5.t5_c3
+      fk_mode: block
+      parent_seed: 84
+      fanout: 1
+      composite_id: 611431738
+  pk:
+  - t6_c3
+  - t6_c2
+  - t6_c1
+  sort-by: []
+  original_table: db.public.t6
+  column_order:
+  - t6_c1
+  - t6_c2
+  - t6_c3
+  table_number: 5
+t7:
+- count: 1000
+  columns:
+    t7_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 19
+        start: 1
+      isPrimaryKey: true
+      isUnique: true
+      hasForeignKey: false
+    t7_c2:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 41
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t7_c3:
+      type: string
+      args:
+        max: 24
+        min: 1
+        null_pct: 0.1
+        seed: 35
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t7_c4:
+      type: float
+      args:
+        max: 99.99
+        min: -99.99
+        null_pct: 0.1
+        round: 2
+        seed: 8
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t7_c5:
+      type: string
+      args:
+        max: 50
+        min: 1
+        null_pct: 0.1
+        seed: 31
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t7_c1
+  sort-by: []
+  original_table: db.public.t7
+  column_order:
+  - t7_c1
+  - t7_c2
+  - t7_c3
+  - t7_c4
+  - t7_c5
+  table_number: 6
+t8:
+- count: 1000
+  columns:
+    t8_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 0
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t7.t7_c1
+      fk_mode: block
+      parent_seed: 19
+      fanout: 1
+    t8_c2:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 97
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t1.t1_c1
+      fk_mode: block
+      parent_seed: 96
+      fanout: 1
+    t8_c3:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 70
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c4:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 50
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c5:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 39
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c6:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 58
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c7:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 47
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c8:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 46
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c9:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 72
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c10:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 8
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c11:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 27
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c12:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 19
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c13:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 63
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c14:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 63
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c15:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 26
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c16:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 59
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t8_c17:
+      type: string
+      args:
+        max: 50
+        min: 1
+        null_pct: 0.1
+        seed: 86
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t8_c2
+  - t8_c1
+  sort-by: []
+  original_table: db.public.t8
+  column_order:
+  - t8_c1
+  - t8_c2
+  - t8_c3
+  - t8_c4
+  - t8_c5
+  - t8_c6
+  - t8_c7
+  - t8_c8
+  - t8_c9
+  - t8_c10
+  - t8_c11
+  - t8_c12
+  - t8_c13
+  - t8_c14
+  - t8_c15
+  - t8_c16
+  - t8_c17
+  table_number: 7
+t9:
+- count: 10000
+  columns:
+    t9_c1:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 84
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t5.t5_c1
+      fk_mode: block
+      parent_seed: 98
+      fanout: 10
+      composite_id: 822281412
+    t9_c2:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 70
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t5.t5_c2
+      fk_mode: block
+      parent_seed: 34
+      fanout: 10
+      composite_id: 822281412
+    t9_c3:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 37
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: true
+      fk: t5.t5_c3
+      fk_mode: block
+      parent_seed: 84
+      fanout: 10
+      composite_id: 822281412
+    t9_c4:
+      type: sequence
+      args:
+        null_pct: 0
+        seed: 12
+        start: 1
+      isPrimaryKey: true
+      isUnique: false
+      hasForeignKey: false
+    t9_c5:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0
+        seed: 60
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: true
+      fk: t8.t8_c1
+      fk_mode: block
+      fanout: 10
+      composite_id: 920017910
+    t9_c6:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 63
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: true
+      fk: t8.t8_c2
+      fk_mode: block
+      parent_seed: 97
+      fanout: 10
+      composite_id: 920017910
+    t9_c7:
+      type: timestamp
+      args:
+        end: "2025-01-01"
+        format: '%Y-%m-%d %H:%M:%S.%f'
+        null_pct: 0.1
+        seed: 6
+        start: "2000-01-01"
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t9_c8:
+      type: integer
+      args:
+        max: 2147483647
+        min: -2147483648
+        null_pct: 0.1
+        seed: 83
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t9_c9:
+      type: float
+      args:
+        max: 99.99
+        min: -99.99
+        null_pct: 0.1
+        round: 2
+        seed: 18
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+    t9_c10:
+      type: string
+      args:
+        max: 24
+        min: 24
+        null_pct: 0.1
+        seed: 78
+      isPrimaryKey: false
+      isUnique: false
+      hasForeignKey: false
+  pk:
+  - t9_c3
+  - t9_c2
+  - t9_c1
+  - t9_c4
+  sort-by: []
+  original_table: db.public.t9
+  column_order:
+  - t9_c1
+  - t9_c2
+  - t9_c3
+  - t9_c4
+  - t9_c5
+  - t9_c6
+  - t9_c7
+  - t9_c8
+  - t9_c9
+  - t9_c10
+  table_number: 8

@@ -61,7 +61,7 @@ type placeholderRewriter struct {
 //
 //	error – if any file I/O, scanner error, or placeholder-replacement error occurs.
 func generateWorkload(
-	debugLogs string, allSchemas map[string]*TableSchema, dbName, sqlLocation string,
+	debugLogs string, allSchemas map[string]*TableSchema, dbName string, origDbName string, mapping Mapping, anonymise bool, sqlLocation string,
 ) error {
 	// 1) Grouping structures are prepared.
 	txnOrder := make([]string, 0)       // first-seen txn IDs
@@ -99,7 +99,7 @@ func generateWorkload(
 		for scanner.Scan() {
 			row := strings.Split(scanner.Text(), "\t")
 			// 5a) Filtering by database_name.
-			if row[columnIndex[databaseName]] != dbName {
+			if row[columnIndex[databaseName]] != origDbName {
 				continue
 			}
 			// 5b) Internal “job id=” lines are skipped.
@@ -118,6 +118,9 @@ func generateWorkload(
 			}
 
 			// 5d) The sql query is processed to replace _ and __more__ with new placeholders which contain information about the column they refer to.
+			if anonymise {
+				rawSQL = anonymiseSQL(rawSQL, mapping, origDbName)
+			}
 			rewritten, err := replacePlaceholders(rawSQL, allSchemas)
 			if err != nil {
 				f.Close()

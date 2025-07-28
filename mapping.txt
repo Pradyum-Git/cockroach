@@ -1,0 +1,726 @@
+--- Name Mapping ---
+Table warehouse → db.public.t1
+  Column w_street_2 → t1_c4
+  Column w_zip → t1_c7
+  Column w_ytd → t1_c9
+  Column w_id → t1_c1
+  Column w_name → t1_c2
+  Column w_street_1 → t1_c3
+  Column w_city → t1_c5
+  Column w_state → t1_c6
+  Column w_tax → t1_c8
+Table history → db.public.t4
+  Column h_c_w_id → t4_c4
+  Column h_d_id → t4_c5
+  Column h_w_id → t4_c6
+  Column h_date → t4_c7
+  Column h_amount → t4_c8
+  Column h_data → t4_c9
+  Column rowid → t4_c1
+  Column h_c_id → t4_c2
+  Column h_c_d_id → t4_c3
+Table stock → db.public.t8
+  Column s_dist_03 → t8_c6
+  Column s_dist_04 → t8_c7
+  Column s_dist_07 → t8_c10
+  Column s_dist_10 → t8_c13
+  Column s_data → t8_c17
+  Column s_i_id → t8_c1
+  Column s_dist_01 → t8_c4
+  Column s_dist_09 → t8_c12
+  Column s_order_cnt → t8_c15
+  Column s_remote_cnt → t8_c16
+  Column s_w_id → t8_c2
+  Column s_quantity → t8_c3
+  Column s_dist_05 → t8_c8
+  Column s_dist_06 → t8_c9
+  Column s_ytd → t8_c14
+  Column s_dist_02 → t8_c5
+  Column s_dist_08 → t8_c11
+Table district → db.public.t2
+  Column d_next_o_id → t2_c11
+  Column d_w_id → t2_c2
+  Column d_street_1 → t2_c4
+  Column d_street_2 → t2_c5
+  Column d_city → t2_c6
+  Column d_state → t2_c7
+  Column d_ytd → t2_c10
+  Column d_id → t2_c1
+  Column d_name → t2_c3
+  Column d_zip → t2_c8
+  Column d_tax → t2_c9
+Table customer → db.public.t3
+  Column c_first → t3_c4
+  Column c_middle → t3_c5
+  Column c_phone → t3_c12
+  Column c_credit_lim → t3_c15
+  Column c_ytd_payment → t3_c18
+  Column c_w_id → t3_c3
+  Column c_zip → t3_c11
+  Column c_credit → t3_c14
+  Column c_balance → t3_c17
+  Column c_delivery_cnt → t3_c20
+  Column c_d_id → t3_c2
+  Column c_last → t3_c6
+  Column c_street_1 → t3_c7
+  Column c_street_2 → t3_c8
+  Column c_city → t3_c9
+  Column c_state → t3_c10
+  Column c_discount → t3_c16
+  Column c_id → t3_c1
+  Column c_since → t3_c13
+  Column c_payment_cnt → t3_c19
+  Column c_data → t3_c21
+Table order → db.public.t5
+  Column o_id → t5_c1
+  Column o_d_id → t5_c2
+  Column o_w_id → t5_c3
+  Column o_c_id → t5_c4
+  Column o_entry_d → t5_c5
+  Column o_carrier_id → t5_c6
+  Column o_ol_cnt → t5_c7
+  Column o_all_local → t5_c8
+Table new_order → db.public.t6
+  Column no_d_id → t6_c2
+  Column no_w_id → t6_c3
+  Column no_o_id → t6_c1
+Table item → db.public.t7
+  Column i_id → t7_c1
+  Column i_im_id → t7_c2
+  Column i_name → t7_c3
+  Column i_price → t7_c4
+  Column i_data → t7_c5
+Table order_line → db.public.t9
+  Column ol_supply_w_id → t9_c6
+  Column ol_quantity → t9_c8
+  Column ol_dist_info → t9_c10
+  Column ol_d_id → t9_c2
+  Column ol_w_id → t9_c3
+  Column ol_i_id → t9_c5
+  Column ol_delivery_d → t9_c7
+  Column ol_amount → t9_c9
+  Column ol_o_id → t9_c1
+  Column ol_number → t9_c4
+
+--- Original Schemas ---
+Table: tpcc.public.customer
+ Columns:
+ColumnOrder: c_id, c_d_id, c_w_id, c_first, c_middle, c_last, c_street_1, c_street_2, c_city, c_state, c_zip, c_phone, c_since, c_credit, c_credit_lim, c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_delivery_cnt, c_data
+Table Number: 2
+  'c_first','VARCHAR(16)','NOT NULL','','','','',''
+  'c_middle','CHAR(2)','NOT NULL','','','','',''
+  'c_street_2','VARCHAR(20)','NOT NULL','','','','',''
+  'c_since','TIMESTAMP','NOT NULL','','','','',''
+  'c_credit','CHAR(2)','NOT NULL','','','','',''
+  'c_ytd_payment','DECIMAL(12,2)','NOT NULL','','','','',''
+  'c_payment_cnt','INT8','NOT NULL','','','','',''
+  'c_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'c_w_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'c_phone','CHAR(16)','NOT NULL','','','','',''
+  'c_delivery_cnt','INT8','NOT NULL','','','','',''
+  'c_street_1','VARCHAR(20)','NOT NULL','','','','',''
+  'c_zip','CHAR(9)','NOT NULL','','','','',''
+  'c_discount','DECIMAL(4,4)','NOT NULL','','','','',''
+  'c_balance','DECIMAL(12,2)','NOT NULL','','','','',''
+  'c_data','VARCHAR(500)','NOT NULL','','','','',''
+  'c_last','VARCHAR(16)','NOT NULL','','','','',''
+  'c_city','VARCHAR(20)','NOT NULL','','','','',''
+  'c_state','CHAR(2)','NOT NULL','','','','',''
+  'c_credit_lim','DECIMAL(12,2)','NOT NULL','','','','',''
+  'c_d_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+ PKs: c_w_id, c_d_id, c_id
+ FKs: (t3_c3,t3_c2)→tpcc.public.district(t2_c2,t2_c1)
+
+
+Table: tpcc.public.history
+ Columns:
+ColumnOrder: rowid, h_c_id, h_c_d_id, h_c_w_id, h_d_id, h_w_id, h_date, h_amount, h_data
+Table Number: 3
+  'h_c_d_id','INT8','NOT NULL','','','','',''
+  'h_w_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'rowid','UUID','NOT NULL','PRIMARY KEY','DEFAULT gen_random_uuid()','','',''
+  'h_c_id','INT8','NOT NULL','','','','',''
+  'h_c_w_id','INT8','NOT NULL','','','','',''
+  'h_d_id','INT8','NOT NULL','','','','',''
+  'h_date','TIMESTAMP','NULL','','','','',''
+  'h_amount','DECIMAL(6,2)','NULL','','','','',''
+  'h_data','VARCHAR(24)','NULL','','','','',''
+ PKs: h_w_id, rowid
+ FKs: (t4_c4,t4_c3,t4_c2)→tpcc.public.customer(t3_c3,t3_c2,t3_c1); (t4_c6,t4_c5)→tpcc.public.district(t2_c2,t2_c1)
+
+
+Table: tpcc.public.order
+ Columns:
+ColumnOrder: o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local
+Table Number: 4
+  'o_entry_d','TIMESTAMP','NULL','','','','',''
+  'o_carrier_id','INT8','NULL','','','','',''
+  'o_ol_cnt','INT8','NULL','','','','',''
+  'o_all_local','INT8','NULL','','','','',''
+  'o_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'o_d_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'o_w_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'o_c_id','INT8','NULL','','','','',''
+ PKs: o_w_id, o_d_id, o_id
+ UNIQUE: (o_w_id,o_d_id,o_c_id,o_id)
+ FKs: (t5_c3,t5_c2,t5_c4)→tpcc.public.customer(t3_c3,t3_c2,t3_c1)
+
+
+Table: tpcc.public.new_order
+ Columns:
+ColumnOrder: no_o_id, no_d_id, no_w_id
+Table Number: 5
+  'no_o_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'no_d_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'no_w_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+ PKs: no_w_id, no_d_id, no_o_id
+ FKs: (t6_c3,t6_c2,t6_c1)→tpcc.public.order(t5_c3,t5_c2,t5_c1)
+
+
+Table: tpcc.public.stock
+ Columns:
+ColumnOrder: s_i_id, s_w_id, s_quantity, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10, s_ytd, s_order_cnt, s_remote_cnt, s_data
+Table Number: 7
+  's_dist_05','CHAR(24)','NULL','','','','',''
+  's_dist_06','CHAR(24)','NULL','','','','',''
+  's_dist_07','CHAR(24)','NULL','','','','',''
+  's_order_cnt','INT8','NULL','','','','',''
+  's_data','VARCHAR(50)','NULL','','','','',''
+  's_w_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  's_dist_01','CHAR(24)','NULL','','','','',''
+  's_dist_03','CHAR(24)','NULL','','','','',''
+  's_dist_09','CHAR(24)','NULL','','','','',''
+  's_ytd','INT8','NULL','','','','',''
+  's_remote_cnt','INT8','NULL','','','','',''
+  's_quantity','INT8','NULL','','','','',''
+  's_dist_08','CHAR(24)','NULL','','','','',''
+  's_dist_10','CHAR(24)','NULL','','','','',''
+  's_i_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  's_dist_02','CHAR(24)','NULL','','','','',''
+  's_dist_04','CHAR(24)','NULL','','','','',''
+ PKs: s_w_id, s_i_id
+ FKs: (t8_c2)→tpcc.public.warehouse(t1_c1); (t8_c1)→tpcc.public.item(t7_c1)
+
+
+Table: tpcc.public.order_line
+ Columns:
+ColumnOrder: ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id, ol_delivery_d, ol_quantity, ol_amount, ol_dist_info
+Table Number: 8
+  'ol_number','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'ol_i_id','INT8','NOT NULL','','','','',''
+  'ol_delivery_d','TIMESTAMP','NULL','','','','',''
+  'ol_amount','DECIMAL(6,2)','NULL','','','','',''
+  'ol_dist_info','CHAR(24)','NULL','','','','',''
+  'ol_d_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'ol_supply_w_id','INT8','NULL','','','','',''
+  'ol_quantity','INT8','NULL','','','','',''
+  'ol_o_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'ol_w_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+ PKs: ol_w_id, ol_d_id, ol_o_id, ol_number
+ FKs: (t9_c3,t9_c2,t9_c1)→tpcc.public.order(t5_c3,t5_c2,t5_c1); (t9_c6,t9_c5)→tpcc.public.stock(t8_c2,t8_c1)
+
+
+Table: tpcc.public.district
+ Columns:
+ColumnOrder: d_id, d_w_id, d_name, d_street_1, d_street_2, d_city, d_state, d_zip, d_tax, d_ytd, d_next_o_id
+Table Number: 1
+  'd_city','VARCHAR(20)','NOT NULL','','','','',''
+  'd_state','CHAR(2)','NOT NULL','','','','',''
+  'd_tax','DECIMAL(4,4)','NOT NULL','','','','',''
+  'd_ytd','DECIMAL(12,2)','NOT NULL','','','','',''
+  'd_next_o_id','INT8','NOT NULL','','','','',''
+  'd_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'd_w_id','INT8','NOT NULL','PRIMARY KEY','','','',''
+  'd_name','VARCHAR(10)','NOT NULL','','','','',''
+  'd_zip','CHAR(9)','NOT NULL','','','','',''
+  'd_street_1','VARCHAR(20)','NOT NULL','','','','',''
+  'd_street_2','VARCHAR(20)','NOT NULL','','','','',''
+ PKs: d_w_id, d_id
+ FKs: (t2_c2)→tpcc.public.warehouse(t1_c1)
+
+
+Table: tpcc.public.item
+ Columns:
+ColumnOrder: i_id, i_im_id, i_name, i_price, i_data
+Table Number: 6
+  'i_id','INT8','NOT NULL','PRIMARY KEY','','UNIQUE','',''
+  'i_im_id','INT8','NULL','','','','',''
+  'i_name','VARCHAR(24)','NULL','','','','',''
+  'i_price','DECIMAL(5,2)','NULL','','','','',''
+  'i_data','VARCHAR(50)','NULL','','','','',''
+ PKs: i_id
+
+
+Table: tpcc.public.warehouse
+ Columns:
+ColumnOrder: w_id, w_name, w_street_1, w_street_2, w_city, w_state, w_zip, w_tax, w_ytd
+Table Number: 0
+  'w_street_2','VARCHAR(20)','NOT NULL','','','','',''
+  'w_city','VARCHAR(20)','NOT NULL','','','','',''
+  'w_tax','DECIMAL(4,4)','NOT NULL','','','','',''
+  'w_ytd','DECIMAL(12,2)','NOT NULL','','','','',''
+  'w_id','INT8','NOT NULL','PRIMARY KEY','','UNIQUE','',''
+  'w_state','CHAR(2)','NOT NULL','','','','',''
+  'w_zip','CHAR(9)','NOT NULL','','','','',''
+  'w_name','VARCHAR(10)','NOT NULL','','','','',''
+  'w_street_1','VARCHAR(20)','NOT NULL','','','','',''
+ PKs: w_id
+
+
+--- Anonymized Schemas ---
+Table: t3
+ Columns:
+ColumnOrder: t3_c1, t3_c2, t3_c3, t3_c4, t3_c5, t3_c6, t3_c7, t3_c8, t3_c9, t3_c10, t3_c11, t3_c12, t3_c13, t3_c14, t3_c15, t3_c16, t3_c17, t3_c18, t3_c19, t3_c20, t3_c21
+Table Number: 2
+  't3_c10','CHAR(2)','NOT NULL','','','','',''
+  't3_c18','DECIMAL(12,2)','NOT NULL','','','','',''
+  't3_c15','DECIMAL(12,2)','NOT NULL','','','','',''
+  't3_c8','VARCHAR(20)','NOT NULL','','','','',''
+  't3_c16','DECIMAL(4,4)','NOT NULL','','','','',''
+  't3_c21','VARCHAR(500)','NOT NULL','','','','',''
+  't3_c11','CHAR(9)','NOT NULL','','','','',''
+  't3_c19','INT8','NOT NULL','','','','',''
+  't3_c4','VARCHAR(16)','NOT NULL','','','','',''
+  't3_c13','TIMESTAMP','NOT NULL','','','','',''
+  't3_c20','INT8','NOT NULL','','','','',''
+  't3_c7','VARCHAR(20)','NOT NULL','','','','',''
+  't3_c12','CHAR(16)','NOT NULL','','','','',''
+  't3_c14','CHAR(2)','NOT NULL','','','','',''
+  't3_c2','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't3_c3','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't3_c5','CHAR(2)','NOT NULL','','','','',''
+  't3_c17','DECIMAL(12,2)','NOT NULL','','','','',''
+  't3_c6','VARCHAR(16)','NOT NULL','','','','',''
+  't3_c1','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't3_c9','VARCHAR(20)','NOT NULL','','','','',''
+ PKs: t3_c3, t3_c2, t3_c1
+ FKs: (t3_c3,t3_c2)→t2(t2_c2,t2_c1)
+
+
+Table: t4
+ Columns:
+ColumnOrder: t4_c1, t4_c2, t4_c3, t4_c4, t4_c5, t4_c6, t4_c7, t4_c8, t4_c9
+Table Number: 3
+  't4_c2','INT8','NOT NULL','','','','',''
+  't4_c4','INT8','NOT NULL','','','','',''
+  't4_c8','DECIMAL(6,2)','NULL','','','','',''
+  't4_c1','UUID','NOT NULL','PRIMARY KEY','DEFAULT gen_random_uuid()','','',''
+  't4_c3','INT8','NOT NULL','','','','',''
+  't4_c9','VARCHAR(24)','NULL','','','','',''
+  't4_c5','INT8','NOT NULL','','','','',''
+  't4_c6','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't4_c7','TIMESTAMP','NULL','','','','',''
+ PKs: t4_c6, t4_c1
+ FKs: (t4_c4,t4_c3,t4_c2)→t3(t3_c3,t3_c2,t3_c1); (t4_c6,t4_c5)→t2(t2_c2,t2_c1)
+
+
+Table: t9
+ Columns:
+ColumnOrder: t9_c1, t9_c2, t9_c3, t9_c4, t9_c5, t9_c6, t9_c7, t9_c8, t9_c9, t9_c10
+Table Number: 8
+  't9_c6','INT8','NULL','','','','',''
+  't9_c9','DECIMAL(6,2)','NULL','','','','',''
+  't9_c3','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't9_c4','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't9_c10','CHAR(24)','NULL','','','','',''
+  't9_c1','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't9_c2','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't9_c5','INT8','NOT NULL','','','','',''
+  't9_c7','TIMESTAMP','NULL','','','','',''
+  't9_c8','INT8','NULL','','','','',''
+ PKs: t9_c3, t9_c2, t9_c1, t9_c4
+ FKs: (t9_c3,t9_c2,t9_c1)→t5(t5_c3,t5_c2,t5_c1); (t9_c6,t9_c5)→t8(t8_c2,t8_c1)
+
+
+Table: t2
+ Columns:
+ColumnOrder: t2_c1, t2_c2, t2_c3, t2_c4, t2_c5, t2_c6, t2_c7, t2_c8, t2_c9, t2_c10, t2_c11
+Table Number: 1
+  't2_c1','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't2_c4','VARCHAR(20)','NOT NULL','','','','',''
+  't2_c5','VARCHAR(20)','NOT NULL','','','','',''
+  't2_c9','DECIMAL(4,4)','NOT NULL','','','','',''
+  't2_c11','INT8','NOT NULL','','','','',''
+  't2_c3','VARCHAR(10)','NOT NULL','','','','',''
+  't2_c6','VARCHAR(20)','NOT NULL','','','','',''
+  't2_c2','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't2_c8','CHAR(9)','NOT NULL','','','','',''
+  't2_c7','CHAR(2)','NOT NULL','','','','',''
+  't2_c10','DECIMAL(12,2)','NOT NULL','','','','',''
+ PKs: t2_c2, t2_c1
+ FKs: (t2_c2)→t1(t1_c1)
+
+
+Table: t7
+ Columns:
+ColumnOrder: t7_c1, t7_c2, t7_c3, t7_c4, t7_c5
+Table Number: 6
+  't7_c1','INT8','NOT NULL','PRIMARY KEY','','UNIQUE','',''
+  't7_c2','INT8','NULL','','','','',''
+  't7_c3','VARCHAR(24)','NULL','','','','',''
+  't7_c4','DECIMAL(5,2)','NULL','','','','',''
+  't7_c5','VARCHAR(50)','NULL','','','','',''
+ PKs: t7_c1
+
+
+Table: t1
+ Columns:
+ColumnOrder: t1_c1, t1_c2, t1_c3, t1_c4, t1_c5, t1_c6, t1_c7, t1_c8, t1_c9
+Table Number: 0
+  't1_c9','DECIMAL(12,2)','NOT NULL','','','','',''
+  't1_c6','CHAR(2)','NOT NULL','','','','',''
+  't1_c7','CHAR(9)','NOT NULL','','','','',''
+  't1_c5','VARCHAR(20)','NOT NULL','','','','',''
+  't1_c3','VARCHAR(20)','NOT NULL','','','','',''
+  't1_c1','INT8','NOT NULL','PRIMARY KEY','','UNIQUE','',''
+  't1_c2','VARCHAR(10)','NOT NULL','','','','',''
+  't1_c4','VARCHAR(20)','NOT NULL','','','','',''
+  't1_c8','DECIMAL(4,4)','NOT NULL','','','','',''
+ PKs: t1_c1
+
+
+Table: t5
+ Columns:
+ColumnOrder: t5_c1, t5_c2, t5_c3, t5_c4, t5_c5, t5_c6, t5_c7, t5_c8
+Table Number: 4
+  't5_c1','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't5_c2','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't5_c3','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't5_c4','INT8','NULL','','','','',''
+  't5_c5','TIMESTAMP','NULL','','','','',''
+  't5_c6','INT8','NULL','','','','',''
+  't5_c7','INT8','NULL','','','','',''
+  't5_c8','INT8','NULL','','','','',''
+ PKs: t5_c3, t5_c2, t5_c1
+ UNIQUE: (o_w_id,o_d_id,o_c_id,o_id)
+ FKs: (t5_c3,t5_c2,t5_c4)→t3(t3_c3,t3_c2,t3_c1)
+
+
+Table: t6
+ Columns:
+ColumnOrder: t6_c1, t6_c2, t6_c3
+Table Number: 5
+  't6_c1','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't6_c2','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't6_c3','INT8','NOT NULL','PRIMARY KEY','','','',''
+ PKs: t6_c3, t6_c2, t6_c1
+ FKs: (t6_c3,t6_c2,t6_c1)→t5(t5_c3,t5_c2,t5_c1)
+
+
+Table: t8
+ Columns:
+ColumnOrder: t8_c1, t8_c2, t8_c3, t8_c4, t8_c5, t8_c6, t8_c7, t8_c8, t8_c9, t8_c10, t8_c11, t8_c12, t8_c13, t8_c14, t8_c15, t8_c16, t8_c17
+Table Number: 7
+  't8_c17','VARCHAR(50)','NULL','','','','',''
+  't8_c5','CHAR(24)','NULL','','','','',''
+  't8_c1','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't8_c2','INT8','NOT NULL','PRIMARY KEY','','','',''
+  't8_c8','CHAR(24)','NULL','','','','',''
+  't8_c13','CHAR(24)','NULL','','','','',''
+  't8_c4','CHAR(24)','NULL','','','','',''
+  't8_c15','INT8','NULL','','','','',''
+  't8_c7','CHAR(24)','NULL','','','','',''
+  't8_c14','INT8','NULL','','','','',''
+  't8_c6','CHAR(24)','NULL','','','','',''
+  't8_c9','CHAR(24)','NULL','','','','',''
+  't8_c10','CHAR(24)','NULL','','','','',''
+  't8_c3','INT8','NULL','','','','',''
+  't8_c16','INT8','NULL','','','','',''
+  't8_c11','CHAR(24)','NULL','','','','',''
+  't8_c12','CHAR(24)','NULL','','','','',''
+ PKs: t8_c2, t8_c1
+ FKs: (t8_c2)→t1(t1_c1); (t8_c1)→t7(t7_c1)
+
+
+--- CREATE TABLE Statements ---
+-- original (customer)
+CREATE TABLE IF NOT EXISTS tpcc.public.customer (
+	c_id INT8 NOT NULL,
+	c_d_id INT8 NOT NULL,
+	c_w_id INT8 NOT NULL,
+	c_first VARCHAR(16) NOT NULL,
+	c_middle CHAR(2) NOT NULL,
+	c_last VARCHAR(16) NOT NULL,
+	c_street_1 VARCHAR(20) NOT NULL,
+	c_street_2 VARCHAR(20) NOT NULL,
+	c_city VARCHAR(20) NOT NULL,
+	c_state CHAR(2) NOT NULL,
+	c_zip CHAR(9) NOT NULL,
+	c_phone CHAR(16) NOT NULL,
+	c_since TIMESTAMP NOT NULL,
+	c_credit CHAR(2) NOT NULL,
+	c_credit_lim DECIMAL(12,2) NOT NULL,
+	c_discount DECIMAL(4,4) NOT NULL,
+	c_balance DECIMAL(12,2) NOT NULL,
+	c_ytd_payment DECIMAL(12,2) NOT NULL,
+	c_payment_cnt INT8 NOT NULL,
+	c_delivery_cnt INT8 NOT NULL,
+	c_data VARCHAR(500) NOT NULL,
+	CONSTRAINT customer_pkey PRIMARY KEY (c_w_id ASC, c_d_id ASC, c_id ASC),
+	CONSTRAINT customer_c_w_id_c_d_id_fkey FOREIGN KEY (c_w_id, c_d_id) REFERENCES tpcc.public.district(d_w_id, d_id) NOT VALID,
+	INDEX customer_idx (c_w_id ASC, c_d_id ASC, c_last ASC, c_first ASC)
+)
+-- anonymized (customer → t3)
+CREATE TABLE IF NOT EXISTS t3 (
+	t3_c1 INT8 NOT NULL,
+	t3_c2 INT8 NOT NULL,
+	t3_c3 INT8 NOT NULL,
+	t3_c4 VARCHAR(16) NOT NULL,
+	t3_c5 CHAR(2) NOT NULL,
+	t3_c6 VARCHAR(16) NOT NULL,
+	t3_c7 VARCHAR(20) NOT NULL,
+	t3_c8 VARCHAR(20) NOT NULL,
+	t3_c9 VARCHAR(20) NOT NULL,
+	t3_c10 CHAR(2) NOT NULL,
+	t3_c11 CHAR(9) NOT NULL,
+	t3_c12 CHAR(16) NOT NULL,
+	t3_c13 TIMESTAMP NOT NULL,
+	t3_c14 CHAR(2) NOT NULL,
+	t3_c15 DECIMAL(12,2) NOT NULL,
+	t3_c16 DECIMAL(4,4) NOT NULL,
+	t3_c17 DECIMAL(12,2) NOT NULL,
+	t3_c18 DECIMAL(12,2) NOT NULL,
+	t3_c19 INT8 NOT NULL,
+	t3_c20 INT8 NOT NULL,
+	t3_c21 VARCHAR(500) NOT NULL,
+	CONSTRAINT customer_pkey PRIMARY KEY (t3_c3 ASC, t3_c2 ASC, t3_c1 ASC),
+	CONSTRAINT customer_c_w_id_c_d_id_fkey FOREIGN KEY (t3_c3, t3_c2) REFERENCES t2(t2_c2, t2_c1) NOT VALID,
+	INDEX customer_idx (t3_c3 ASC, t3_c2 ASC, t3_c6 ASC, t3_c4 ASC)
+)
+
+-- original (district)
+CREATE TABLE IF NOT EXISTS tpcc.public.district (
+	d_id INT8 NOT NULL,
+	d_w_id INT8 NOT NULL,
+	d_name VARCHAR(10) NOT NULL,
+	d_street_1 VARCHAR(20) NOT NULL,
+	d_street_2 VARCHAR(20) NOT NULL,
+	d_city VARCHAR(20) NOT NULL,
+	d_state CHAR(2) NOT NULL,
+	d_zip CHAR(9) NOT NULL,
+	d_tax DECIMAL(4,4) NOT NULL,
+	d_ytd DECIMAL(12,2) NOT NULL,
+	d_next_o_id INT8 NOT NULL,
+	CONSTRAINT district_pkey PRIMARY KEY (d_w_id ASC, d_id ASC),
+	CONSTRAINT district_d_w_id_fkey FOREIGN KEY (d_w_id) REFERENCES tpcc.public.warehouse(w_id) NOT VALID
+)
+-- anonymized (district → t2)
+CREATE TABLE IF NOT EXISTS t2 (
+	t2_c1 INT8 NOT NULL,
+	t2_c2 INT8 NOT NULL,
+	t2_c3 VARCHAR(10) NOT NULL,
+	t2_c4 VARCHAR(20) NOT NULL,
+	t2_c5 VARCHAR(20) NOT NULL,
+	t2_c6 VARCHAR(20) NOT NULL,
+	t2_c7 CHAR(2) NOT NULL,
+	t2_c8 CHAR(9) NOT NULL,
+	t2_c9 DECIMAL(4,4) NOT NULL,
+	t2_c10 DECIMAL(12,2) NOT NULL,
+	t2_c11 INT8 NOT NULL,
+	CONSTRAINT district_pkey PRIMARY KEY (t2_c2 ASC, t2_c1 ASC),
+	CONSTRAINT district_d_w_id_fkey FOREIGN KEY (t2_c2) REFERENCES t1(t1_c1) NOT VALID
+)
+
+-- original (history)
+CREATE TABLE IF NOT EXISTS tpcc.public.history (
+	rowid UUID NOT NULL DEFAULT gen_random_uuid(),
+	h_c_id INT8 NOT NULL,
+	h_c_d_id INT8 NOT NULL,
+	h_c_w_id INT8 NOT NULL,
+	h_d_id INT8 NOT NULL,
+	h_w_id INT8 NOT NULL,
+	h_date TIMESTAMP NULL,
+	h_amount DECIMAL(6,2) NULL,
+	h_data VARCHAR(24) NULL,
+	CONSTRAINT history_pkey PRIMARY KEY (h_w_id ASC, rowid ASC),
+	CONSTRAINT history_h_c_w_id_h_c_d_id_h_c_id_fkey FOREIGN KEY (h_c_w_id, h_c_d_id, h_c_id) REFERENCES tpcc.public.customer(c_w_id, c_d_id, c_id) NOT VALID,
+	CONSTRAINT history_h_w_id_h_d_id_fkey FOREIGN KEY (h_w_id, h_d_id) REFERENCES tpcc.public.district(d_w_id, d_id) NOT VALID
+)
+-- anonymized (history → t4)
+CREATE TABLE IF NOT EXISTS t4 (
+	t4_c1 UUID NOT NULL DEFAULT gen_random_uuid(),
+	t4_c2 INT8 NOT NULL,
+	t4_c3 INT8 NOT NULL,
+	t4_c4 INT8 NOT NULL,
+	t4_c5 INT8 NOT NULL,
+	t4_c6 INT8 NOT NULL,
+	t4_c7 TIMESTAMP NULL,
+	t4_c8 DECIMAL(6,2) NULL,
+	t4_c9 VARCHAR(24) NULL,
+	CONSTRAINT history_pkey PRIMARY KEY (t4_c6 ASC, t4_c1 ASC),
+	CONSTRAINT history_h_c_w_id_h_c_d_id_h_c_id_fkey FOREIGN KEY (t4_c4, t4_c3, t4_c2) REFERENCES t3(t3_c3, t3_c2, t3_c1) NOT VALID,
+	CONSTRAINT history_h_w_id_h_d_id_fkey FOREIGN KEY (t4_c6, t4_c5) REFERENCES t2(t2_c2, t2_c1) NOT VALID
+)
+
+-- original (item)
+CREATE TABLE IF NOT EXISTS tpcc.public.item (
+	i_id INT8 NOT NULL,
+	i_im_id INT8 NULL,
+	i_name VARCHAR(24) NULL,
+	i_price DECIMAL(5,2) NULL,
+	i_data VARCHAR(50) NULL,
+	CONSTRAINT item_pkey PRIMARY KEY (i_id ASC)
+)
+-- anonymized (item → t7)
+CREATE TABLE IF NOT EXISTS t7 (
+	t7_c1 INT8 NOT NULL,
+	t7_c2 INT8 NULL,
+	t7_c3 VARCHAR(24) NULL,
+	t7_c4 DECIMAL(5,2) NULL,
+	t7_c5 VARCHAR(50) NULL,
+	CONSTRAINT item_pkey PRIMARY KEY (t7_c1 ASC)
+)
+
+-- original (new_order)
+CREATE TABLE IF NOT EXISTS tpcc.public.new_order (
+	no_o_id INT8 NOT NULL,
+	no_d_id INT8 NOT NULL,
+	no_w_id INT8 NOT NULL,
+	CONSTRAINT new_order_pkey PRIMARY KEY (no_w_id ASC, no_d_id ASC, no_o_id ASC),
+	CONSTRAINT new_order_no_w_id_no_d_id_no_o_id_fkey FOREIGN KEY (no_w_id, no_d_id, no_o_id) REFERENCES tpcc.public."order"(o_w_id, o_d_id, o_id) NOT VALID
+)
+-- anonymized (new_order → t6)
+CREATE TABLE IF NOT EXISTS t6 (
+	t6_c1 INT8 NOT NULL,
+	t6_c2 INT8 NOT NULL,
+	t6_c3 INT8 NOT NULL,
+	CONSTRAINT new_order_pkey PRIMARY KEY (t6_c3 ASC, t6_c2 ASC, t6_c1 ASC),
+	CONSTRAINT new_order_no_w_id_no_d_id_no_o_id_fkey FOREIGN KEY (t6_c3, t6_c2, t6_c1) REFERENCES t5(t5_c3, t5_c2, t5_c1) NOT VALID
+)
+
+-- original (order)
+CREATE TABLE IF NOT EXISTS tpcc.public."order" (
+	o_id INT8 NOT NULL,
+	o_d_id INT8 NOT NULL,
+	o_w_id INT8 NOT NULL,
+	o_c_id INT8 NULL,
+	o_entry_d TIMESTAMP NULL,
+	o_carrier_id INT8 NULL,
+	o_ol_cnt INT8 NULL,
+	o_all_local INT8 NULL,
+	CONSTRAINT order_pkey PRIMARY KEY (o_w_id ASC, o_d_id ASC, o_id DESC),
+	CONSTRAINT order_o_w_id_o_d_id_o_c_id_fkey FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES tpcc.public.customer(c_w_id, c_d_id, c_id) NOT VALID,
+	UNIQUE INDEX order_idx (o_w_id ASC, o_d_id ASC, o_c_id ASC, o_id DESC) STORING (o_entry_d, o_carrier_id)
+)
+-- anonymized (order → t5)
+CREATE TABLE IF NOT EXISTS t5 (
+	t5_c1 INT8 NOT NULL,
+	t5_c2 INT8 NOT NULL,
+	t5_c3 INT8 NOT NULL,
+	t5_c4 INT8 NULL,
+	t5_c5 TIMESTAMP NULL,
+	t5_c6 INT8 NULL,
+	t5_c7 INT8 NULL,
+	t5_c8 INT8 NULL,
+	CONSTRAINT order_pkey PRIMARY KEY (t5_c3 ASC, t5_c2 ASC, t5_c1 DESC),
+	CONSTRAINT order_o_w_id_o_d_id_o_c_id_fkey FOREIGN KEY (t5_c3, t5_c2, t5_c4) REFERENCES t3(t3_c3, t3_c2, t3_c1) NOT VALID,
+	UNIQUE INDEX order_idx (t5_c3 ASC, t5_c2 ASC, t5_c4 ASC, t5_c1 DESC) STORING (t5_c5, t5_c6)
+)
+
+-- original (order_line)
+CREATE TABLE IF NOT EXISTS tpcc.public.order_line (
+	ol_o_id INT8 NOT NULL,
+	ol_d_id INT8 NOT NULL,
+	ol_w_id INT8 NOT NULL,
+	ol_number INT8 NOT NULL,
+	ol_i_id INT8 NOT NULL,
+	ol_supply_w_id INT8 NULL,
+	ol_delivery_d TIMESTAMP NULL,
+	ol_quantity INT8 NULL,
+	ol_amount DECIMAL(6,2) NULL,
+	ol_dist_info CHAR(24) NULL,
+	CONSTRAINT order_line_pkey PRIMARY KEY (ol_w_id ASC, ol_d_id ASC, ol_o_id DESC, ol_number ASC),
+	CONSTRAINT order_line_ol_w_id_ol_d_id_ol_o_id_fkey FOREIGN KEY (ol_w_id, ol_d_id, ol_o_id) REFERENCES tpcc.public."order"(o_w_id, o_d_id, o_id) NOT VALID,
+	CONSTRAINT order_line_ol_supply_w_id_ol_i_id_fkey FOREIGN KEY (ol_supply_w_id, ol_i_id) REFERENCES tpcc.public.stock(s_w_id, s_i_id) NOT VALID
+)
+-- anonymized (order_line → t9)
+CREATE TABLE IF NOT EXISTS t9 (
+	t9_c1 INT8 NOT NULL,
+	t9_c2 INT8 NOT NULL,
+	t9_c3 INT8 NOT NULL,
+	t9_c4 INT8 NOT NULL,
+	t9_c5 INT8 NOT NULL,
+	t9_c6 INT8 NULL,
+	t9_c7 TIMESTAMP NULL,
+	t9_c8 INT8 NULL,
+	t9_c9 DECIMAL(6,2) NULL,
+	t9_c10 CHAR(24) NULL,
+	CONSTRAINT order_line_pkey PRIMARY KEY (t9_c3 ASC, t9_c2 ASC, t9_c1 DESC, t9_c4 ASC),
+	CONSTRAINT order_line_ol_w_id_ol_d_id_ol_o_id_fkey FOREIGN KEY (t9_c3, t9_c2, t9_c1) REFERENCES t5(t5_c3, t5_c2, t5_c1) NOT VALID,
+	CONSTRAINT order_line_ol_supply_w_id_ol_i_id_fkey FOREIGN KEY (t9_c6, t9_c5) REFERENCES t8(t8_c2, t8_c1) NOT VALID
+)
+
+-- original (stock)
+CREATE TABLE IF NOT EXISTS tpcc.public.stock (
+	s_i_id INT8 NOT NULL,
+	s_w_id INT8 NOT NULL,
+	s_quantity INT8 NULL,
+	s_dist_01 CHAR(24) NULL,
+	s_dist_02 CHAR(24) NULL,
+	s_dist_03 CHAR(24) NULL,
+	s_dist_04 CHAR(24) NULL,
+	s_dist_05 CHAR(24) NULL,
+	s_dist_06 CHAR(24) NULL,
+	s_dist_07 CHAR(24) NULL,
+	s_dist_08 CHAR(24) NULL,
+	s_dist_09 CHAR(24) NULL,
+	s_dist_10 CHAR(24) NULL,
+	s_ytd INT8 NULL,
+	s_order_cnt INT8 NULL,
+	s_remote_cnt INT8 NULL,
+	s_data VARCHAR(50) NULL,
+	CONSTRAINT stock_pkey PRIMARY KEY (s_w_id ASC, s_i_id ASC),
+	CONSTRAINT stock_s_w_id_fkey FOREIGN KEY (s_w_id) REFERENCES tpcc.public.warehouse(w_id) NOT VALID,
+	CONSTRAINT stock_s_i_id_fkey FOREIGN KEY (s_i_id) REFERENCES tpcc.public.item(i_id) NOT VALID
+)
+-- anonymized (stock → t8)
+CREATE TABLE IF NOT EXISTS t8 (
+	t8_c1 INT8 NOT NULL,
+	t8_c2 INT8 NOT NULL,
+	t8_c3 INT8 NULL,
+	t8_c4 CHAR(24) NULL,
+	t8_c5 CHAR(24) NULL,
+	t8_c6 CHAR(24) NULL,
+	t8_c7 CHAR(24) NULL,
+	t8_c8 CHAR(24) NULL,
+	t8_c9 CHAR(24) NULL,
+	t8_c10 CHAR(24) NULL,
+	t8_c11 CHAR(24) NULL,
+	t8_c12 CHAR(24) NULL,
+	t8_c13 CHAR(24) NULL,
+	t8_c14 INT8 NULL,
+	t8_c15 INT8 NULL,
+	t8_c16 INT8 NULL,
+	t8_c17 VARCHAR(50) NULL,
+	CONSTRAINT stock_pkey PRIMARY KEY (t8_c2 ASC, t8_c1 ASC),
+	CONSTRAINT stock_s_w_id_fkey FOREIGN KEY (t8_c2) REFERENCES t1(t1_c1) NOT VALID,
+	CONSTRAINT stock_s_i_id_fkey FOREIGN KEY (t8_c1) REFERENCES t7(t7_c1) NOT VALID
+)
+
+-- original (warehouse)
+CREATE TABLE IF NOT EXISTS tpcc.public.warehouse (
+	w_id INT8 NOT NULL,
+	w_name VARCHAR(10) NOT NULL,
+	w_street_1 VARCHAR(20) NOT NULL,
+	w_street_2 VARCHAR(20) NOT NULL,
+	w_city VARCHAR(20) NOT NULL,
+	w_state CHAR(2) NOT NULL,
+	w_zip CHAR(9) NOT NULL,
+	w_tax DECIMAL(4,4) NOT NULL,
+	w_ytd DECIMAL(12,2) NOT NULL,
+	CONSTRAINT warehouse_pkey PRIMARY KEY (w_id ASC)
+)
+-- anonymized (warehouse → t1)
+CREATE TABLE IF NOT EXISTS t1 (
+	t1_c1 INT8 NOT NULL,
+	t1_c2 VARCHAR(10) NOT NULL,
+	t1_c3 VARCHAR(20) NOT NULL,
+	t1_c4 VARCHAR(20) NOT NULL,
+	t1_c5 VARCHAR(20) NOT NULL,
+	t1_c6 CHAR(2) NOT NULL,
+	t1_c7 CHAR(9) NOT NULL,
+	t1_c8 DECIMAL(4,4) NOT NULL,
+	t1_c9 DECIMAL(12,2) NOT NULL,
+	CONSTRAINT warehouse_pkey PRIMARY KEY (t1_c1 ASC)
+)
+

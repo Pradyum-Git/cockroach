@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/cockroachdb/cockroach/pkg/util/timeutil"
@@ -80,6 +81,12 @@ var (
 	createTableRe = regexp.MustCompile(`(?i)^(CREATE\s+TABLE\s+)`)
 )
 
+// Mapping holds the table‐ and column‐name transforms.
+type Mapping struct {
+	Tables  map[string]string
+	Columns map[string]map[string]string
+}
+
 // generateDDLs extracts and processes DDL statements from a CockroachDB debug zip file.
 // It reads the create_statements.txt file from the zip directory, filters statements
 // for the specified database, and writes them to an output file. It also parses each
@@ -99,11 +106,11 @@ var (
 func generateDDLs(
 	zipDir,
 	dbName string, anonymize bool,
-) (allSchemas map[string]*TableSchema, createStmts map[string]string, retErr error) {
+) (allSchemas map[string]*TableSchema, createStmts map[string]string, mapping Mapping, retErr error) {
 
 	f, err := openCreateStatementsTSV(zipDir)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to open TSV file")
+		return nil, nil, Mapping{}, errors.Wrap(err, "failed to open TSV file")
 	}
 	defer func() {
 		if cerr := f.Close(); cerr != nil && retErr == nil {
@@ -111,7 +118,70 @@ func generateDDLs(
 		}
 	}()
 
-	return generateDDLFromReader(bufio.NewReader(f), dbName, anonymize)
+	allSchemas, createStmts, retErr = generateDDLFromReader(bufio.NewReader(f), dbName, anonymize)
+	if retErr != nil || !anonymize {
+		return allSchemas, createStmts, Mapping{}, retErr
+	}
+
+	mapping = buildMapping(allSchemas)
+	anonSchemas := applySchemaMapping(allSchemas, mapping)
+	anonCreateStmts := anonymizeCreateStatements(createStmts, mapping, dbName)
+
+	// open (or truncate) mapping.txt
+	mf, err := os.Create("mapping.txt")
+	if err != nil {
+		return allSchemas, createStmts, Mapping{}, errors.Wrap(err, "failed to create mapping.txt")
+	}
+	defer mf.Close()
+
+	// 1) Print the raw table/column mapping
+	fmt.Fprintln(mf, "--- Name Mapping ---")
+	for origTbl, anonTbl := range mapping.Tables {
+		fmt.Fprintf(mf, "Table %s → %s\n", origTbl, anonTbl)
+		for origCol, anonCol := range mapping.Columns[origTbl] {
+			fmt.Fprintf(mf, "  Column %s → %s\n", origCol, anonCol)
+		}
+	}
+	fmt.Fprintln(mf)
+
+	// 2) Print the ORIGINAL in-memory schemas
+	fmt.Fprintln(mf, "--- Original Schemas ---")
+	for _, ts := range allSchemas {
+		fmt.Fprintln(mf, ts.String())
+		fmt.Fprintln(mf)
+	}
+
+	// 3) Apply mapping and print the ANONYMIZED schemas
+
+	fmt.Fprintln(mf, "--- Anonymized Schemas ---")
+	for _, ts := range anonSchemas {
+		fmt.Fprintln(mf, ts.String())
+		fmt.Fprintln(mf)
+	}
+
+	//print out original and anonymized cretae statements togethe rlike orig \n anon \n orig\n anon
+	fmt.Fprintln(mf, "--- CREATE TABLE Statements ---")
+	// Sort by original table name for consistency
+	tbls := make([]string, 0, len(createStmts))
+	for tbl := range createStmts {
+		tbls = append(tbls, tbl)
+	}
+	sort.Strings(tbls)
+
+	for _, origTbl := range tbls {
+		origStmt := createStmts[origTbl]
+
+		fq := mapping.Tables[origTbl] // “db.public.t2”
+		parts := strings.Split(fq, ".")
+		bare := parts[len(parts)-1] // “t2”
+
+		anonStmt := anonCreateStmts[bare]
+
+		fmt.Fprintf(mf, "-- original (%s)\n%s\n", origTbl, origStmt)
+		fmt.Fprintf(mf, "-- anonymized (%s → %s)\n%s\n\n", origTbl, bare, anonStmt)
+	}
+	return anonSchemas, anonCreateStmts, mapping, retErr
+
 }
 
 // generateDDLFromReader takes a reader for a TSV file containing DDL statements,
